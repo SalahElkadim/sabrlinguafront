@@ -14,7 +14,7 @@ const api = axios.create({
 // طلب إعادة تعيين كلمة المرور (إرسال الإيميل)
 export const requestPasswordReset = async (email) => {
   try {
-    const response = await api.post("/auth/forgot-password/", { email });
+    const response = await api.post("/forgot-password/", { email });
     return response.data;
   } catch (error) {
     throw error.response?.data || error;
@@ -24,7 +24,7 @@ export const requestPasswordReset = async (email) => {
 // تأكيد إعادة تعيين كلمة المرور (مع uidb64 و token)
 export const confirmPasswordReset = async (uidb64, token, newPassword, confirmPassword) => {
   try {
-    const response = await api.post("/auth/reset-password/", {
+    const response = await api.post("/reset-password/", {
       uidb64,
       token,
       new_password: newPassword,
