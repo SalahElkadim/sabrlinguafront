@@ -4,7 +4,7 @@ import { confirmPasswordReset } from "../services/api";
 import "./ResetPassword.css";
 
 const ResetPasswordConfirm = () => {
-  const { token } = useParams();
+  const { uidb64, token } = useParams(); // استقبل المعاملين
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -45,11 +45,21 @@ const ResetPasswordConfirm = () => {
     setError("");
 
     try {
-      await confirmPasswordReset(token, formData.password);
+      // ابعت uidb64 و token و password الجديد
+      await confirmPasswordReset(
+        uidb64,
+        token,
+        formData.password,
+        formData.confirmPassword
+      );
       alert("تم تغيير كلمة المرور بنجاح! سيتم تحويلك لصفحة تسجيل الدخول");
       navigate("/login");
     } catch (err) {
-      setError(err.error || "حدث خطأ. يرجى المحاولة مرة أخرى");
+      setError(
+        err.error ||
+          err.errors?.non_field_errors?.[0] ||
+          "حدث خطأ. يرجى المحاولة مرة أخرى"
+      );
     } finally {
       setLoading(false);
     }

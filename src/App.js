@@ -10,9 +10,9 @@ function App() {
         {/* صفحة طلب إعادة تعيين كلمة المرور */}
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* صفحة تأكيد إعادة تعيين كلمة المرور (مع الـ token) */}
+        {/* صفحة تأكيد إعادة تعيين كلمة المرور (مع uidb64 و token) */}
         <Route
-          path="/reset-password/:token"
+          path="/reset-password/:uidb64/:token"
           element={<ResetPasswordConfirm />}
         />
 
