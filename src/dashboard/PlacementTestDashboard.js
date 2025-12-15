@@ -21,6 +21,10 @@ const PlacementTestDashboard = () => {
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
+  // Store tokens in state instead of localStorage
+  const [accessToken, setAccessToken] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(null);
+
   const [testForm, setTestForm] = useState({
     title: "",
     description: "",
@@ -70,23 +74,10 @@ const PlacementTestDashboard = () => {
   const [selectedMcqSet, setSelectedMcqSet] = useState(null);
   const [readingPassages, setReadingPassages] = useState([]);
 
-  // JWT Token Management
-  const getAccessToken = () => localStorage.getItem("access_token");
-  const getRefreshToken = () => localStorage.getItem("refresh_token");
-
-  const setTokens = (access, refresh) => {
-    localStorage.setItem("access_token", access);
-    if (refresh) localStorage.setItem("refresh_token", refresh);
-  };
-
-  const clearTokens = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-  };
-
   // Logout
   const handleLogout = useCallback(() => {
-    clearTokens();
+    setAccessToken(null);
+    setRefreshToken(null);
     setIsAuthenticated(false);
     setTests([]);
     setSelectedTest(null);
@@ -94,7 +85,6 @@ const PlacementTestDashboard = () => {
 
   // Refresh Access Token
   const refreshAccessToken = useCallback(async () => {
-    const refreshToken = getRefreshToken();
     if (!refreshToken) return false;
 
     try {
@@ -106,7 +96,7 @@ const PlacementTestDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setTokens(data.access, null);
+        setAccessToken(data.access);
         return true;
       }
       return false;
@@ -114,13 +104,11 @@ const PlacementTestDashboard = () => {
       console.error("Error refreshing token:", error);
       return false;
     }
-  }, []);
+  }, [refreshToken]);
 
   // API Request with Auto Token Refresh
   const apiRequest = useCallback(
     async (url, options = {}) => {
-      const accessToken = getAccessToken();
-
       const headers = {
         "Content-Type": "application/json",
         ...options.headers,
@@ -136,8 +124,7 @@ const PlacementTestDashboard = () => {
       if (response.status === 401) {
         const refreshed = await refreshAccessToken();
         if (refreshed) {
-          const newAccessToken = getAccessToken();
-          headers.Authorization = `Bearer ${newAccessToken}`;
+          headers.Authorization = `Bearer ${accessToken}`;
           response = await fetch(url, { ...options, headers });
         } else {
           handleLogout();
@@ -147,7 +134,7 @@ const PlacementTestDashboard = () => {
 
       return response;
     },
-    [refreshAccessToken, handleLogout]
+    [accessToken, refreshAccessToken, handleLogout]
   );
 
   // Login
@@ -165,11 +152,14 @@ const PlacementTestDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setTokens(data.access, data.refresh);
+        setAccessToken(data.access);
+        setRefreshToken(data.refresh);
         setIsAuthenticated(true);
         setLoginForm({ email: "", password: "" });
+        setError("");
       } else {
-        setError("اسم المستخدم أو كلمة المرور غير صحيحة");
+        const errorData = await response.json();
+        setError(errorData.detail || "اسم المستخدم أو كلمة المرور غير صحيحة");
       }
     } catch (error) {
       setError("حدث خطأ في الاتصال");
@@ -188,14 +178,6 @@ const PlacementTestDashboard = () => {
       console.error("Error loading tests:", error);
     }
   }, [apiRequest]);
-
-  // Check Authentication on Mount
-  useEffect(() => {
-    const token = getAccessToken();
-    if (token) {
-      setIsAuthenticated(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -426,7 +408,7 @@ const PlacementTestDashboard = () => {
           <form onSubmit={handleLogin}>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2 text-gray-700">
-                اسم المستخدم
+                البريد الالكتروني
               </label>
               <input
                 type="text"
