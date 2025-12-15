@@ -144,26 +144,39 @@ const PlacementTestDashboard = () => {
     setLoading(true);
 
     try {
+      console.log("🔐 محاولة تسجيل الدخول...", loginForm.email);
+
       const response = await fetch(`${API_BASE_URL}/auth/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginForm),
       });
 
+      console.log("📡 استجابة السيرفر:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        setAccessToken(data.access);
-        setRefreshToken(data.refresh);
-        setIsAuthenticated(true);
-        setLoginForm({ email: "", password: "" });
-        setError("");
+        console.log("✅ تم تسجيل الدخول بنجاح", data);
+
+        if (data.access && data.refresh) {
+          setAccessToken(data.access);
+          setRefreshToken(data.refresh);
+          setIsAuthenticated(true);
+          setLoginForm({ email: "", password: "" });
+          setError("");
+          console.log("✅ تم تعيين التوكنز والحالة");
+        } else {
+          console.error("❌ البيانات المستلمة لا تحتوي على توكنز", data);
+          setError("خطأ في البيانات المستلمة من السيرفر");
+        }
       } else {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
+        console.error("❌ فشل تسجيل الدخول:", errorData);
         setError(errorData.detail || "اسم المستخدم أو كلمة المرور غير صحيحة");
       }
     } catch (error) {
       setError("حدث خطأ في الاتصال");
-      console.error("Login error:", error);
+      console.error("❌ Login error:", error);
     }
     setLoading(false);
   };
@@ -180,7 +193,9 @@ const PlacementTestDashboard = () => {
   }, [apiRequest]);
 
   useEffect(() => {
+    console.log("🔄 تغيرت حالة المصادقة:", isAuthenticated);
     if (isAuthenticated) {
+      console.log("✅ المستخدم مصادق عليه، جاري تحميل الامتحانات...");
       loadTests();
     }
   }, [isAuthenticated, loadTests]);
@@ -399,6 +414,7 @@ const PlacementTestDashboard = () => {
   };
 
   if (!isAuthenticated) {
+    console.log("🔒 المستخدم غير مصادق عليه، عرض صفحة تسجيل الدخول");
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-6">
         <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
@@ -457,9 +473,14 @@ const PlacementTestDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              إدارة امتحانات تحديد المستوى
-            </h1>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">
+                إدارة امتحانات تحديد المستوى
+              </h1>
+              <p className="text-sm text-green-600 mt-1">
+                ✅ تم تسجيل الدخول بنجاح
+              </p>
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowTestForm(!showTestForm)}
