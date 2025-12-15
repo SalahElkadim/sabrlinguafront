@@ -21,7 +21,6 @@ const PlacementTestDashboard = () => {
   const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
 
-  // Test Form State
   const [testForm, setTestForm] = useState({
     title: "",
     description: "",
@@ -85,8 +84,16 @@ const PlacementTestDashboard = () => {
     localStorage.removeItem("refresh_token");
   };
 
+  // Logout
+  const handleLogout = useCallback(() => {
+    clearTokens();
+    setIsAuthenticated(false);
+    setTests([]);
+    setSelectedTest(null);
+  }, []);
+
   // Refresh Access Token
-  const refreshAccessToken = async () => {
+  const refreshAccessToken = useCallback(async () => {
     const refreshToken = getRefreshToken();
     if (!refreshToken) return false;
 
@@ -107,38 +114,41 @@ const PlacementTestDashboard = () => {
       console.error("Error refreshing token:", error);
       return false;
     }
-  };
+  }, []);
 
   // API Request with Auto Token Refresh
-  const apiRequest = async (url, options = {}) => {
-    const accessToken = getAccessToken();
+  const apiRequest = useCallback(
+    async (url, options = {}) => {
+      const accessToken = getAccessToken();
 
-    const headers = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
+      const headers = {
+        "Content-Type": "application/json",
+        ...options.headers,
+      };
 
-    if (accessToken) {
-      headers.Authorization = `Bearer ${accessToken}`;
-    }
-
-    let response = await fetch(url, { ...options, headers });
-
-    // If 401, try to refresh token
-    if (response.status === 401) {
-      const refreshed = await refreshAccessToken();
-      if (refreshed) {
-        const newAccessToken = getAccessToken();
-        headers.Authorization = `Bearer ${newAccessToken}`;
-        response = await fetch(url, { ...options, headers });
-      } else {
-        handleLogout();
-        throw new Error("Authentication failed");
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
       }
-    }
 
-    return response;
-  };
+      let response = await fetch(url, { ...options, headers });
+
+      // If 401, try to refresh token
+      if (response.status === 401) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          const newAccessToken = getAccessToken();
+          headers.Authorization = `Bearer ${newAccessToken}`;
+          response = await fetch(url, { ...options, headers });
+        } else {
+          handleLogout();
+          throw new Error("Authentication failed");
+        }
+      }
+
+      return response;
+    },
+    [refreshAccessToken, handleLogout]
+  );
 
   // Login
   const handleLogin = async (e) => {
@@ -168,40 +178,30 @@ const PlacementTestDashboard = () => {
     setLoading(false);
   };
 
-  // Logout
-  const handleLogout = () => {
-    clearTokens();
-    setIsAuthenticated(false);
-    setTests([]);
-    setSelectedTest(null);
-  };
+  // Load Tests
+  const loadTests = useCallback(async () => {
+    try {
+      const response = await apiRequest(`${API_BASE_URL}/questions/tests/`);
+      const data = await response.json();
+      setTests(data);
+    } catch (error) {
+      console.error("Error loading tests:", error);
+    }
+  }, [apiRequest]);
 
+  // Check Authentication on Mount
+  useEffect(() => {
+    const token = getAccessToken();
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
-// Load Tests
-const loadTests = useCallback(async () => {
-  try {
-    const response = await apiRequest(`${API_BASE_URL}/questions/tests/`);
-    const data = await response.json();
-    setTests(data);
-  } catch (error) {
-    console.error("Error loading tests:", error);
-  }
-}, []); // لو apiRequest أو API_BASE_URL متغيرين ضيفهم هنا
-
-// Check Authentication on Mount
-useEffect(() => {
-  const token = getAccessToken();
-  if (token) {
-    setIsAuthenticated(true);
-    loadTests();
-  }
-}, [loadTests]);
-
-useEffect(() => {
-  if (isAuthenticated) {
-    loadTests();
-  }
-}, [isAuthenticated, loadTests]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadTests();
+    }
+  }, [isAuthenticated, loadTests]);
 
   // Create/Update Test
   const handleSaveTest = async () => {
@@ -416,7 +416,6 @@ useEffect(() => {
     setActiveSection("mcq");
   };
 
-  // Login Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-6">
@@ -471,7 +470,6 @@ useEffect(() => {
     );
   }
 
-  // Main Dashboard
   return (
     <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
       <div className="max-w-7xl mx-auto">
@@ -504,7 +502,6 @@ useEffect(() => {
             </div>
           )}
 
-          {/* Test Form */}
           {showTestForm && (
             <div className="bg-gray-50 p-6 rounded-lg mb-6">
               <h2 className="text-xl font-bold mb-4">إضافة امتحان جديد</h2>
@@ -636,7 +633,6 @@ useEffect(() => {
             </div>
           )}
 
-          {/* Tests List */}
           <div className="space-y-4">
             {tests.map((test) => (
               <div
@@ -654,8 +650,8 @@ useEffect(() => {
                     <p className="text-gray-600">{test.description}</p>
                     <div className="flex gap-4 mt-2 text-sm text-gray-500">
                       <span>المدة: {test.duration_minutes} دقيقة</span>
-                      <span>الأسئلة: {test.questions_count}</span>
-                      <span>النقاط: {test.total_points}</span>
+                      <span>الأسئلة: {test.questions_count || 0}</span>
+                      <span>النقاط: {test.total_points || 0}</span>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -668,7 +664,6 @@ useEffect(() => {
                   </div>
                 </div>
 
-                {/* Questions Section */}
                 {selectedTest?.id === test.id && (
                   <div className="mt-6 border-t pt-6">
                     <div className="flex gap-2 mb-6">
@@ -704,7 +699,6 @@ useEffect(() => {
                       </button>
                     </div>
 
-                    {/* MCQ Section */}
                     {activeSection === "mcq" && (
                       <div>
                         <div className="bg-blue-50 p-4 rounded-lg mb-4">
@@ -774,8 +768,8 @@ useEffect(() => {
                               <div>
                                 <h4 className="font-bold">{set.title}</h4>
                                 <p className="text-sm text-gray-600">
-                                  الأسئلة: {set.questions_count} | النقاط:{" "}
-                                  {set.total_points}
+                                  الأسئلة: {set.questions_count || 0} | النقاط:{" "}
+                                  {set.total_points || 0}
                                 </p>
                               </div>
                               {selectedMcqSet?.id === set.id ? (
@@ -940,7 +934,6 @@ useEffect(() => {
                       </div>
                     )}
 
-                    {/* Reading Section */}
                     {activeSection === "reading" && (
                       <div>
                         <div className="bg-green-50 p-4 rounded-lg mb-4">
@@ -1014,15 +1007,14 @@ useEffect(() => {
                               {passage.passage_text.substring(0, 150)}...
                             </p>
                             <p className="text-sm text-gray-500 mt-2">
-                              الأسئلة: {passage.questions_count} | النقاط:{" "}
-                              {passage.total_points}
+                              الأسئلة: {passage.questions_count || 0} | النقاط:{" "}
+                              {passage.total_points || 0}
                             </p>
                           </div>
                         ))}
                       </div>
                     )}
 
-                    {/* Writing Section */}
                     {activeSection === "writing" && (
                       <div>
                         <div className="bg-purple-50 p-4 rounded-lg">
