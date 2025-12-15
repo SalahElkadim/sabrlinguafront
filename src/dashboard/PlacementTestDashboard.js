@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Plus,
-  Edit2,
   Trash2,
   ChevronDown,
   ChevronUp,
@@ -177,31 +176,32 @@ const PlacementTestDashboard = () => {
     setSelectedTest(null);
   };
 
-  // Check Authentication on Mount
-  useEffect(() => {
-    const token = getAccessToken();
-    if (token) {
-      setIsAuthenticated(true);
-      loadTests();
-    }
-  }, []);
 
-  // Load Tests
-  const loadTests = async () => {
-    try {
-      const response = await apiRequest(`${API_BASE_URL}/questions/tests/`);
-      const data = await response.json();
-      setTests(data);
-    } catch (error) {
-      console.error("Error loading tests:", error);
-    }
-  };
+// Load Tests
+const loadTests = useCallback(async () => {
+  try {
+    const response = await apiRequest(`${API_BASE_URL}/questions/tests/`);
+    const data = await response.json();
+    setTests(data);
+  } catch (error) {
+    console.error("Error loading tests:", error);
+  }
+}, []); // لو apiRequest أو API_BASE_URL متغيرين ضيفهم هنا
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadTests();
-    }
-  }, [isAuthenticated]);
+// Check Authentication on Mount
+useEffect(() => {
+  const token = getAccessToken();
+  if (token) {
+    setIsAuthenticated(true);
+    loadTests();
+  }
+}, [loadTests]);
+
+useEffect(() => {
+  if (isAuthenticated) {
+    loadTests();
+  }
+}, [isAuthenticated, loadTests]);
 
   // Create/Update Test
   const handleSaveTest = async () => {
