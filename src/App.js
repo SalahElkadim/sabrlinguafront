@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ResetPassword from "./components/ResetPassword";
 import ResetPasswordConfirm from "./components/ResetPasswordConfirm";
+import PlacementTestDashboard from "./dashboard/PlacementTestDashboard"
 
 function App() {
   return (
@@ -14,6 +15,10 @@ function App() {
         <Route
           path="/reset-password/:uidb64/:token"
           element={<ResetPasswordConfirm />}
+        />
+        <Route
+          path="/PlacementTestDashboard"
+          element={<PlacementTestDashboard />}
         />
 
         {/* صفحة افتراضية */}
