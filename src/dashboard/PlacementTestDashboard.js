@@ -8,6 +8,8 @@ import {
   X,
   LogOut,
 } from "lucide-react";
+import "./dashboard-styles.css";
+
 
 const API_BASE_URL = "https://sabrlinguaa-production.up.railway.app";
 
