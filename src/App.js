@@ -17,7 +17,7 @@ function App() {
           element={<ResetPasswordConfirm />}
         />
         <Route
-          path="/PlacementTestDashboard"
+          path="/placementtestdashboard"
           element={<PlacementTestDashboard />}
         />
 
