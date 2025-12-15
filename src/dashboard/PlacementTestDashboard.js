@@ -158,9 +158,13 @@ const PlacementTestDashboard = () => {
         const data = await response.json();
         console.log("✅ تم تسجيل الدخول بنجاح", data);
 
-        if (data.access && data.refresh) {
-          setAccessToken(data.access);
-          setRefreshToken(data.refresh);
+        // Check if tokens are in data.tokens object or directly in data
+        const accessToken = data.tokens?.access || data.access;
+        const refreshToken = data.tokens?.refresh || data.refresh;
+
+        if (accessToken && refreshToken) {
+          setAccessToken(accessToken);
+          setRefreshToken(refreshToken);
           setIsAuthenticated(true);
           setLoginForm({ email: "", password: "" });
           setError("");
