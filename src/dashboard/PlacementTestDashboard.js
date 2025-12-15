@@ -18,7 +18,7 @@ const PlacementTestDashboard = () => {
   const [activeSection, setActiveSection] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
   const [testForm, setTestForm] = useState({
@@ -167,7 +167,7 @@ const PlacementTestDashboard = () => {
         const data = await response.json();
         setTokens(data.access, data.refresh);
         setIsAuthenticated(true);
-        setLoginForm({ username: "", password: "" });
+        setLoginForm({ email: "", password: "" });
       } else {
         setError("اسم المستخدم أو كلمة المرور غير صحيحة");
       }
@@ -430,9 +430,9 @@ const PlacementTestDashboard = () => {
               </label>
               <input
                 type="text"
-                value={loginForm.username}
+                value={loginForm.email}
                 onChange={(e) =>
-                  setLoginForm({ ...loginForm, username: e.target.value })
+                  setLoginForm({ ...loginForm, email: e.target.value })
                 }
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
