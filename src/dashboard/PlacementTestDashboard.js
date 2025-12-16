@@ -8,7 +8,6 @@ import {
   X,
   LogOut,
 } from "lucide-react";
-import "./dashboard-styles.css";
 
 
 const API_BASE_URL = "https://sabrlinguaa-production.up.railway.app";
@@ -422,14 +421,18 @@ const PlacementTestDashboard = () => {
   if (!isAuthenticated) {
     console.log("🔒 المستخدم غير مصادق عليه، عرض صفحة تسجيل الدخول");
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-6">
-        <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
-          <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-            تسجيل الدخول
-          </h1>
-          <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2 text-gray-700">
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 flex items-center justify-center p-4 sm:p-6">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md transform transition-all hover:scale-[1.01]">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <LogOut className="text-white" size={32} />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">مرحباً بك</h1>
+            <p className="text-gray-600 text-sm">قم بتسجيل الدخول للمتابعة</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold mb-2 text-gray-700">
                 البريد الالكتروني
               </label>
               <input
@@ -438,12 +441,13 @@ const PlacementTestDashboard = () => {
                 onChange={(e) =>
                   setLoginForm({ ...loginForm, email: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                placeholder="أدخل بريدك الإلكتروني"
                 required
               />
             </div>
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-2 text-gray-700">
+            <div>
+              <label className="block text-sm font-semibold mb-2 text-gray-700">
                 كلمة المرور
               </label>
               <input
@@ -452,21 +456,29 @@ const PlacementTestDashboard = () => {
                 onChange={(e) =>
                   setLoginForm({ ...loginForm, password: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                placeholder="أدخل كلمة المرور"
                 required
               />
             </div>
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {error}
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+                <p className="font-medium">{error}</p>
               </div>
             )}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 font-medium"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
-              {loading ? "جاري تسجيل الدخول..." : "دخول"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="animate-spin">⏳</span>
+                  جاري تسجيل الدخول...
+                </span>
+              ) : (
+                "دخول"
+              )}
             </button>
           </form>
         </div>
