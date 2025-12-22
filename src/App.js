@@ -10,49 +10,70 @@ import ResetPasswordConfirm from "./components/ResetPasswordConfirm";
 import PlacementTestsDashboard from "./components/PlacementTestsDashboard";
 import AuthComponent from "./components/AuthComponent";
 
+// Protected Route Component - للصفحات المحمية
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem("access_token");
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/login" replace />;
 };
+
+// Public Route Component - لمنع المستخدم المسجل من الوصول لصفحة تسجيل الدخول
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem("access_token");
+  return token ? <Navigate to="/dashboard" replace /> : children;
+};
+
 function App() {
   return (
     <Router>
       <Routes>
+        {/* صفحة تسجيل الدخول - الصفحة الرئيسية */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <AuthComponent />
+            </PublicRoute>
+          }
+        />
+
+        {/* صفحة تسجيل الدخول - مسار بديل */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <AuthComponent />
+            </PublicRoute>
+          }
+        />
+
+        {/* صفحة الداشبورد - محمية */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <PlacementTestsDashboard />
+            </ProtectedRoute>
+          }
+        />
+
         {/* صفحة طلب إعادة تعيين كلمة المرور */}
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Routes>
-          {/* صفحة تسجيل الدخول */}
-          <Route path="/login" element={<AuthComponent />} />
+        <Route
+          path="/reset-password"
+          element={
+            <PublicRoute>
+              <ResetPassword />
+            </PublicRoute>
+          }
+        />
 
-          {/* صفحة الداشبورد (محمية) */}
-          <Route
-            path="/admin/tests"
-            element={
-              <ProtectedRoute>
-                <PlacementTestsDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* الصفحة الرئيسية */}
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-        {/* صفحة تأكيد إعادة تعيين كلمة المرور (مع uidb64 و token) */}
+        {/* صفحة تأكيد إعادة تعيين كلمة المرور */}
         <Route
           path="/reset-password/:uidb64/:token"
           element={<ResetPasswordConfirm />}
         />
 
-        {/* صفحة افتراضية */}
-        <Route
-          path="/"
-          element={
-            <div style={{ textAlign: "center", padding: "50px" }}>
-              <h1>Welcome to Sabr Learning Platform</h1>
-              <a href="/reset-password">Reset Password</a>
-            </div>
-          }
-        />
+        {/* أي مسار غير موجود - توجيه للصفحة الرئيسية */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

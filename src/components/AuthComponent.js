@@ -59,7 +59,7 @@ export default function AuthComponent() {
 
         // Show success and redirect
         setTimeout(() => {
-          setShowDashboard(true);
+          window.location.href = "/dashboard";
         }, 1000);
       } else {
         setError(result.error_message || "خطأ في تسجيل الدخول");
@@ -96,10 +96,8 @@ export default function AuthComponent() {
       localStorage.removeItem("token");
       localStorage.removeItem("user_data");
 
-      setIsLoggedIn(false);
-      setUserData(null);
-      setShowDashboard(false);
-      setLoginData({ email: "", password: "" });
+      // التوجيه لصفحة تسجيل الدخول
+      window.location.href = "/login";
     } catch (error) {
       console.error("خطأ في تسجيل الخروج:", error);
     } finally {
