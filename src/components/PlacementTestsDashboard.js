@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Search, X } from "lucide-react";
 
 const API_URL =
-  "https://sabrlinguaa-production.up.railway.app/qusetions";
+  "https://sabrlinguaa-production.up.railway.app/questions";
 
 export default function PlacementTestsDashboard() {
   const [tests, setTests] = useState([]);
