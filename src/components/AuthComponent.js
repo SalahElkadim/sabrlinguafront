@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { LogIn, LogOut, Mail, Lock, User, AlertCircle } from "lucide-react";
 
-const API_URL = "https://sabrlinguaa-production.up.railway.app/users";
+const API_URL = "https://sabrlinguaa-production.up.railway.app/auth";
 
 export default function AuthComponent() {
   const [loading, setLoading] = useState(false);
