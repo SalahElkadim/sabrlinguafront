@@ -18,9 +18,11 @@ export default function PlacementTestsDashboard() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    duration: "",
-    passing_score: "",
-    total_score: "",
+    duration_minutes: "",
+    a1_min_score: "0",
+    a2_min_score: "",
+    b1_min_score: "",
+    b2_min_score: "",
     is_active: true,
   });
 
