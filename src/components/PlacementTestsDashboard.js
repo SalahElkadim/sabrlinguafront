@@ -139,9 +139,11 @@ export default function PlacementTestsDashboard() {
     setFormData({
       title: test.title,
       description: test.description || "",
-      duration: test.duration,
-      passing_score: test.passing_score,
-      total_score: test.total_score,
+      duration_minutes: test.duration,
+      a1_min_score: test.a1_min_score,
+      a2_min_score: test.a2_min_score,
+      b1_min_score: test.b1_min_score,
+      b2_min_score: test.b2_min_score,
       is_active: test.is_active,
     });
     setShowModal(true);
@@ -156,9 +158,11 @@ export default function PlacementTestsDashboard() {
     setFormData({
       title: "",
       description: "",
-      duration: "",
-      passing_score: "",
-      total_score: "",
+      duration_minutes: "",
+      a1_min_score: "0",
+      a2_min_score: "",
+      b1_min_score: "",
+      b2_min_score: "",
       is_active: true,
     });
     setSelectedTest(null);
@@ -296,19 +300,43 @@ export default function PlacementTestsDashboard() {
                   <div className="flex justify-between">
                     <span className="text-gray-500">المدة:</span>
                     <span className="font-semibold text-gray-700">
-                      {test.duration} دقيقة
+                      {test.duration_minutes} دقيقة
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">درجة النجاح:</span>
+                    <span className="text-gray-500">A1:</span>
                     <span className="font-semibold text-gray-700">
-                      {test.passing_score}
+                      {test.a1_min_score}+
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">المجموع الكلي:</span>
+                    <span className="text-gray-500">A2:</span>
                     <span className="font-semibold text-gray-700">
-                      {test.total_score}
+                      {test.a2_min_score}+
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">B1:</span>
+                    <span className="font-semibold text-gray-700">
+                      {test.b1_min_score}+
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">B2:</span>
+                    <span className="font-semibold text-gray-700">
+                      {test.b2_min_score}+
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">إجمالي الأسئلة:</span>
+                    <span className="font-semibold text-gray-700">
+                      {test.questions_count || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">إجمالي النقاط:</span>
+                    <span className="font-semibold text-gray-700">
+                      {test.total_points || 0}
                     </span>
                   </div>
                 </div>
@@ -364,7 +392,7 @@ export default function PlacementTestsDashboard() {
                       setFormData({ ...formData, title: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="مثال: امتحان تحديد المستوى - المستوى المبتدئ"
+                    placeholder="مثال: امتحان تحديد المستوى - يناير 2025"
                   />
                 </div>
 
@@ -383,56 +411,109 @@ export default function PlacementTestsDashboard() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      المدة (بالدقائق) *
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={formData.duration}
-                      onChange={(e) =>
-                        setFormData({ ...formData, duration: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    المدة (بالدقائق) *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.duration_minutes}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        duration_minutes: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="90"
+                  />
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      درجة النجاح *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={formData.passing_score}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          passing_score: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
+                <div className="border-t pt-4">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">
+                    الحد الأدنى للدرجات حسب المستوى
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    يجب أن تكون الدرجات متصاعدة (A1 {"<"} A2 {"<"} B1 {"<"} B2)
+                  </p>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      المجموع الكلي *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={formData.total_score}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          total_score: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        A1 (مبتدئ) *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.a1_min_score}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            a1_min_score: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        A2 (ابتدائي) *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.a2_min_score}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            a2_min_score: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="25"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        B1 (متوسط) *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.b1_min_score}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            b1_min_score: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        B2 (متقدم) *
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.b2_min_score}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            b2_min_score: e.target.value,
+                          })
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="75"
+                      />
+                    </div>
                   </div>
                 </div>
 
