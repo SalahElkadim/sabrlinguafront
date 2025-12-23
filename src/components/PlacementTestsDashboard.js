@@ -58,9 +58,10 @@ export default function PlacementTestsDashboard() {
   const handleSubmit = async () => {
     if (
       !formData.title ||
-      !formData.duration ||
-      !formData.passing_score ||
-      !formData.total_score
+      !formData.duration_minutes ||
+      !formData.a2_min_score ||
+      !formData.b1_min_score ||
+      !formData.b2_min_score
     ) {
       alert("يرجى ملء جميع الحقول المطلوبة");
       return;
