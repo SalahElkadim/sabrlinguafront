@@ -76,6 +76,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/listening"
+          element={
+            <ProtectedRoute>
+              <ListeningQuestionsDashboard />
+            </ProtectedRoute>
+          }
+        />
 
         {/* صفحة طلب إعادة تعيين كلمة المرور */}
         <Route
