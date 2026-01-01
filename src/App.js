@@ -10,6 +10,8 @@ import ResetPasswordConfirm from "./components/ResetPasswordConfirm";
 import PlacementTestsDashboard from "./components/PlacementTestsDashboard";
 import MCQQuestionsDashboard from "./components/MCQQuestionsDashboard"; // أضف هذا السطر
 import AuthComponent from "./components/AuthComponent";
+import ReadingPassagesDashboard from "./components/ReadingPassagesDashboard";
+
 
 // Protected Route Component - للصفحات المحمية
 const ProtectedRoute = ({ children }) => {
@@ -63,6 +65,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MCQQuestionsDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reading"
+          element={
+            <ProtectedRoute>
+              <ReadingPassagesDashboard />
             </ProtectedRoute>
           }
         />
