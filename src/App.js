@@ -12,6 +12,9 @@ import MCQQuestionsDashboard from "./components/MCQQuestionsDashboard"; // أض�
 import AuthComponent from "./components/AuthComponent";
 import ReadingPassagesDashboard from "./components/ReadingPassagesDashboard";
 import ListeningQuestionsDashboard from "./components/ListeningQuestionsDashboard";
+import SpeakingQuestionsDashboard from "./components/SpeakingQuestionsDashboard";
+import WritingQuestionsDashboard from "./components/WritingQuestionsDashboard";
+
 
 
 
@@ -83,6 +86,22 @@ function App() {
           element={
             <ProtectedRoute>
               <ListeningQuestionsDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/speaking"
+          element={
+            <ProtectedRoute>
+              <SpeakingQuestionsDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/writing"
+          element={
+            <ProtectedRoute>
+              <WritingQuestionsDashboard />
             </ProtectedRoute>
           }
         />
