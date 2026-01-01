@@ -8,6 +8,8 @@ import {
   Save,
   X,
   CheckCircle,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
@@ -16,16 +18,14 @@ export default function WritingQuestionsDashboard() {
   const [tests, setTests] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentView, setCurrentView] = useState("tests"); // tests, questions
+  const [currentView, setCurrentView] = useState("tests");
   const [selectedTest, setSelectedTest] = useState(null);
 
-  // Modals
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-  // Form Data
   const [questionFormData, setQuestionFormData] = useState({
     placement_test: "",
     title: "",
@@ -52,9 +52,13 @@ export default function WritingQuestionsDashboard() {
     }
   }, [selectedTest]);
 
-  const getToken = () => localStorage.getItem("token");
+  const getToken = () => {
+    if (typeof localStorage !== "undefined") {
+      return localStorage.getItem("token");
+    }
+    return null;
+  };
 
-  // Fetch Tests
   const fetchTests = async () => {
     setLoading(true);
     try {
@@ -72,7 +76,6 @@ export default function WritingQuestionsDashboard() {
     }
   };
 
-  // Fetch Questions
   const fetchQuestions = async (testId) => {
     setLoading(true);
     try {
@@ -93,7 +96,6 @@ export default function WritingQuestionsDashboard() {
     }
   };
 
-  // Handle Question Submit
   const handleQuestionSubmit = async () => {
     if (!questionFormData.title || !questionFormData.question_text) {
       alert("يرجى ملء جميع الحقول المطلوبة");
@@ -147,7 +149,6 @@ export default function WritingQuestionsDashboard() {
     }
   };
 
-  // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -237,17 +238,18 @@ export default function WritingQuestionsDashboard() {
     }
   };
 
-  // Render Tests View
   const renderTestsView = () => (
     <div>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">اختر الامتحان</h2>
-        <p className="text-gray-600">اختر الامتحان لإدارة أسئلة الكتابة</p>
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-black mb-3">اختر الامتحان</h2>
+        <p className="text-gray-dark text-lg">
+          اختر الامتحان لإدارة أسئلة الكتابة
+        </p>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent"></div>
+        <div className="text-center py-16">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -258,21 +260,23 @@ export default function WritingQuestionsDashboard() {
                 setSelectedTest(test);
                 setCurrentView("questions");
               }}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 cursor-pointer border-r-4 border-teal-500"
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all p-6 cursor-pointer border-2 border-gray-light hover:border-yellow-primary"
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
+              <h3 className="text-2xl font-bold text-black mb-4">
                 {test.title}
               </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">المدة:</span>
-                  <span className="font-semibold">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gray-lighter rounded">
+                  <span className="text-gray-dark font-semibold">المدة:</span>
+                  <span className="font-bold text-black">
                     {test.duration_minutes} دقيقة
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">عدد الأسئلة:</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center p-3 bg-yellow-light rounded">
+                  <span className="text-gray-dark font-semibold">
+                    عدد الأسئلة:
+                  </span>
+                  <span className="font-bold text-black">
                     {test.questions_count || 0}
                   </span>
                 </div>
@@ -284,73 +288,81 @@ export default function WritingQuestionsDashboard() {
     </div>
   );
 
-  // Render Questions View
   const renderQuestionsView = () => (
     <div>
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => {
             setCurrentView("tests");
             setSelectedTest(null);
           }}
-          className="text-teal-600 hover:text-teal-700"
+          className="p-2 rounded hover:bg-yellow-light transition-colors"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={28} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-3xl font-bold text-black">
             أسئلة الكتابة - {selectedTest?.title}
           </h2>
-          <p className="text-gray-600">إدارة أسئلة الكتابة للامتحان</p>
+          <p className="text-gray-dark text-lg mt-1">
+            إدارة أسئلة الكتابة للامتحان
+          </p>
         </div>
         <button
           onClick={openCreateQuestionModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all shadow-md"
+          className="flex items-center gap-3 bg-yellow-primary text-black px-6 py-3 rounded font-bold hover:bg-yellow-hover transition-all shadow-md hover:shadow-lg"
         >
-          <Plus size={20} />
-          سؤال جديد
+          <Plus size={22} />
+          <span>سؤال جديد</span>
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent"></div>
+        <div className="text-center py-16">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : questions.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 text-lg">لا توجد أسئلة</p>
+        <div className="bg-white rounded-lg shadow-lg p-16 text-center border-2 border-gray-light">
+          <FileText size={64} className="mx-auto mb-4 text-gray-medium" />
+          <p className="text-gray-dark text-xl font-semibold">لا توجد أسئلة</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {questions.map((question, index) => (
             <div
               key={question.id}
-              className="bg-white rounded-xl shadow-md p-6 border-r-4 border-teal-500"
+              className="bg-white rounded-lg shadow-md p-6 border-2 border-gray-light hover:border-yellow-primary transition-all"
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center font-bold text-teal-600">
+                <div className="flex-shrink-0 w-14 h-14 bg-yellow-primary rounded-full flex items-center justify-center font-bold text-black text-xl shadow-md">
                   {index + 1}
                 </div>
 
                 <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      <h3 className="text-2xl font-bold text-black mb-3">
                         {question.title}
                       </h3>
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                          question.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {question.is_active ? "نشط" : "غير نشط"}
-                      </span>
+                      {question.is_active ? (
+                        <div className="flex items-center gap-1 px-3 py-1 bg-yellow-light rounded-full inline-flex">
+                          <CheckCircle size={16} className="text-black" />
+                          <span className="text-xs font-bold text-black">
+                            نشط
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 px-3 py-1 bg-gray-light rounded-full inline-flex">
+                          <XCircle size={16} className="text-gray-dark" />
+                          <span className="text-xs font-bold text-gray-dark">
+                            غير نشط
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <p className="text-gray-700 mb-4 leading-relaxed">
+                  <p className="text-gray-dark text-lg mb-5 leading-relaxed font-semibold">
                     {question.question_text}
                   </p>
 
@@ -358,84 +370,92 @@ export default function WritingQuestionsDashboard() {
                     <img
                       src={question.question_image}
                       alt="سؤال"
-                      className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-200"
+                      className="mb-5 rounded-lg max-h-64 object-contain border-2 border-yellow-primary"
                     />
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                     {question.min_words && (
-                      <div className="bg-blue-50 p-3 rounded-lg">
-                        <p className="text-xs text-gray-500 mb-1">
+                      <div className="bg-gray-lighter border-2 border-gray-light p-4 rounded-lg">
+                        <p className="text-xs text-gray-dark mb-2 font-semibold">
                           الحد الأدنى للكلمات
                         </p>
-                        <p className="text-lg font-bold text-blue-600">
+                        <p className="text-2xl font-bold text-black">
                           {question.min_words}
                         </p>
                       </div>
                     )}
 
                     {question.max_words && (
-                      <div className="bg-purple-50 p-3 rounded-lg">
-                        <p className="text-xs text-gray-500 mb-1">
+                      <div className="bg-gray-lighter border-2 border-gray-light p-4 rounded-lg">
+                        <p className="text-xs text-gray-dark mb-2 font-semibold">
                           الحد الأقصى للكلمات
                         </p>
-                        <p className="text-lg font-bold text-purple-600">
+                        <p className="text-2xl font-bold text-black">
                           {question.max_words}
                         </p>
                       </div>
                     )}
 
-                    <div className="bg-teal-50 p-3 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">النقاط</p>
-                      <p className="text-lg font-bold text-teal-600">
+                    <div className="bg-yellow-light border-2 border-yellow-primary p-4 rounded-lg">
+                      <p className="text-xs text-gray-dark mb-2 font-semibold">
+                        النقاط
+                      </p>
+                      <p className="text-2xl font-bold text-black">
                         {question.points}
                       </p>
                     </div>
                   </div>
 
                   {question.sample_answer && (
-                    <div className="bg-green-50 p-4 rounded-lg mb-4">
-                      <p className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <CheckCircle size={16} className="text-green-600" />
+                    <div className="bg-yellow-light border-2 border-yellow-primary p-4 rounded-lg mb-4">
+                      <p className="text-sm font-bold text-black mb-3 flex items-center gap-2">
+                        <CheckCircle size={18} className="text-black" />
                         إجابة نموذجية:
                       </p>
-                      <p className="text-sm text-gray-700 leading-relaxed">
+                      <p className="text-gray-dark leading-relaxed font-semibold">
                         {question.sample_answer}
                       </p>
                     </div>
                   )}
 
                   {question.rubric && (
-                    <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                    <div className="bg-gray-lighter border-2 border-gray-light p-4 rounded-lg mb-4">
+                      <p className="text-sm font-bold text-black mb-3 flex items-center gap-2">
+                        <AlertCircle size={18} className="text-black" />
                         معايير التقييم (Rubric):
                       </p>
-                      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                      <p className="text-gray-dark leading-relaxed whitespace-pre-line font-semibold">
                         {question.rubric}
                       </p>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>الترتيب: {question.order}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-dark font-semibold">
+                      الترتيب:
+                    </span>
+                    <span className="bg-gray-lighter text-black px-3 py-1 rounded font-bold">
+                      {question.order}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => openEditQuestionModal(question)}
-                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all"
+                    className="p-3 bg-white border-2 border-gray-light text-black rounded hover:border-yellow-primary hover:bg-yellow-light transition-all"
                   >
-                    <Edit2 size={18} />
+                    <Edit2 size={20} />
                   </button>
                   <button
                     onClick={() => {
                       setItemToDelete(question);
                       setShowDeleteConfirm(true);
                     }}
-                    className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
+                    className="p-3 bg-white border-2 border-gray-light text-black rounded hover:border-red-500 hover:bg-red-50 hover:text-red-600 transition-all"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
@@ -447,33 +467,32 @@ export default function WritingQuestionsDashboard() {
   );
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 p-6"
-      dir="rtl"
-    >
+    <div className="min-h-screen bg-gray-lighter p-6" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {currentView === "tests" && renderTestsView()}
         {currentView === "questions" && renderQuestionsView()}
 
-        {/* Question Modal */}
         {showQuestionModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+            <div
+              className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-screen overflow-y-auto"
+              style={{ maxHeight: "90vh" }}
+            >
+              <div className="sticky top-0 bg-black border-b-2 border-yellow-primary px-6 py-5 flex justify-between items-center z-10">
+                <h2 className="text-2xl font-bold text-yellow-primary">
                   {modalMode === "create" ? "إضافة سؤال جديد" : "تعديل السؤال"}
                 </h2>
                 <button
                   onClick={() => setShowQuestionModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-white hover:text-yellow-primary transition-colors"
                 >
-                  <X size={24} />
+                  <X size={28} />
                 </button>
               </div>
 
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     عنوان السؤال *
                   </label>
                   <input
@@ -485,13 +504,13 @@ export default function WritingQuestionsDashboard() {
                         title: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-semibold"
                     placeholder="مثال: كتابة رسالة رسمية"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     نص السؤال *
                   </label>
                   <textarea
@@ -502,34 +521,34 @@ export default function WritingQuestionsDashboard() {
                         question_text: e.target.value,
                       })
                     }
-                    rows="4"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-semibold"
                     placeholder="اكتب تعليمات السؤال بالتفصيل..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     صورة السؤال (اختياري)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors"
                   />
                   {imagePreview && (
                     <img
                       src={imagePreview}
                       alt="معاينة"
-                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-200"
+                      className="mt-4 rounded-lg max-h-56 object-contain border-2 border-yellow-primary"
                     />
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الحد الأدنى للكلمات
                     </label>
                     <input
@@ -542,13 +561,13 @@ export default function WritingQuestionsDashboard() {
                           min_words: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-bold"
                       placeholder="مثال: 100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الحد الأقصى للكلمات
                     </label>
                     <input
@@ -561,14 +580,14 @@ export default function WritingQuestionsDashboard() {
                           max_words: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-bold"
                       placeholder="مثال: 250"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     إجابة نموذجية (اختياري)
                   </label>
                   <textarea
@@ -579,14 +598,14 @@ export default function WritingQuestionsDashboard() {
                         sample_answer: e.target.value,
                       })
                     }
-                    rows="4"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-semibold"
                     placeholder="اكتب إجابة نموذجية للمرجعية..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     معايير التقييم - Rubric (اختياري)
                   </label>
                   <textarea
@@ -597,15 +616,15 @@ export default function WritingQuestionsDashboard() {
                         rubric: e.target.value,
                       })
                     }
-                    rows="5"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    rows={5}
+                    className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-semibold"
                     placeholder="اكتب معايير التقييم التفصيلية..."
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       النقاط *
                     </label>
                     <input
@@ -618,12 +637,12 @@ export default function WritingQuestionsDashboard() {
                           points: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الترتيب *
                     </label>
                     <input
@@ -636,12 +655,12 @@ export default function WritingQuestionsDashboard() {
                           order: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none transition-colors font-bold"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-yellow-light border-2 border-yellow-primary rounded-lg">
                   <input
                     type="checkbox"
                     id="question_is_active"
@@ -652,25 +671,25 @@ export default function WritingQuestionsDashboard() {
                         is_active: e.target.checked,
                       })
                     }
-                    className="w-5 h-5 text-teal-600 rounded focus:ring-2 focus:ring-teal-500"
+                    className="w-6 h-6 text-yellow-primary rounded focus:ring-2 focus:ring-yellow-primary cursor-pointer"
                   />
                   <label
                     htmlFor="question_is_active"
-                    className="text-sm font-semibold text-gray-700 cursor-pointer"
+                    className="text-sm font-bold text-black cursor-pointer"
                   >
                     السؤال نشط
                   </label>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-4 border-t-2 border-gray-light">
                   <button
                     onClick={handleQuestionSubmit}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 bg-yellow-primary text-black py-4 rounded font-bold hover:bg-yellow-hover transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
                         جاري الحفظ...
                       </>
                     ) : (
@@ -682,7 +701,7 @@ export default function WritingQuestionsDashboard() {
                   </button>
                   <button
                     onClick={() => setShowQuestionModal(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                    className="px-8 py-4 border-2 border-gray-light rounded hover:bg-gray-lighter transition-all font-bold"
                   >
                     إلغاء
                   </button>
@@ -692,27 +711,24 @@ export default function WritingQuestionsDashboard() {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
         {showDeleteConfirm && itemToDelete && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 border-2 border-gray-light">
               <div className="text-center mb-6">
-                <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                  <Trash2 className="text-red-600" size={32} />
+                <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                  <Trash2 className="text-red-600" size={40} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                <h3 className="text-2xl font-bold text-black mb-3">
                   تأكيد الحذف
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-dark text-lg mb-2">
                   هل أنت متأكد من حذف السؤال
-                  <span className="font-bold text-gray-800">
-                    {" "}
-                    "{itemToDelete.title}"
-                  </span>
-                  ؟
                 </p>
-                <p className="text-sm text-red-600 mt-2">
-                  لا يمكن التراجع عن هذا الإجراء
+                <p className="font-bold text-black text-lg">
+                  "{itemToDelete.title}"
+                </p>
+                <p className="text-sm text-red-600 mt-3 font-semibold">
+                  ⚠️ لا يمكن التراجع عن هذا الإجراء
                 </p>
               </div>
 
@@ -720,7 +736,7 @@ export default function WritingQuestionsDashboard() {
                 <button
                   onClick={handleDelete}
                   disabled={loading}
-                  className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-all font-semibold disabled:opacity-50"
+                  className="flex-1 bg-red-600 text-white py-4 rounded font-bold hover:bg-red-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "جاري الحذف..." : "حذف نهائياً"}
                 </button>
@@ -729,7 +745,7 @@ export default function WritingQuestionsDashboard() {
                     setShowDeleteConfirm(false);
                     setItemToDelete(null);
                   }}
-                  className="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                  className="flex-1 border-2 border-gray-light py-4 rounded hover:bg-gray-lighter transition-all font-bold"
                 >
                   إلغاء
                 </button>

@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Edit2, Trash2, Image, ArrowLeft, Save, X } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Image,
+  ArrowLeft,
+  Save,
+  X,
+  FileText,
+  List,
+} from "lucide-react";
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
 
@@ -10,19 +20,17 @@ export default function MCQQuestionsDashboard() {
   const [questionSets, setQuestionSets] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentView, setCurrentView] = useState("tests"); // tests, sets, questions
+  const [currentView, setCurrentView] = useState("tests");
   const [selectedTest, setSelectedTest] = useState(null);
   const [selectedSet, setSelectedSet] = useState(null);
 
-  // Modals
   const [showSetModal, setShowSetModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [deleteType, setDeleteType] = useState(""); // 'set' or 'question'
+  const [deleteType, setDeleteType] = useState("");
 
-  // Form Data
   const [setFormData, setSetFormData] = useState({
     placement_test: "",
     title: "",
@@ -65,7 +73,6 @@ export default function MCQQuestionsDashboard() {
 
   const getToken = () => localStorage.getItem("token");
 
-  // Fetch Tests
   const fetchTests = async () => {
     setLoading(true);
     try {
@@ -83,7 +90,6 @@ export default function MCQQuestionsDashboard() {
     }
   };
 
-  // Fetch Question Sets
   const fetchQuestionSets = async (testId) => {
     setLoading(true);
     try {
@@ -101,7 +107,6 @@ export default function MCQQuestionsDashboard() {
     }
   };
 
-  // Fetch Questions
   const fetchQuestions = async (setId) => {
     setLoading(true);
     try {
@@ -122,7 +127,6 @@ export default function MCQQuestionsDashboard() {
     }
   };
 
-  // Handle Set Submit
   const handleSetSubmit = async () => {
     if (!setFormData.title || !setFormData.placement_test) {
       alert("يرجى ملء جميع الحقول المطلوبة");
@@ -136,10 +140,8 @@ export default function MCQQuestionsDashboard() {
           ? `${API_URL}/mcq-sets/`
           : `${API_URL}/mcq-sets/${itemToDelete?.id || selectedSet.id}/`;
 
-      const method = modalMode === "create" ? "POST" : "PUT";
-
       const response = await fetch(url, {
-        method,
+        method: modalMode === "create" ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${getToken()}`,
@@ -167,7 +169,6 @@ export default function MCQQuestionsDashboard() {
     }
   };
 
-  // Handle Question Submit
   const handleQuestionSubmit = async () => {
     if (
       !questionFormData.question_text ||
@@ -183,7 +184,6 @@ export default function MCQQuestionsDashboard() {
     setLoading(true);
     try {
       const formData = new FormData();
-
       Object.keys(questionFormData).forEach((key) => {
         if (key === "question_image" && questionFormData[key]) {
           formData.append(key, questionFormData[key]);
@@ -197,13 +197,9 @@ export default function MCQQuestionsDashboard() {
           ? `${API_URL}/mcq-questions/`
           : `${API_URL}/mcq-questions/${itemToDelete?.id}/`;
 
-      const method = modalMode === "create" ? "POST" : "PUT";
-
       const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+        method: modalMode === "create" ? "POST" : "PUT",
+        headers: { Authorization: `Bearer ${getToken()}` },
         body: formData,
       });
 
@@ -227,7 +223,6 @@ export default function MCQQuestionsDashboard() {
     }
   };
 
-  // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -348,17 +343,16 @@ export default function MCQQuestionsDashboard() {
     }
   };
 
-  // Render Tests View
   const renderTestsView = () => (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">اختر الامتحان</h2>
-        <p className="text-gray-600">اختر الامتحان لإدارة مجموعات الأسئلة</p>
+        <h2 className="text-2xl font-bold text-black mb-2">اختر الامتحان</h2>
+        <p className="text-gray-dark">اختر الامتحان لإدارة مجموعات الأسئلة</p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -369,21 +363,21 @@ export default function MCQQuestionsDashboard() {
                 setSelectedTest(test);
                 setCurrentView("sets");
               }}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 cursor-pointer border-r-4 border-blue-500"
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all p-6 cursor-pointer border-r-4 border-yellow-primary"
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
+              <h3 className="text-xl font-bold text-black mb-3">
                 {test.title}
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">المدة:</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">المدة:</span>
+                  <span className="font-bold text-black">
                     {test.duration_minutes} دقيقة
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">عدد الأسئلة:</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">عدد الأسئلة:</span>
+                  <span className="font-bold text-black">
                     {test.questions_count || 0}
                   </span>
                 </div>
@@ -395,7 +389,6 @@ export default function MCQQuestionsDashboard() {
     </div>
   );
 
-  // Render Question Sets View
   const renderSetsView = () => (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -404,19 +397,19 @@ export default function MCQQuestionsDashboard() {
             setCurrentView("tests");
             setSelectedTest(null);
           }}
-          className="text-blue-600 hover:text-blue-700"
+          className="p-2 hover:bg-gray-lighter rounded transition-colors"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={24} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-black">
             مجموعات الأسئلة - {selectedTest?.title}
           </h2>
-          <p className="text-gray-600">إدارة مجموعات الأسئلة للامتحان</p>
+          <p className="text-gray-dark">إدارة مجموعات الأسئلة للامتحان</p>
         </div>
         <button
           onClick={openCreateSetModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md"
+          className="flex items-center gap-2 bg-yellow-primary text-black px-6 py-3 rounded font-bold hover:bg-yellow-hover transition-all shadow-md"
         >
           <Plus size={20} />
           مجموعة جديدة
@@ -425,25 +418,26 @@ export default function MCQQuestionsDashboard() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : questionSets.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 text-lg">لا توجد مجموعات أسئلة</p>
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <List size={48} className="mx-auto mb-4 text-gray-medium" />
+          <p className="text-gray-dark text-lg">لا توجد مجموعات أسئلة</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {questionSets.map((set) => (
             <div
               key={set.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-r-4 border-green-500"
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all p-6 border-r-4 border-yellow-primary"
             >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-bold text-gray-800 flex-1">
+                <h3 className="text-lg font-bold text-black flex-1">
                   {set.title}
                 </h3>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${
                     set.is_active
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-700"
@@ -454,21 +448,25 @@ export default function MCQQuestionsDashboard() {
               </div>
 
               {set.description && (
-                <p className="text-gray-600 mb-4 text-sm">{set.description}</p>
+                <p className="text-gray-dark mb-4 text-sm">{set.description}</p>
               )}
 
               <div className="space-y-2 mb-4 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">عدد الأسئلة:</span>
-                  <span className="font-semibold">{set.questions_count}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">عدد الأسئلة:</span>
+                  <span className="font-bold text-black">
+                    {set.questions_count}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">إجمالي النقاط:</span>
-                  <span className="font-semibold">{set.total_points}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">إجمالي النقاط:</span>
+                  <span className="font-bold text-black">
+                    {set.total_points}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">الترتيب:</span>
-                  <span className="font-semibold">{set.order}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">الترتيب:</span>
+                  <span className="font-bold text-black">{set.order}</span>
                 </div>
               </div>
 
@@ -478,13 +476,13 @@ export default function MCQQuestionsDashboard() {
                     setSelectedSet(set);
                     setCurrentView("questions");
                   }}
-                  className="flex-1 bg-green-50 text-green-600 py-2 rounded-lg hover:bg-green-100 transition-all font-semibold"
+                  className="flex-1 bg-yellow-light text-black py-2 rounded hover:bg-yellow-primary transition-all font-bold"
                 >
                   الأسئلة
                 </button>
                 <button
                   onClick={() => openEditSetModal(set)}
-                  className="flex items-center justify-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-all"
+                  className="flex items-center justify-center gap-2 bg-gray-lighter text-black px-4 py-2 rounded hover:bg-gray-light transition-all"
                 >
                   <Edit2 size={16} />
                 </button>
@@ -494,7 +492,7 @@ export default function MCQQuestionsDashboard() {
                     setDeleteType("set");
                     setShowDeleteConfirm(true);
                   }}
-                  className="flex items-center justify-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-all"
+                  className="flex items-center justify-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded hover:bg-red-100 transition-all"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -506,7 +504,6 @@ export default function MCQQuestionsDashboard() {
     </div>
   );
 
-  // Render Questions View
   const renderQuestionsView = () => (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -515,19 +512,19 @@ export default function MCQQuestionsDashboard() {
             setCurrentView("sets");
             setSelectedSet(null);
           }}
-          className="text-blue-600 hover:text-blue-700"
+          className="p-2 hover:bg-gray-lighter rounded transition-colors"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={24} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-black">
             الأسئلة - {selectedSet?.title}
           </h2>
-          <p className="text-gray-600">إدارة أسئلة المجموعة</p>
+          <p className="text-gray-dark">إدارة أسئلة المجموعة</p>
         </div>
         <button
           onClick={openCreateQuestionModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all shadow-md"
+          className="flex items-center gap-2 bg-yellow-primary text-black px-6 py-3 rounded font-bold hover:bg-yellow-hover transition-all shadow-md"
         >
           <Plus size={20} />
           سؤال جديد
@@ -536,26 +533,27 @@ export default function MCQQuestionsDashboard() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-green-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : questions.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 text-lg">لا توجد أسئلة</p>
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <FileText size={48} className="mx-auto mb-4 text-gray-medium" />
+          <p className="text-gray-dark text-lg">لا توجد أسئلة</p>
         </div>
       ) : (
         <div className="space-y-4">
           {questions.map((question, index) => (
             <div
               key={question.id}
-              className="bg-white rounded-xl shadow-md p-6 border-r-4 border-purple-500"
+              className="bg-white rounded-lg shadow-md p-6 border-r-4 border-yellow-primary"
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center font-bold text-purple-600">
+                <div className="flex-shrink-0 w-12 h-12 bg-yellow-light rounded-full flex items-center justify-center font-bold text-black">
                   {index + 1}
                 </div>
 
                 <div className="flex-1">
-                  <p className="text-lg font-semibold text-gray-800 mb-3">
+                  <p className="text-lg font-bold text-black mb-3">
                     {question.question_text}
                   </p>
 
@@ -563,7 +561,7 @@ export default function MCQQuestionsDashboard() {
                     <img
                       src={question.question_image}
                       alt="سؤال"
-                      className="mb-4 rounded-lg max-h-48 object-contain"
+                      className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
                     />
                   )}
 
@@ -571,39 +569,43 @@ export default function MCQQuestionsDashboard() {
                     {["A", "B", "C", "D"].map((choice) => (
                       <div
                         key={choice}
-                        className={`p-3 rounded-lg border-2 ${
+                        className={`p-3 rounded border-2 ${
                           question.correct_answer === choice
                             ? "bg-green-50 border-green-500"
-                            : "bg-gray-50 border-gray-200"
+                            : "bg-gray-lighter border-gray-light"
                         }`}
                       >
-                        <span className="font-bold text-gray-700">
-                          {choice}:
-                        </span>{" "}
-                        {question[`choice_${choice.toLowerCase()}`]}
+                        <span className="font-bold text-black">{choice}:</span>{" "}
+                        <span className="text-gray-dark">
+                          {question[`choice_${choice.toLowerCase()}`]}
+                        </span>
                       </div>
                     ))}
                   </div>
 
                   {question.explanation && (
-                    <div className="bg-blue-50 p-3 rounded-lg mb-3">
-                      <p className="text-sm text-gray-700">
-                        <span className="font-semibold">الشرح:</span>{" "}
+                    <div className="bg-yellow-light p-3 rounded mb-3 border border-yellow-primary">
+                      <p className="text-sm text-gray-dark">
+                        <span className="font-bold text-black">الشرح:</span>{" "}
                         {question.explanation}
                       </p>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>النقاط: {question.points}</span>
-                    <span>الترتيب: {question.order}</span>
+                  <div className="flex items-center gap-4 text-sm text-gray-dark">
+                    <span className="font-semibold">
+                      النقاط: {question.points}
+                    </span>
+                    <span className="font-semibold">
+                      الترتيب: {question.order}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => openEditQuestionModal(question)}
-                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all"
+                    className="p-2 bg-gray-lighter text-black rounded hover:bg-gray-light transition-all"
                   >
                     <Edit2 size={18} />
                   </button>
@@ -613,7 +615,7 @@ export default function MCQQuestionsDashboard() {
                       setDeleteType("question");
                       setShowDeleteConfirm(true);
                     }}
-                    className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
+                    className="p-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-all"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -627,10 +629,7 @@ export default function MCQQuestionsDashboard() {
   );
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6"
-      dir="rtl"
-    >
+    <div className="min-h-screen bg-gray-lighter p-6" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {currentView === "tests" && renderTestsView()}
         {currentView === "sets" && renderSetsView()}
@@ -638,17 +637,17 @@ export default function MCQQuestionsDashboard() {
 
         {/* Set Modal */}
         {showSetModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-black border-b-2 border-yellow-primary px-6 py-4 flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-yellow-primary">
                   {modalMode === "create"
                     ? "إضافة مجموعة جديدة"
                     : "تعديل المجموعة"}
                 </h2>
                 <button
                   onClick={() => setShowSetModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-light hover:text-white transition-colors"
                 >
                   <X size={24} />
                 </button>
@@ -656,7 +655,7 @@ export default function MCQQuestionsDashboard() {
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     عنوان المجموعة *
                   </label>
                   <input
@@ -665,13 +664,13 @@ export default function MCQQuestionsDashboard() {
                     onChange={(e) =>
                       setSetFormData({ ...setFormData, title: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="مثال: القراءة والفهم"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الوصف
                   </label>
                   <textarea
@@ -683,13 +682,13 @@ export default function MCQQuestionsDashboard() {
                       })
                     }
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="وصف مختصر..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الترتيب *
                   </label>
                   <input
@@ -699,11 +698,11 @@ export default function MCQQuestionsDashboard() {
                     onChange={(e) =>
                       setSetFormData({ ...setFormData, order: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-gray-lighter rounded">
                   <input
                     type="checkbox"
                     id="set_is_active"
@@ -714,11 +713,11 @@ export default function MCQQuestionsDashboard() {
                         is_active: e.target.checked,
                       })
                     }
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                    className="w-5 h-5 accent-yellow-primary"
                   />
                   <label
                     htmlFor="set_is_active"
-                    className="text-sm font-semibold text-gray-700 cursor-pointer"
+                    className="text-sm font-bold text-black cursor-pointer"
                   >
                     المجموعة نشطة
                   </label>
@@ -728,13 +727,13 @@ export default function MCQQuestionsDashboard() {
                   <button
                     onClick={handleSetSubmit}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold disabled:opacity-50"
+                    className="flex-1 bg-yellow-primary text-black py-3 rounded hover:bg-yellow-hover transition-all font-bold disabled:opacity-50 shadow-md"
                   >
                     {loading ? "جاري الحفظ..." : "حفظ"}
                   </button>
                   <button
                     onClick={() => setShowSetModal(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                    className="px-6 py-3 border-2 border-gray-light rounded hover:bg-gray-lighter transition-all font-bold"
                   >
                     إلغاء
                   </button>
@@ -746,15 +745,15 @@ export default function MCQQuestionsDashboard() {
 
         {/* Question Modal */}
         {showQuestionModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="sticky top-0 bg-black border-b-2 border-yellow-primary px-6 py-4 flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-yellow-primary">
                   {modalMode === "create" ? "إضافة سؤال جديد" : "تعديل السؤال"}
                 </h2>
                 <button
                   onClick={() => setShowQuestionModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-light hover:text-white transition-colors"
                 >
                   <X size={24} />
                 </button>
@@ -762,7 +761,7 @@ export default function MCQQuestionsDashboard() {
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     نص السؤال *
                   </label>
                   <textarea
@@ -774,33 +773,33 @@ export default function MCQQuestionsDashboard() {
                       })
                     }
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="اكتب السؤال هنا..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     صورة السؤال (اختياري)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   />
                   {imagePreview && (
                     <img
                       src={imagePreview}
                       alt="معاينة"
-                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-200"
+                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-light"
                     />
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار A *
                     </label>
                     <input
@@ -812,13 +811,13 @@ export default function MCQQuestionsDashboard() {
                           choice_a: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الأول"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار B *
                     </label>
                     <input
@@ -830,13 +829,13 @@ export default function MCQQuestionsDashboard() {
                           choice_b: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الثاني"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار C *
                     </label>
                     <input
@@ -848,13 +847,13 @@ export default function MCQQuestionsDashboard() {
                           choice_c: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الثالث"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار D *
                     </label>
                     <input
@@ -866,14 +865,14 @@ export default function MCQQuestionsDashboard() {
                           choice_d: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الرابع"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الإجابة الصحيحة *
                   </label>
                   <select
@@ -884,7 +883,7 @@ export default function MCQQuestionsDashboard() {
                         correct_answer: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   >
                     <option value="A">A</option>
                     <option value="B">B</option>
@@ -894,7 +893,7 @@ export default function MCQQuestionsDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الشرح (اختياري)
                   </label>
                   <textarea
@@ -906,14 +905,14 @@ export default function MCQQuestionsDashboard() {
                       })
                     }
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="شرح الإجابة الصحيحة..."
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       النقاط *
                     </label>
                     <input
@@ -926,12 +925,12 @@ export default function MCQQuestionsDashboard() {
                           points: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الترتيب *
                     </label>
                     <input
@@ -944,7 +943,7 @@ export default function MCQQuestionsDashboard() {
                           order: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -953,11 +952,11 @@ export default function MCQQuestionsDashboard() {
                   <button
                     onClick={handleQuestionSubmit}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-teal-600 text-white py-3 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 bg-yellow-primary text-black py-3 rounded hover:bg-yellow-hover transition-all font-bold disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
                   >
                     {loading ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
                         جاري الحفظ...
                       </>
                     ) : (
@@ -969,7 +968,7 @@ export default function MCQQuestionsDashboard() {
                   </button>
                   <button
                     onClick={() => setShowQuestionModal(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                    className="px-6 py-3 border-2 border-gray-light rounded hover:bg-gray-lighter transition-all font-bold"
                   >
                     إلغاء
                   </button>
@@ -981,19 +980,19 @@ export default function MCQQuestionsDashboard() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && itemToDelete && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
               <div className="text-center mb-6">
                 <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                   <Trash2 className="text-red-600" size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                <h3 className="text-xl font-bold text-black mb-2">
                   تأكيد الحذف
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-dark">
                   هل أنت متأكد من حذف{" "}
                   {deleteType === "set" ? "المجموعة" : "السؤال"}
-                  <span className="font-bold text-gray-800">
+                  <span className="font-bold text-black">
                     {" "}
                     "
                     {deleteType === "set"
@@ -1003,7 +1002,7 @@ export default function MCQQuestionsDashboard() {
                   </span>
                   ؟
                 </p>
-                <p className="text-sm text-red-600 mt-2">
+                <p className="text-sm text-red-600 mt-2 font-semibold">
                   لا يمكن التراجع عن هذا الإجراء
                 </p>
               </div>
@@ -1012,7 +1011,7 @@ export default function MCQQuestionsDashboard() {
                 <button
                   onClick={handleDelete}
                   disabled={loading}
-                  className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-all font-semibold disabled:opacity-50"
+                  className="flex-1 bg-red-600 text-white py-3 rounded hover:bg-red-700 transition-all font-bold disabled:opacity-50 shadow-md"
                 >
                   {loading ? "جاري الحذف..." : "حذف نهائياً"}
                 </button>
@@ -1021,7 +1020,7 @@ export default function MCQQuestionsDashboard() {
                     setShowDeleteConfirm(false);
                     setItemToDelete(null);
                   }}
-                  className="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                  className="flex-1 border-2 border-gray-light py-3 rounded hover:bg-gray-lighter transition-all font-bold"
                 >
                   إلغاء
                 </button>

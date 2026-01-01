@@ -20,19 +20,17 @@ export default function ReadingPassagesDashboard() {
   const [passages, setPassages] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentView, setCurrentView] = useState("tests"); // tests, passages, questions
+  const [currentView, setCurrentView] = useState("tests");
   const [selectedTest, setSelectedTest] = useState(null);
   const [selectedPassage, setSelectedPassage] = useState(null);
 
-  // Modals
   const [showPassageModal, setShowPassageModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [deleteType, setDeleteType] = useState(""); // 'passage' or 'question'
+  const [deleteType, setDeleteType] = useState("");
 
-  // Form Data
   const [passageFormData, setPassageFormData] = useState({
     placement_test: "",
     title: "",
@@ -78,7 +76,6 @@ export default function ReadingPassagesDashboard() {
 
   const getToken = () => localStorage.getItem("token");
 
-  // Fetch Tests
   const fetchTests = async () => {
     setLoading(true);
     try {
@@ -96,7 +93,6 @@ export default function ReadingPassagesDashboard() {
     }
   };
 
-  // Fetch Passages
   const fetchPassages = async (testId) => {
     setLoading(true);
     try {
@@ -117,7 +113,6 @@ export default function ReadingPassagesDashboard() {
     }
   };
 
-  // Fetch Questions
   const fetchQuestions = async (passageId) => {
     setLoading(true);
     try {
@@ -138,7 +133,6 @@ export default function ReadingPassagesDashboard() {
     }
   };
 
-  // Handle Passage Submit
   const handlePassageSubmit = async () => {
     if (
       !passageFormData.title ||
@@ -152,7 +146,6 @@ export default function ReadingPassagesDashboard() {
     setLoading(true);
     try {
       const formData = new FormData();
-
       Object.keys(passageFormData).forEach((key) => {
         if (key === "passage_image" && passageFormData[key]) {
           formData.append(key, passageFormData[key]);
@@ -168,13 +161,9 @@ export default function ReadingPassagesDashboard() {
               itemToDelete?.id || selectedPassage.id
             }/`;
 
-      const method = modalMode === "create" ? "POST" : "PUT";
-
       const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+        method: modalMode === "create" ? "POST" : "PUT",
+        headers: { Authorization: `Bearer ${getToken()}` },
         body: formData,
       });
 
@@ -198,7 +187,6 @@ export default function ReadingPassagesDashboard() {
     }
   };
 
-  // Handle Question Submit
   const handleQuestionSubmit = async () => {
     if (
       !questionFormData.question_text ||
@@ -214,7 +202,6 @@ export default function ReadingPassagesDashboard() {
     setLoading(true);
     try {
       const formData = new FormData();
-
       Object.keys(questionFormData).forEach((key) => {
         if (key === "question_image" && questionFormData[key]) {
           formData.append(key, questionFormData[key]);
@@ -228,13 +215,9 @@ export default function ReadingPassagesDashboard() {
           ? `${API_URL}/reading-questions/`
           : `${API_URL}/reading-questions/${itemToDelete?.id}/`;
 
-      const method = modalMode === "create" ? "POST" : "PUT";
-
       const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
+        method: modalMode === "create" ? "POST" : "PUT",
+        headers: { Authorization: `Bearer ${getToken()}` },
         body: formData,
       });
 
@@ -258,7 +241,6 @@ export default function ReadingPassagesDashboard() {
     }
   };
 
-  // Handle Delete
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -399,17 +381,16 @@ export default function ReadingPassagesDashboard() {
     }
   };
 
-  // Render Tests View
   const renderTestsView = () => (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">اختر الامتحان</h2>
-        <p className="text-gray-600">اختر الامتحان لإدارة قطع القراءة</p>
+        <h2 className="text-2xl font-bold text-black mb-2">اختر الامتحان</h2>
+        <p className="text-gray-dark">اختر الامتحان لإدارة قطع القراءة</p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -420,21 +401,21 @@ export default function ReadingPassagesDashboard() {
                 setSelectedTest(test);
                 setCurrentView("passages");
               }}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 cursor-pointer border-r-4 border-orange-500"
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all p-6 cursor-pointer border-r-4 border-yellow-primary"
             >
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
+              <h3 className="text-xl font-bold text-black mb-3">
                 {test.title}
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">المدة:</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">المدة:</span>
+                  <span className="font-bold text-black">
                     {test.duration_minutes} دقيقة
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">عدد الأسئلة:</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">عدد الأسئلة:</span>
+                  <span className="font-bold text-black">
                     {test.questions_count || 0}
                   </span>
                 </div>
@@ -446,7 +427,6 @@ export default function ReadingPassagesDashboard() {
     </div>
   );
 
-  // Render Passages View
   const renderPassagesView = () => (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -455,19 +435,19 @@ export default function ReadingPassagesDashboard() {
             setCurrentView("tests");
             setSelectedTest(null);
           }}
-          className="text-orange-600 hover:text-orange-700"
+          className="p-2 hover:bg-gray-lighter rounded transition-colors"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={24} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-black">
             قطع القراءة - {selectedTest?.title}
           </h2>
-          <p className="text-gray-600">إدارة قطع القراءة للامتحان</p>
+          <p className="text-gray-dark">إدارة قطع القراءة للامتحان</p>
         </div>
         <button
           onClick={openCreatePassageModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-lg hover:from-orange-700 hover:to-red-700 transition-all shadow-md"
+          className="flex items-center gap-2 bg-yellow-primary text-black px-6 py-3 rounded font-bold hover:bg-yellow-hover transition-all shadow-md"
         >
           <Plus size={20} />
           قطعة جديدة
@@ -476,35 +456,36 @@ export default function ReadingPassagesDashboard() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : passages.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 text-lg">لا توجد قطع قراءة</p>
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <BookOpen size={48} className="mx-auto mb-4 text-gray-medium" />
+          <p className="text-gray-dark text-lg">لا توجد قطع قراءة</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {passages.map((passage) => (
             <div
               key={passage.id}
-              className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 border-r-4 border-orange-500"
+              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all p-6 border-r-4 border-yellow-primary"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-start gap-3 flex-1">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="text-orange-600" size={24} />
+                  <div className="w-12 h-12 bg-yellow-light rounded-full flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="text-black" size={24} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    <h3 className="text-lg font-bold text-black mb-2">
                       {passage.title}
                     </h3>
-                    <p className="text-gray-600 text-sm line-clamp-3 mb-3">
+                    <p className="text-gray-dark text-sm line-clamp-3 mb-3">
                       {passage.passage_text.substring(0, 150)}...
                     </p>
                   </div>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
+                  className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${
                     passage.is_active
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-700"
@@ -518,30 +499,34 @@ export default function ReadingPassagesDashboard() {
                 <img
                   src={passage.passage_image}
                   alt={passage.title}
-                  className="mb-4 rounded-lg max-h-32 w-full object-cover"
+                  className="mb-4 rounded-lg max-h-32 w-full object-cover border-2 border-gray-light"
                 />
               )}
 
               <div className="space-y-2 mb-4 text-sm">
                 {passage.source && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">المصدر:</span>
-                    <span className="font-semibold">{passage.source}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-dark">المصدر:</span>
+                    <span className="font-bold text-black">
+                      {passage.source}
+                    </span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-gray-500">عدد الأسئلة:</span>
-                  <span className="font-semibold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">عدد الأسئلة:</span>
+                  <span className="font-bold text-black">
                     {passage.questions_count}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">إجمالي النقاط:</span>
-                  <span className="font-semibold">{passage.total_points}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">إجمالي النقاط:</span>
+                  <span className="font-bold text-black">
+                    {passage.total_points}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">الترتيب:</span>
-                  <span className="font-semibold">{passage.order}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-dark">الترتيب:</span>
+                  <span className="font-bold text-black">{passage.order}</span>
                 </div>
               </div>
 
@@ -551,13 +536,13 @@ export default function ReadingPassagesDashboard() {
                     setSelectedPassage(passage);
                     setCurrentView("questions");
                   }}
-                  className="flex-1 bg-orange-50 text-orange-600 py-2 rounded-lg hover:bg-orange-100 transition-all font-semibold"
+                  className="flex-1 bg-yellow-light text-black py-2 rounded hover:bg-yellow-primary transition-all font-bold"
                 >
                   الأسئلة
                 </button>
                 <button
                   onClick={() => openEditPassageModal(passage)}
-                  className="flex items-center justify-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-100 transition-all"
+                  className="flex items-center justify-center gap-2 bg-gray-lighter text-black px-4 py-2 rounded hover:bg-gray-light transition-all"
                 >
                   <Edit2 size={16} />
                 </button>
@@ -567,7 +552,7 @@ export default function ReadingPassagesDashboard() {
                     setDeleteType("passage");
                     setShowDeleteConfirm(true);
                   }}
-                  className="flex items-center justify-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-all"
+                  className="flex items-center justify-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded hover:bg-red-100 transition-all"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -579,7 +564,6 @@ export default function ReadingPassagesDashboard() {
     </div>
   );
 
-  // Render Questions View
   const renderQuestionsView = () => (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -588,65 +572,65 @@ export default function ReadingPassagesDashboard() {
             setCurrentView("passages");
             setSelectedPassage(null);
           }}
-          className="text-orange-600 hover:text-orange-700"
+          className="p-2 hover:bg-gray-lighter rounded transition-colors"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={24} className="text-black" />
         </button>
         <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-2xl font-bold text-black">
             الأسئلة - {selectedPassage?.title}
           </h2>
-          <p className="text-gray-600">إدارة أسئلة القطعة</p>
+          <p className="text-gray-dark">إدارة أسئلة القطعة</p>
         </div>
         <button
           onClick={openCreateQuestionModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-6 py-3 rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all shadow-md"
+          className="flex items-center gap-2 bg-yellow-primary text-black px-6 py-3 rounded font-bold hover:bg-yellow-hover transition-all shadow-md"
         >
           <Plus size={20} />
           سؤال جديد
         </button>
       </div>
 
-      {/* Display Passage Text */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-r-4 border-orange-500">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6 border-r-4 border-yellow-primary">
         <div className="flex items-start gap-3 mb-4">
-          <FileText className="text-orange-600 flex-shrink-0" size={24} />
-          <h3 className="text-xl font-bold text-gray-800">نص القطعة</h3>
+          <FileText className="text-black flex-shrink-0" size={24} />
+          <h3 className="text-xl font-bold text-black">نص القطعة</h3>
         </div>
         {selectedPassage?.passage_image && (
           <img
             src={selectedPassage.passage_image}
             alt={selectedPassage.title}
-            className="mb-4 rounded-lg max-h-64 w-full object-contain"
+            className="mb-4 rounded-lg max-h-64 w-full object-contain border-2 border-gray-light"
           />
         )}
-        <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+        <p className="text-gray-dark whitespace-pre-line leading-relaxed">
           {selectedPassage?.passage_text}
         </p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-teal-600 border-t-transparent"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-yellow-primary border-t-transparent"></div>
         </div>
       ) : questions.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 text-lg">لا توجد أسئلة</p>
+        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <FileText size={48} className="mx-auto mb-4 text-gray-medium" />
+          <p className="text-gray-dark text-lg">لا توجد أسئلة</p>
         </div>
       ) : (
         <div className="space-y-4">
           {questions.map((question, index) => (
             <div
               key={question.id}
-              className="bg-white rounded-xl shadow-md p-6 border-r-4 border-teal-500"
+              className="bg-white rounded-lg shadow-md p-6 border-r-4 border-yellow-primary"
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center font-bold text-teal-600">
+                <div className="flex-shrink-0 w-12 h-12 bg-yellow-light rounded-full flex items-center justify-center font-bold text-black">
                   {index + 1}
                 </div>
 
                 <div className="flex-1">
-                  <p className="text-lg font-semibold text-gray-800 mb-3">
+                  <p className="text-lg font-bold text-black mb-3">
                     {question.question_text}
                   </p>
 
@@ -654,7 +638,7 @@ export default function ReadingPassagesDashboard() {
                     <img
                       src={question.question_image}
                       alt="سؤال"
-                      className="mb-4 rounded-lg max-h-48 object-contain"
+                      className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
                     />
                   )}
 
@@ -662,39 +646,43 @@ export default function ReadingPassagesDashboard() {
                     {["A", "B", "C", "D"].map((choice) => (
                       <div
                         key={choice}
-                        className={`p-3 rounded-lg border-2 ${
+                        className={`p-3 rounded border-2 ${
                           question.correct_answer === choice
                             ? "bg-green-50 border-green-500"
-                            : "bg-gray-50 border-gray-200"
+                            : "bg-gray-lighter border-gray-light"
                         }`}
                       >
-                        <span className="font-bold text-gray-700">
-                          {choice}:
-                        </span>{" "}
-                        {question[`choice_${choice.toLowerCase()}`]}
+                        <span className="font-bold text-black">{choice}:</span>{" "}
+                        <span className="text-gray-dark">
+                          {question[`choice_${choice.toLowerCase()}`]}
+                        </span>
                       </div>
                     ))}
                   </div>
 
                   {question.explanation && (
-                    <div className="bg-blue-50 p-3 rounded-lg mb-3">
-                      <p className="text-sm text-gray-700">
-                        <span className="font-semibold">الشرح:</span>{" "}
+                    <div className="bg-yellow-light p-3 rounded mb-3 border border-yellow-primary">
+                      <p className="text-sm text-gray-dark">
+                        <span className="font-bold text-black">الشرح:</span>{" "}
                         {question.explanation}
                       </p>
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>النقاط: {question.points}</span>
-                    <span>الترتيب: {question.order}</span>
+                  <div className="flex items-center gap-4 text-sm text-gray-dark">
+                    <span className="font-semibold">
+                      النقاط: {question.points}
+                    </span>
+                    <span className="font-semibold">
+                      الترتيب: {question.order}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => openEditQuestionModal(question)}
-                    className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all"
+                    className="p-2 bg-gray-lighter text-black rounded hover:bg-gray-light transition-all"
                   >
                     <Edit2 size={18} />
                   </button>
@@ -704,7 +692,7 @@ export default function ReadingPassagesDashboard() {
                       setDeleteType("question");
                       setShowDeleteConfirm(true);
                     }}
-                    className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all"
+                    className="p-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-all"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -718,10 +706,7 @@ export default function ReadingPassagesDashboard() {
   );
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 p-6"
-      dir="rtl"
-    >
+    <div className="min-h-screen bg-gray-lighter p-6" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {currentView === "tests" && renderTestsView()}
         {currentView === "passages" && renderPassagesView()}
@@ -729,15 +714,15 @@ export default function ReadingPassagesDashboard() {
 
         {/* Passage Modal */}
         {showPassageModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8">
-              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                <h2 className="text-2xl font-bold text-gray-800">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full my-8">
+              <div className="sticky top-0 bg-black border-b-2 border-yellow-primary px-6 py-4 flex justify-between items-center rounded-t-lg">
+                <h2 className="text-2xl font-bold text-yellow-primary">
                   {modalMode === "create" ? "إضافة قطعة جديدة" : "تعديل القطعة"}
                 </h2>
                 <button
                   onClick={() => setShowPassageModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-light hover:text-white transition-colors"
                 >
                   <X size={24} />
                 </button>
@@ -745,7 +730,7 @@ export default function ReadingPassagesDashboard() {
 
               <div className="p-6 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     عنوان القطعة *
                   </label>
                   <input
@@ -757,13 +742,13 @@ export default function ReadingPassagesDashboard() {
                         title: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="مثال: قطعة عن التكنولوجيا"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     نص القطعة *
                   </label>
                   <textarea
@@ -775,32 +760,32 @@ export default function ReadingPassagesDashboard() {
                       })
                     }
                     rows="10"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="اكتب نص القطعة هنا..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     صورة القطعة (اختياري)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePassageImageChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   />
                   {passageImagePreview && (
                     <img
                       src={passageImagePreview}
                       alt="معاينة"
-                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-200"
+                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-light"
                     />
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     المصدر (اختياري)
                   </label>
                   <input
@@ -812,13 +797,13 @@ export default function ReadingPassagesDashboard() {
                         source: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="مثال: مجلة العلوم"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الترتيب *
                   </label>
                   <input
@@ -831,11 +816,11 @@ export default function ReadingPassagesDashboard() {
                         order: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   />
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-gray-lighter rounded">
                   <input
                     type="checkbox"
                     id="passage_is_active"
@@ -846,11 +831,11 @@ export default function ReadingPassagesDashboard() {
                         is_active: e.target.checked,
                       })
                     }
-                    className="w-5 h-5 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
+                    className="w-5 h-5 accent-yellow-primary"
                   />
                   <label
                     htmlFor="passage_is_active"
-                    className="text-sm font-semibold text-gray-700 cursor-pointer"
+                    className="text-sm font-bold text-black cursor-pointer"
                   >
                     القطعة نشطة
                   </label>
@@ -860,13 +845,13 @@ export default function ReadingPassagesDashboard() {
                   <button
                     onClick={handlePassageSubmit}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg hover:from-orange-700 hover:to-red-700 transition-all font-semibold disabled:opacity-50"
+                    className="flex-1 bg-yellow-primary text-black py-3 rounded hover:bg-yellow-hover transition-all font-bold disabled:opacity-50 shadow-md"
                   >
                     {loading ? "جاري الحفظ..." : "حفظ"}
                   </button>
                   <button
                     onClick={() => setShowPassageModal(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                    className="px-6 py-3 border-2 border-gray-light rounded hover:bg-gray-lighter transition-all font-bold"
                   >
                     إلغاء
                   </button>
@@ -878,15 +863,15 @@ export default function ReadingPassagesDashboard() {
 
         {/* Question Modal */}
         {showQuestionModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-8">
-              <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                <h2 className="text-2xl font-bold text-gray-800">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full my-8">
+              <div className="sticky top-0 bg-black border-b-2 border-yellow-primary px-6 py-4 flex justify-between items-center rounded-t-lg">
+                <h2 className="text-2xl font-bold text-yellow-primary">
                   {modalMode === "create" ? "إضافة سؤال جديد" : "تعديل السؤال"}
                 </h2>
                 <button
                   onClick={() => setShowQuestionModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-light hover:text-white transition-colors"
                 >
                   <X size={24} />
                 </button>
@@ -894,7 +879,7 @@ export default function ReadingPassagesDashboard() {
 
               <div className="p-6 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     نص السؤال *
                   </label>
                   <textarea
@@ -906,33 +891,33 @@ export default function ReadingPassagesDashboard() {
                       })
                     }
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="اكتب السؤال هنا..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     صورة السؤال (اختياري)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleQuestionImageChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   />
                   {questionImagePreview && (
                     <img
                       src={questionImagePreview}
                       alt="معاينة"
-                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-200"
+                      className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-light"
                     />
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار A *
                     </label>
                     <input
@@ -944,13 +929,13 @@ export default function ReadingPassagesDashboard() {
                           choice_a: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الأول"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار B *
                     </label>
                     <input
@@ -962,13 +947,13 @@ export default function ReadingPassagesDashboard() {
                           choice_b: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الثاني"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار C *
                     </label>
                     <input
@@ -980,13 +965,13 @@ export default function ReadingPassagesDashboard() {
                           choice_c: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الثالث"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الخيار D *
                     </label>
                     <input
@@ -998,14 +983,14 @@ export default function ReadingPassagesDashboard() {
                           choice_d: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                       placeholder="الخيار الرابع"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الإجابة الصحيحة *
                   </label>
                   <select
@@ -1016,7 +1001,7 @@ export default function ReadingPassagesDashboard() {
                         correct_answer: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                   >
                     <option value="A">A</option>
                     <option value="B">B</option>
@@ -1026,7 +1011,7 @@ export default function ReadingPassagesDashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-bold text-black mb-2">
                     الشرح (اختياري)
                   </label>
                   <textarea
@@ -1038,14 +1023,14 @@ export default function ReadingPassagesDashboard() {
                       })
                     }
                     rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     placeholder="شرح الإجابة الصحيحة..."
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       النقاط *
                     </label>
                     <input
@@ -1058,12 +1043,12 @@ export default function ReadingPassagesDashboard() {
                           points: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-black mb-2">
                       الترتيب *
                     </label>
                     <input
@@ -1076,7 +1061,7 @@ export default function ReadingPassagesDashboard() {
                           order: e.target.value,
                         })
                       }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border-2 border-gray-light rounded focus:border-yellow-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1085,11 +1070,11 @@ export default function ReadingPassagesDashboard() {
                   <button
                     onClick={handleQuestionSubmit}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3 rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 bg-yellow-primary text-black py-3 rounded hover:bg-yellow-hover transition-all font-bold disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
                   >
                     {loading ? (
                       <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
                         جاري الحفظ...
                       </>
                     ) : (
@@ -1101,7 +1086,7 @@ export default function ReadingPassagesDashboard() {
                   </button>
                   <button
                     onClick={() => setShowQuestionModal(false)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                    className="px-6 py-3 border-2 border-gray-light rounded hover:bg-gray-lighter transition-all font-bold"
                   >
                     إلغاء
                   </button>
@@ -1113,19 +1098,19 @@ export default function ReadingPassagesDashboard() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm && itemToDelete && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
               <div className="text-center mb-6">
                 <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                   <Trash2 className="text-red-600" size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
+                <h3 className="text-xl font-bold text-black mb-2">
                   تأكيد الحذف
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-dark">
                   هل أنت متأكد من حذف{" "}
                   {deleteType === "passage" ? "القطعة" : "السؤال"}
-                  <span className="font-bold text-gray-800">
+                  <span className="font-bold text-black">
                     {" "}
                     "
                     {deleteType === "passage"
@@ -1135,7 +1120,7 @@ export default function ReadingPassagesDashboard() {
                   </span>
                   ؟
                 </p>
-                <p className="text-sm text-red-600 mt-2">
+                <p className="text-sm text-red-600 mt-2 font-semibold">
                   لا يمكن التراجع عن هذا الإجراء
                 </p>
               </div>
@@ -1144,7 +1129,7 @@ export default function ReadingPassagesDashboard() {
                 <button
                   onClick={handleDelete}
                   disabled={loading}
-                  className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-all font-semibold disabled:opacity-50"
+                  className="flex-1 bg-red-600 text-white py-3 rounded hover:bg-red-700 transition-all font-bold disabled:opacity-50 shadow-md"
                 >
                   {loading ? "جاري الحذف..." : "حذف نهائياً"}
                 </button>
@@ -1153,7 +1138,7 @@ export default function ReadingPassagesDashboard() {
                     setShowDeleteConfirm(false);
                     setItemToDelete(null);
                   }}
-                  className="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-all font-semibold"
+                  className="flex-1 border-2 border-gray-light py-3 rounded hover:bg-gray-lighter transition-all font-bold"
                 >
                   إلغاء
                 </button>
