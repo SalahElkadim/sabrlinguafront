@@ -8,6 +8,7 @@ import {
 import ResetPassword from "./components/ResetPassword";
 import ResetPasswordConfirm from "./components/ResetPasswordConfirm";
 import PlacementTestsDashboard from "./components/PlacementTestsDashboard";
+import MCQQuestionsDashboard from "./components/MCQQuestionsDashboard"; // أضف هذا السطر
 import AuthComponent from "./components/AuthComponent";
 
 // Protected Route Component - للصفحات المحمية
@@ -52,6 +53,16 @@ function App() {
           element={
             <ProtectedRoute>
               <PlacementTestsDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* صفحة إدارة الأسئلة - محمية - أضف هذا المسار الجديد */}
+        <Route
+          path="/questions"
+          element={
+            <ProtectedRoute>
+              <MCQQuestionsDashboard />
             </ProtectedRoute>
           }
         />
