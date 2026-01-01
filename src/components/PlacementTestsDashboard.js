@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // في أول الملف
-import { Plus, Edit2, Trash2, Search, X, LogOut } from "lucide-react";
+import { Plus, Edit2, Trash2, X, LogOut } from "lucide-react";
 
 
 const API_URL =
@@ -9,9 +9,7 @@ const API_URL =
 export default function PlacementTestsDashboard() {
   const [tests, setTests] = useState([]);
   const navigate = useNavigate(); // أضف هذا السطر
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterActive, setFilterActive] = useState("all");
+  const [loading, setLoading] = useState(false);  
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedTest, setSelectedTest] = useState(null);
