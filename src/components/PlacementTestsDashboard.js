@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // في أول الملف
-import { Plus, Edit2, Trash2, X, LogOut } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, X, LogOut } from "lucide-react";
 
 
 const API_URL =
   "https://sabrlinguaa-production.up.railway.app/questions";
 
 export default function PlacementTestsDashboard() {
-  const [tests, setTests] = useState([]);
   const navigate = useNavigate(); // أضف هذا السطر
-  const [loading, setLoading] = useState(false);  
+  const [tests, setTests] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterActive, setFilterActive] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedTest, setSelectedTest] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [testToDelete, setTestToDelete] = useState(null);
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_data");
-    navigate("/login", { replace: true });
-  };
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -32,6 +28,13 @@ export default function PlacementTestsDashboard() {
     b2_min_score: "",
     is_active: true,
   });
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_data");
+    navigate("/login", { replace: true });
+  };
 
   useEffect(() => {
     fetchTests();
