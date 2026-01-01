@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // في أول الملف
-import { Plus, Edit2, Trash2, Search, X, LogOut } from "lucide-react";
+import { Plus, Edit2, Trash2, X } from "lucide-react";
 
-
-const API_URL =
-  "https://sabrlinguaa-production.up.railway.app/questions";
+const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
 
 export default function PlacementTestsDashboard() {
-  const navigate = useNavigate(); // أضف هذا السطر
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,17 +24,9 @@ export default function PlacementTestsDashboard() {
     b2_min_score: "",
     is_active: true,
   });
-  const handleLogout = () => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_data");
-    navigate("/login", { replace: true });
-  };
 
   useEffect(() => {
     fetchTests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTests = async () => {
@@ -195,29 +183,16 @@ export default function PlacementTestsDashboard() {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              إدارة امتحانات تحديد المستوى
-            </h1>
             <p className="text-gray-600">إضافة وتعديل وحذف الامتحانات</p>
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg"
-            >
-              <LogOut size={20} />
-              تسجيل الخروج
-            </button>
-
-            <button
-              onClick={openCreateModal}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
-            >
-              <Plus size={20} />
-              امتحان جديد
-            </button>
-          </div>
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+          >
+            <Plus size={20} />
+            امتحان جديد
+          </button>
         </div>
 
         {/* Tests Grid */}

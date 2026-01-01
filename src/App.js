@@ -7,16 +7,8 @@ import {
 } from "react-router-dom";
 import ResetPassword from "./components/ResetPassword";
 import ResetPasswordConfirm from "./components/ResetPasswordConfirm";
-import PlacementTestsDashboard from "./components/PlacementTestsDashboard";
-import MCQQuestionsDashboard from "./components/MCQQuestionsDashboard"; // أضف هذا السطر
 import AuthComponent from "./components/AuthComponent";
-import ReadingPassagesDashboard from "./components/ReadingPassagesDashboard";
-import ListeningQuestionsDashboard from "./components/ListeningQuestionsDashboard";
-import SpeakingQuestionsDashboard from "./components/SpeakingQuestionsDashboard";
-import WritingQuestionsDashboard from "./components/WritingQuestionsDashboard";
-
-
-
+import MainDashboard from "./components/MainDashboard";
 
 // Protected Route Component - للصفحات المحمية
 const ProtectedRoute = ({ children }) => {
@@ -54,54 +46,12 @@ function App() {
           }
         />
 
-        {/* صفحة الداشبورد - محمية */}
+        {/* الداشبورد الرئيسي - يحتوي على كل الصفحات */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <PlacementTestsDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* صفحة إدارة الأسئلة - محمية - أضف هذا المسار الجديد */}
-        <Route
-          path="/questions"
-          element={
-            <ProtectedRoute>
-              <MCQQuestionsDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/reading"
-          element={
-            <ProtectedRoute>
-              <ReadingPassagesDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/listening"
-          element={
-            <ProtectedRoute>
-              <ListeningQuestionsDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/speaking"
-          element={
-            <ProtectedRoute>
-              <SpeakingQuestionsDashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/writing"
-          element={
-            <ProtectedRoute>
-              <WritingQuestionsDashboard />
+              <MainDashboard />
             </ProtectedRoute>
           }
         />
