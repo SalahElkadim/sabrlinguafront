@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit2, Trash2, Search, X } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // في أول الملف
+import { Plus, Edit2, Trash2, Search, X, LogOut } from "lucide-react";
+
 
 const API_URL =
   "https://sabrlinguaa-production.up.railway.app/questions";
 
 export default function PlacementTestsDashboard() {
   const [tests, setTests] = useState([]);
+  const navigate = useNavigate(); // أضف هذا السطر
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterActive, setFilterActive] = useState("all");
@@ -14,7 +17,13 @@ export default function PlacementTestsDashboard() {
   const [selectedTest, setSelectedTest] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [testToDelete, setTestToDelete] = useState(null);
-
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_data");
+    navigate("/login", { replace: true });
+  };
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -183,14 +192,23 @@ export default function PlacementTestsDashboard() {
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                إدارة امتحانات تحديد المستوى
-              </h1>
-              <p className="text-gray-600">إضافة وتعديل وحذف الامتحانات</p>
-            </div>
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              إدارة امتحانات تحديد المستوى
+            </h1>
+            <p className="text-gray-600">إضافة وتعديل وحذف الامتحانات</p>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <LogOut size={20} />
+              تسجيل الخروج
+            </button>
+
             <button
               onClick={openCreateModal}
               className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
@@ -198,64 +216,6 @@ export default function PlacementTestsDashboard() {
               <Plus size={20} />
               امتحان جديد
             </button>
-          </div>
-
-          {/* Search and Filter */}
-          <div className="flex gap-4 flex-wrap">
-            <div className="flex-1 relative">
-              <Search
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-                size={20}
-              />
-              <input
-                type="text"
-                placeholder="ابحث عن امتحان..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setFilterActive("all");
-                  fetchTests();
-                }}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  filterActive === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                الكل
-              </button>
-              <button
-                onClick={() => {
-                  setFilterActive("active");
-                  fetchTests();
-                }}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  filterActive === "active"
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                نشط
-              </button>
-              <button
-                onClick={() => {
-                  setFilterActive("inactive");
-                  fetchTests();
-                }}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  filterActive === "inactive"
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                غير نشط
-              </button>
-            </div>
           </div>
         </div>
 
