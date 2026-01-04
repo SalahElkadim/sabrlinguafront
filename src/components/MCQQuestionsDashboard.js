@@ -326,7 +326,7 @@ export default function MCQQuestionsDashboard() {
       order: question.order.toString(),
     });
     if (question.question_image) {
-      setImagePreview(question.question_image);
+      setImagePreview(question.question_image.url || question.question_image);
     }
     setShowQuestionModal(true);
   };
@@ -559,7 +559,12 @@ export default function MCQQuestionsDashboard() {
 
                   {question.question_image && (
                     <img
-                      src={question.question_image}
+                      src={
+                        typeof question.question_image === "string"
+                          ? question.question_image
+                          : question.question_image.url ||
+                            question.question_image
+                      }
                       alt="سؤال"
                       className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
                     />
