@@ -532,9 +532,9 @@ export default function ListeningQuestionsDashboard() {
 
               {audio.audio_file && (
                 <div className="mb-4">
-                  <audio controls className="w-full">
+                  <video controls className="w-full h-12">
                     <source src={audio.audio_file} />
-                  </audio>
+                  </video>
                 </div>
               )}
 
