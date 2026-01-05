@@ -15,6 +15,13 @@ import {
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dyxozpomy/";
+const getOptimizedAudioUrl = (url) => {
+  if (!url) return url;
+  if (url.includes("cloudinary.com") && url.includes("/upload/")) {
+    return url.replace("/upload/", "/upload/f_mp3,q_auto/");
+  }
+  return url;
+};
 
 
 export default function ListeningQuestionsDashboard() {
@@ -532,13 +539,13 @@ export default function ListeningQuestionsDashboard() {
 
               {audio.audio_file && (
                 <div className="mb-4">
-                  <audio controls className="w-full">
+                  <audio controls className="w-full" preload="metadata">
                     <source
-                      src={audio.audio_file.replace(
-                        "/upload/",
-                        "/upload/f_mp3/"
-                      )}
+                      src={getOptimizedAudioUrl(audio.audio_file)}
+                      type="audio/mpeg"
                     />
+                    <source src={audio.audio_file} type="audio/ogg" />
+                    متصفحك لا يدعم تشغيل الملفات الصوتية
                   </audio>
                 </div>
               )}
@@ -812,8 +819,11 @@ export default function ListeningQuestionsDashboard() {
                   />
                   {audioPreview && (
                     <div className="mt-3">
-                      <audio controls className="w-full">
+                      <audio controls className="w-full" preload="metadata">
                         <source src={audioPreview} type="audio/mpeg" />
+                        <source src={audioPreview} type="audio/ogg" />
+                        <source src={audioPreview} type="audio/wav" />
+                        متصفحك لا يدعم تشغيل الملفات الصوتية
                       </audio>
                     </div>
                   )}
