@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
+const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dyxozpomy/";
+
 
 export default function MCQQuestionsDashboard() {
   const navigate = useNavigate();
@@ -567,16 +569,13 @@ export default function MCQQuestionsDashboard() {
                       } else if (question.question_image?.url) {
                         imageUrl = question.question_image.url;
                       } else if (typeof question.question_image === "object") {
-                        // في حالة كان object يحتوي على الرابط مباشرة
                         imageUrl = Object.values(question.question_image)[0];
                       }
 
-                      console.log(
-                        "Image URL:",
-                        imageUrl,
-                        "Type:",
-                        typeof question.question_image
-                      );
+                      // إضافة base URL إذا كان الرابط نسبي
+                      if (imageUrl && !imageUrl.startsWith("http")) {
+                        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+                      }
 
                       return imageUrl ? (
                         <img
