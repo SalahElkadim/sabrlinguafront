@@ -562,11 +562,18 @@ export default function MCQQuestionsDashboard() {
                       src={
                         typeof question.question_image === "string"
                           ? question.question_image
-                          : question.question_image.url ||
+                          : question.question_image?.url ||
                             question.question_image
                       }
                       alt="سؤال"
                       className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
+                      onError={(e) => {
+                        console.error(
+                          "فشل تحميل الصورة:",
+                          question.question_image
+                        );
+                        e.target.style.display = "none";
+                      }}
                     />
                   )}
 
