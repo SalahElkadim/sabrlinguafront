@@ -536,17 +536,31 @@ export default function ListeningQuestionsDashboard() {
                   {audio.is_active ? "نشط" : "غير نشط"}
                 </span>
               </div>
-
               {audio.audio_file && (
                 <div className="mb-4">
-                  <audio controls className="w-full" preload="metadata">
+                  <audio
+                    controls
+                    className="w-full"
+                    preload="metadata"
+                    onError={(e) => {
+                      console.error("فشل تحميل الصوت:", audio.audio_file);
+                      console.error("Error details:", e);
+                    }}
+                    onLoadedData={() => {
+                      console.log("تم تحميل الصوت بنجاح:", audio.audio_file);
+                    }}
+                  >
                     <source
                       src={getOptimizedAudioUrl(audio.audio_file)}
                       type="audio/mpeg"
                     />
                     <source src={audio.audio_file} type="audio/ogg" />
+                    <source src={audio.audio_file} type="audio/webm" />
                     متصفحك لا يدعم تشغيل الملفات الصوتية
                   </audio>
+                  <p className="text-xs text-gray-500 mt-1">
+                    الرابط: {audio.audio_file.substring(0, 50)}...
+                  </p>
                 </div>
               )}
 
