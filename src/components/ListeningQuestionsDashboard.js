@@ -142,16 +142,27 @@ export default function ListeningQuestionsDashboard() {
       return;
     }
 
+    // التحقق من وجود ملف صوتي عند الإنشاء
+    if (modalMode === "create" && !audioFormData.audio_file) {
+      alert("يرجى اختيار ملف صوتي");
+      return;
+    }
+
     setLoading(true);
     try {
       const formData = new FormData();
+
+      // إضافة جميع الحقول ماعدا audio_file
       Object.keys(audioFormData).forEach((key) => {
-        if (key === "audio_file" && audioFormData[key]) {
-          formData.append(key, audioFormData[key]);
-        } else if (key !== "audio_file") {
+        if (key !== "audio_file") {
           formData.append(key, audioFormData[key]);
         }
       });
+
+      // إضافة ملف الصوت فقط إذا كان موجود
+      if (audioFormData.audio_file) {
+        formData.append("audio_file", audioFormData.audio_file);
+      }
 
       const url =
         modalMode === "create"
@@ -176,11 +187,18 @@ export default function ListeningQuestionsDashboard() {
           fetchAudios(selectedTest.id);
         }
       } else {
-        alert("حدث خطأ: " + JSON.stringify(result.errors));
+        // عرض الأخطاء بشكل أوضح
+        console.error("Server errors:", result.errors);
+        const errorMessage = result.errors
+          ? Object.entries(result.errors)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join("\n")
+          : result.message || "حدث خطأ غير معروف";
+        alert("حدث خطأ:\n" + errorMessage);
       }
     } catch (error) {
       console.error("خطأ:", error);
-      alert("حدث خطأ في العملية");
+      alert("حدث خطأ في الاتصال بالسيرفر");
     } finally {
       setLoading(false);
     }
@@ -201,13 +219,18 @@ export default function ListeningQuestionsDashboard() {
     setLoading(true);
     try {
       const formData = new FormData();
+
+      // إضافة جميع الحقول ماعدا question_image
       Object.keys(questionFormData).forEach((key) => {
-        if (key === "question_image" && questionFormData[key]) {
-          formData.append(key, questionFormData[key]);
-        } else if (key !== "question_image") {
+        if (key !== "question_image") {
           formData.append(key, questionFormData[key]);
         }
       });
+
+      // إضافة الصورة فقط إذا كانت موجودة
+      if (questionFormData.question_image) {
+        formData.append("question_image", questionFormData.question_image);
+      }
 
       const url =
         modalMode === "create"
@@ -230,11 +253,18 @@ export default function ListeningQuestionsDashboard() {
           fetchQuestions(selectedAudio.id);
         }
       } else {
-        alert("حدث خطأ: " + JSON.stringify(result.errors));
+        // عرض الأخطاء بشكل أوضح
+        console.error("Server errors:", result.errors);
+        const errorMessage = result.errors
+          ? Object.entries(result.errors)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join("\n")
+          : result.message || "حدث خطأ غير معروف";
+        alert("حدث خطأ:\n" + errorMessage);
       }
     } catch (error) {
       console.error("خطأ:", error);
-      alert("حدث خطأ في العملية");
+      alert("حدث خطأ في الاتصال بالسيرفر");
     } finally {
       setLoading(false);
     }
