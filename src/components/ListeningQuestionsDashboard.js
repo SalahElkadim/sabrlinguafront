@@ -15,6 +15,11 @@ import {
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
 const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dyxozpomy/";
+const getFullUrl = (url) => {
+  if (!url) return url;
+  if (url.startsWith("http")) return url;
+  return CLOUDINARY_BASE_URL + url;
+};
 const getOptimizedAudioUrl = (url) => {
   if (!url) return url;
   if (url.includes("cloudinary.com") && url.includes("/upload/")) {
@@ -543,24 +548,26 @@ export default function ListeningQuestionsDashboard() {
                     className="w-full"
                     preload="metadata"
                     onError={(e) => {
-                      console.error("فشل تحميل الصوت:", audio.audio_file);
+                      console.error(
+                        "فشل تحميل الصوت:",
+                        getFullUrl(audio.audio_file)
+                      );
                       console.error("Error details:", e);
                     }}
                     onLoadedData={() => {
-                      console.log("تم تحميل الصوت بنجاح:", audio.audio_file);
+                      console.log("✅ تم تحميل الصوت بنجاح!");
                     }}
                   >
                     <source
                       src={getOptimizedAudioUrl(audio.audio_file)}
                       type="audio/mpeg"
                     />
-                    <source src={audio.audio_file} type="audio/ogg" />
-                    <source src={audio.audio_file} type="audio/webm" />
+                    <source
+                      src={getFullUrl(audio.audio_file)}
+                      type="audio/ogg"
+                    />
                     متصفحك لا يدعم تشغيل الملفات الصوتية
                   </audio>
-                  <p className="text-xs text-gray-500 mt-1">
-                    الرابط: {audio.audio_file.substring(0, 50)}...
-                  </p>
                 </div>
               )}
 
