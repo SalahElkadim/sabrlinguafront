@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
+const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dyxozpomy/";
 
 export default function ReadingPassagesDashboard() {
   const navigate = useNavigate();
@@ -323,7 +324,21 @@ export default function ReadingPassagesDashboard() {
       is_active: passage.is_active,
     });
     if (passage.passage_image) {
-      setPassageImagePreview(passage.passage_image);
+      let imageUrl = null;
+
+      if (typeof passage.passage_image === "string") {
+        imageUrl = passage.passage_image;
+      } else if (passage.passage_image?.url) {
+        imageUrl = passage.passage_image.url;
+      } else if (typeof passage.passage_image === "object") {
+        imageUrl = Object.values(passage.passage_image)[0];
+      }
+
+      if (imageUrl && !imageUrl.startsWith("http")) {
+        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+      }
+
+      setPassageImagePreview(imageUrl);
     }
     setShowPassageModal(true);
   };
@@ -352,7 +367,21 @@ export default function ReadingPassagesDashboard() {
       order: question.order.toString(),
     });
     if (question.question_image) {
-      setQuestionImagePreview(question.question_image);
+      let imageUrl = null;
+
+      if (typeof question.question_image === "string") {
+        imageUrl = question.question_image;
+      } else if (question.question_image?.url) {
+        imageUrl = question.question_image.url;
+      } else if (typeof question.question_image === "object") {
+        imageUrl = Object.values(question.question_image)[0];
+      }
+
+      if (imageUrl && !imageUrl.startsWith("http")) {
+        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+      }
+
+      setQuestionImagePreview(imageUrl);
     }
     setShowQuestionModal(true);
   };
@@ -495,14 +524,6 @@ export default function ReadingPassagesDashboard() {
                 </span>
               </div>
 
-              {passage.passage_image && (
-                <img
-                  src={passage.passage_image}
-                  alt={passage.title}
-                  className="mb-4 rounded-lg max-h-32 w-full object-cover border-2 border-gray-light"
-                />
-              )}
-
               <div className="space-y-2 mb-4 text-sm">
                 {passage.source && (
                   <div className="flex justify-between items-center">
@@ -596,13 +617,36 @@ export default function ReadingPassagesDashboard() {
           <FileText className="text-black flex-shrink-0" size={24} />
           <h3 className="text-xl font-bold text-black">نص القطعة</h3>
         </div>
-        {selectedPassage?.passage_image && (
-          <img
-            src={selectedPassage.passage_image}
-            alt={selectedPassage.title}
-            className="mb-4 rounded-lg max-h-64 w-full object-contain border-2 border-gray-light"
-          />
-        )}
+        {selectedPassage?.passage_image &&
+          (() => {
+            // استخراج رابط صورة القطعة بشكل صحيح
+            let imageUrl = null;
+
+            if (typeof selectedPassage.passage_image === "string") {
+              imageUrl = selectedPassage.passage_image;
+            } else if (selectedPassage.passage_image?.url) {
+              imageUrl = selectedPassage.passage_image.url;
+            } else if (typeof selectedPassage.passage_image === "object") {
+              imageUrl = Object.values(selectedPassage.passage_image)[0];
+            }
+
+            // إضافة base URL إذا كان الرابط نسبي
+            if (imageUrl && !imageUrl.startsWith("http")) {
+              imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+            }
+
+            return imageUrl ? (
+              <img
+                src={imageUrl}
+                alt={selectedPassage.title}
+                className="mb-4 rounded-lg max-h-64 w-full object-contain border-2 border-gray-light"
+                onError={(e) => {
+                  console.error("فشل تحميل صورة القطعة:", imageUrl);
+                  e.target.style.display = "none";
+                }}
+              />
+            ) : null;
+          })()}
         <p className="text-gray-dark whitespace-pre-line leading-relaxed">
           {selectedPassage?.passage_text}
         </p>
@@ -634,13 +678,36 @@ export default function ReadingPassagesDashboard() {
                     {question.question_text}
                   </p>
 
-                  {question.question_image && (
-                    <img
-                      src={question.question_image}
-                      alt="سؤال"
-                      className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
-                    />
-                  )}
+                  {question.question_image &&
+                    (() => {
+                      // استخراج رابط صورة السؤال بشكل صحيح
+                      let imageUrl = null;
+
+                      if (typeof question.question_image === "string") {
+                        imageUrl = question.question_image;
+                      } else if (question.question_image?.url) {
+                        imageUrl = question.question_image.url;
+                      } else if (typeof question.question_image === "object") {
+                        imageUrl = Object.values(question.question_image)[0];
+                      }
+
+                      // إضافة base URL إذا كان الرابط نسبي
+                      if (imageUrl && !imageUrl.startsWith("http")) {
+                        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+                      }
+
+                      return imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="سؤال"
+                          className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
+                          onError={(e) => {
+                            console.error("فشل تحميل صورة السؤال:", imageUrl);
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : null;
+                    })()}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     {["A", "B", "C", "D"].map((choice) => (

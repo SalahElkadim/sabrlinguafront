@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
+const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dyxozpomy/";
+
 
 export default function SpeakingQuestionsDashboard() {
   const navigate = useNavigate();
@@ -343,7 +345,21 @@ export default function SpeakingQuestionsDashboard() {
       setVideoPreview(video.video_file);
     }
     if (video.thumbnail) {
-      setThumbnailPreview(video.thumbnail);
+      let thumbnailUrl = null;
+
+      if (typeof video.thumbnail === "string") {
+        thumbnailUrl = video.thumbnail;
+      } else if (video.thumbnail?.url) {
+        thumbnailUrl = video.thumbnail.url;
+      } else if (typeof video.thumbnail === "object") {
+        thumbnailUrl = Object.values(video.thumbnail)[0];
+      }
+
+      if (thumbnailUrl && !thumbnailUrl.startsWith("http")) {
+        thumbnailUrl = CLOUDINARY_BASE_URL + thumbnailUrl;
+      }
+
+      setThumbnailPreview(thumbnailUrl);
     }
     setShowVideoModal(true);
   };
@@ -372,7 +388,21 @@ export default function SpeakingQuestionsDashboard() {
       order: question.order.toString(),
     });
     if (question.question_image) {
-      setImagePreview(question.question_image);
+      let imageUrl = null;
+
+      if (typeof question.question_image === "string") {
+        imageUrl = question.question_image;
+      } else if (question.question_image?.url) {
+        imageUrl = question.question_image.url;
+      } else if (typeof question.question_image === "object") {
+        imageUrl = Object.values(question.question_image)[0];
+      }
+
+      if (imageUrl && !imageUrl.startsWith("http")) {
+        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+      }
+
+      setImagePreview(imageUrl);
     }
     setShowQuestionModal(true);
   };
@@ -507,36 +537,63 @@ export default function SpeakingQuestionsDashboard() {
               key={video.id}
               className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all overflow-hidden border-2 border-gray-light"
             >
-              {video.thumbnail ? (
-                <div className="relative h-56 bg-black">
-                  <img
-                    src={video.thumbnail}
-                    alt={video.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <div className="w-20 h-20 bg-yellow-primary rounded-full flex items-center justify-center shadow-xl">
-                      <Play className="text-black mr-1" size={32} />
+              {(() => {
+                // استخراج رابط thumbnail بشكل صحيح
+                let thumbnailUrl = null;
+
+                if (video.thumbnail) {
+                  if (typeof video.thumbnail === "string") {
+                    thumbnailUrl = video.thumbnail;
+                  } else if (video.thumbnail?.url) {
+                    thumbnailUrl = video.thumbnail.url;
+                  } else if (typeof video.thumbnail === "object") {
+                    thumbnailUrl = Object.values(video.thumbnail)[0];
+                  }
+
+                  // إضافة base URL إذا كان الرابط نسبي
+                  if (thumbnailUrl && !thumbnailUrl.startsWith("http")) {
+                    thumbnailUrl = CLOUDINARY_BASE_URL + thumbnailUrl;
+                  }
+                }
+
+                return thumbnailUrl ? (
+                  <div className="relative h-56 bg-black">
+                    <img
+                      src={thumbnailUrl}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(
+                          "فشل تحميل الصورة المصغرة:",
+                          thumbnailUrl
+                        );
+                        e.target.style.display = "none";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                      <div className="w-20 h-20 bg-yellow-primary rounded-full flex items-center justify-center shadow-xl">
+                        <Play className="text-black mr-1" size={32} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : video.video_file ? (
-                <div className="relative h-56 bg-black">
-                  <video
-                    src={video.video_file}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <div className="w-20 h-20 bg-yellow-primary rounded-full flex items-center justify-center shadow-xl">
-                      <Play className="text-black mr-1" size={32} />
+                ) : video.video_file ? (
+                  <div className="relative h-56 bg-black">
+                    <video
+                      src={video.video_file}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                      <div className="w-20 h-20 bg-yellow-primary rounded-full flex items-center justify-center shadow-xl">
+                        <Play className="text-black mr-1" size={32} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="h-56 bg-gray-lighter flex items-center justify-center">
-                  <Video className="text-gray-medium" size={80} />
-                </div>
-              )}
+                ) : (
+                  <div className="h-56 bg-gray-lighter flex items-center justify-center">
+                    <Video className="text-gray-medium" size={80} />
+                  </div>
+                );
+              })()}
 
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -684,13 +741,43 @@ export default function SpeakingQuestionsDashboard() {
                     {question.question_text}
                   </p>
 
-                  {question.question_image && (
-                    <img
-                      src={question.question_image}
-                      alt="سؤال"
-                      className="mb-5 rounded-lg max-h-64 object-contain border-2 border-gray-light"
-                    />
-                  )}
+                  {question.question_image &&
+                    (() => {
+                      // استخراج رابط الصورة بشكل صحيح
+                      let imageUrl = null;
+
+                      if (typeof question.question_image === "string") {
+                        imageUrl = question.question_image;
+                      } else if (question.question_image?.url) {
+                        imageUrl = question.question_image.url;
+                      } else if (typeof question.question_image === "object") {
+                        imageUrl = Object.values(question.question_image)[0];
+                      }
+
+                      // إضافة base URL إذا كان الرابط نسبي
+                      if (imageUrl && !imageUrl.startsWith("http")) {
+                        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+                      }
+
+                      return imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="سؤال"
+                          className="mb-5 rounded-lg max-h-64 object-contain border-2 border-gray-light"
+                          onError={(e) => {
+                            console.error(
+                              "فشل تحميل الصورة. الرابط:",
+                              imageUrl
+                            );
+                            console.error(
+                              "البيانات الأصلية:",
+                              question.question_image
+                            );
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : null;
+                    })()}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
                     {["A", "B", "C", "D"].map((choice) => (

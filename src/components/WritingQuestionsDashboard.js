@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 const API_URL = "https://sabrlinguaa-production.up.railway.app/questions";
+const CLOUDINARY_BASE_URL = "https://res.cloudinary.com/dyxozpomy/";
 
 export default function WritingQuestionsDashboard() {
   const [tests, setTests] = useState([]);
@@ -221,7 +222,21 @@ export default function WritingQuestionsDashboard() {
       is_active: question.is_active,
     });
     if (question.question_image) {
-      setImagePreview(question.question_image);
+      let imageUrl = null;
+
+      if (typeof question.question_image === "string") {
+        imageUrl = question.question_image;
+      } else if (question.question_image?.url) {
+        imageUrl = question.question_image.url;
+      } else if (typeof question.question_image === "object") {
+        imageUrl = Object.values(question.question_image)[0];
+      }
+
+      if (imageUrl && !imageUrl.startsWith("http")) {
+        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+      }
+
+      setImagePreview(imageUrl);
     }
     setShowQuestionModal(true);
   };
@@ -366,13 +381,43 @@ export default function WritingQuestionsDashboard() {
                     {question.question_text}
                   </p>
 
-                  {question.question_image && (
-                    <img
-                      src={question.question_image}
-                      alt="سؤال"
-                      className="mb-5 rounded-lg max-h-64 object-contain border-2 border-yellow-primary"
-                    />
-                  )}
+                  {question.question_image &&
+                    (() => {
+                      // استخراج رابط الصورة بشكل صحيح
+                      let imageUrl = null;
+
+                      if (typeof question.question_image === "string") {
+                        imageUrl = question.question_image;
+                      } else if (question.question_image?.url) {
+                        imageUrl = question.question_image.url;
+                      } else if (typeof question.question_image === "object") {
+                        imageUrl = Object.values(question.question_image)[0];
+                      }
+
+                      // إضافة base URL إذا كان الرابط نسبي
+                      if (imageUrl && !imageUrl.startsWith("http")) {
+                        imageUrl = CLOUDINARY_BASE_URL + imageUrl;
+                      }
+
+                      return imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="سؤال"
+                          className="mb-5 rounded-lg max-h-64 object-contain border-2 border-yellow-primary"
+                          onError={(e) => {
+                            console.error(
+                              "فشل تحميل الصورة. الرابط:",
+                              imageUrl
+                            );
+                            console.error(
+                              "البيانات الأصلية:",
+                              question.question_image
+                            );
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : null;
+                    })()}
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                     {question.min_words && (
