@@ -557,25 +557,46 @@ export default function MCQQuestionsDashboard() {
                     {question.question_text}
                   </p>
 
-                  {question.question_image && (
-                    <img
-                      src={
-                        typeof question.question_image === "string"
-                          ? question.question_image
-                          : question.question_image?.url ||
-                            question.question_image
+                  {question.question_image &&
+                    (() => {
+                      // استخراج رابط الصورة بشكل صحيح
+                      let imageUrl = null;
+
+                      if (typeof question.question_image === "string") {
+                        imageUrl = question.question_image;
+                      } else if (question.question_image?.url) {
+                        imageUrl = question.question_image.url;
+                      } else if (typeof question.question_image === "object") {
+                        // في حالة كان object يحتوي على الرابط مباشرة
+                        imageUrl = Object.values(question.question_image)[0];
                       }
-                      alt="سؤال"
-                      className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
-                      onError={(e) => {
-                        console.error(
-                          "فشل تحميل الصورة:",
-                          question.question_image
-                        );
-                        e.target.style.display = "none";
-                      }}
-                    />
-                  )}
+
+                      console.log(
+                        "Image URL:",
+                        imageUrl,
+                        "Type:",
+                        typeof question.question_image
+                      );
+
+                      return imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="سؤال"
+                          className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-light"
+                          onError={(e) => {
+                            console.error(
+                              "فشل تحميل الصورة. الرابط:",
+                              imageUrl
+                            );
+                            console.error(
+                              "البيانات الأصلية:",
+                              question.question_image
+                            );
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : null;
+                    })()}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                     {["A", "B", "C", "D"].map((choice) => (
