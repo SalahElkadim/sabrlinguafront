@@ -31,9 +31,9 @@ import WritingQuestionsDashboard from "./WritingQuestionsDashboard";
 // Import Course Management components
 import LevelsDashboard from "./courses/LevelsDashboard";
 import UnitsDashboard from "./courses/UnitsDashboard";
-import SectionsDashboard from "./courses/SectionsDashboard";
-import LessonsDashboard from "./courses/LessonsDashboard";
-import ExercisesDashboard from "./courses/ExercisesDashboard";
+import { SectionsDashboard } from "./courses/SectionsDashboard";
+import {LessonsDashboard} from "./courses/LessonsDashboard";
+import {ExercisesDashboard} from "./courses/ExercisesDashboard";
 
 export default function MainDashboard() {
   const navigate = useNavigate();
