@@ -10,6 +10,8 @@ import {
   LogOut,
   Menu,
   X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 // Import all dashboard components
@@ -24,6 +26,7 @@ export default function MainDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPlacementTestOpen, setIsPlacementTestOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
@@ -33,7 +36,7 @@ export default function MainDashboard() {
     navigate("/login", { replace: true });
   };
 
-  const menuItems = [
+  const placementTestItems = [
     {
       id: "tests",
       name: "إدارة الامتحانات",
@@ -85,7 +88,9 @@ export default function MainDashboard() {
     }
   };
 
-  const activeMenuItem = menuItems.find((item) => item.id === activeTab);
+  const activeMenuItem = placementTestItems.find(
+    (item) => item.id === activeTab
+  );
 
   return (
     <div className="min-h-screen bg-white" dir="rtl">
@@ -130,41 +135,74 @@ export default function MainDashboard() {
           } fixed lg:sticky top-[73px] right-0 h-[calc(100vh-73px)] w-80 bg-black border-l-2 border-yellow-primary shadow-lg transition-transform duration-300 ease-in-out z-20 lg:translate-x-0 overflow-y-auto`}
         >
           <div className="p-6 space-y-3">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
+            {/* Main Placement Test Button */}
+            <button
+              onClick={() => setIsPlacementTestOpen(!isPlacementTestOpen)}
+              className={`w-full flex items-center gap-4 p-4 rounded transition-all ${
+                isPlacementTestOpen
+                  ? "bg-yellow-primary text-black shadow-lg font-bold"
+                  : "bg-white bg-opacity-5 text-white hover:bg-yellow-primary hover:bg-opacity-20 hover:text-yellow-primary"
+              }`}
+            >
+              <div
+                className={`p-2 rounded ${
+                  isPlacementTestOpen
+                    ? "bg-black bg-opacity-20"
+                    : "bg-white bg-opacity-10"
+                }`}
+              >
+                <List size={22} />
+              </div>
+              <span className="font-semibold text-right flex-1 text-base">
+                Placement Test
+              </span>
+              {isPlacementTestOpen ? (
+                <ChevronUp size={20} />
+              ) : (
+                <ChevronDown size={20} />
+              )}
+            </button>
 
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    // Close sidebar on mobile after selection
-                    if (window.innerWidth < 1024) {
-                      setIsSidebarOpen(false);
-                    }
-                  }}
-                  className={`w-full flex items-center gap-4 p-4 rounded transition-all ${
-                    isActive
-                      ? "bg-yellow-primary text-black shadow-lg font-bold"
-                      : "bg-white bg-opacity-5 text-white hover:bg-yellow-primary hover:bg-opacity-20 hover:text-yellow-primary"
-                  }`}
-                >
-                  <div
-                    className={`p-2 rounded ${
-                      isActive
-                        ? "bg-black bg-opacity-20"
-                        : "bg-white bg-opacity-10"
-                    }`}
-                  >
-                    <Icon size={22} />
-                  </div>
-                  <span className="font-semibold text-right flex-1 text-base">
-                    {item.name}
-                  </span>
-                </button>
-              );
-            })}
+            {/* Nested Menu Items */}
+            {isPlacementTestOpen && (
+              <div className="space-y-2 pr-4">
+                {placementTestItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        // Close sidebar on mobile after selection
+                        if (window.innerWidth < 1024) {
+                          setIsSidebarOpen(false);
+                        }
+                      }}
+                      className={`w-full flex items-center gap-3 p-3 rounded transition-all ${
+                        isActive
+                          ? "bg-yellow-primary text-black shadow-md font-bold"
+                          : "bg-white bg-opacity-5 text-white hover:bg-yellow-primary hover:bg-opacity-20 hover:text-yellow-primary"
+                      }`}
+                    >
+                      <div
+                        className={`p-1.5 rounded ${
+                          isActive
+                            ? "bg-black bg-opacity-20"
+                            : "bg-white bg-opacity-10"
+                        }`}
+                      >
+                        <Icon size={18} />
+                      </div>
+                      <span className="font-medium text-right flex-1 text-sm">
+                        {item.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </aside>
 
