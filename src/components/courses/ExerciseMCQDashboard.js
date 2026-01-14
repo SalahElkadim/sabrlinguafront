@@ -3,26 +3,25 @@ import {
   Plus,
   Edit2,
   Trash2,
-  Search,
   X,
-  AlertCircle,
   Loader2,
+  FileText,
+  Save,
   CheckCircle,
-  Image as ImageIcon,
+  Image,
+  AlertCircle,
 } from "lucide-react";
 
 export function ExerciseMCQDashboard() {
   const [questions, setQuestions] = useState([]);
   const [exercises, setExercises] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterExercise, setFilterExercise] = useState("");
   const [error, setError] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
+  const [selectedExerciseFilter, setSelectedExerciseFilter] = useState("");
 
-  const [formData, setFormData] = useState({
+  const [questionData, setQuestionData] = useState({
     exercise: "",
     question_text: "",
     question_image: null,
@@ -34,109 +33,92 @@ export function ExerciseMCQDashboard() {
     explanation: "",
     points: 1,
     order: 1,
+    is_active: true,
   });
 
   const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
   const getToken = () => localStorage.getItem("token");
 
   useEffect(() => {
-    fetchQuestions();
-    fetchExercises();
+    fetchInitialData();
   }, []);
 
-  const fetchQuestions = async () => {
+  const fetchInitialData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/mcq-questions/`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      if (!response.ok) throw new Error("فشل تحميل الأسئلة");
-      const data = await response.json();
-      setQuestions(data);
+      const [questRes, exRes] = await Promise.all([
+        fetch(`${API_URL}/mcq-questions/`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        }),
+        fetch(`${API_URL}/exercises/`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        }),
+      ]);
+      setQuestions(await questRes.json());
+      setExercises(await exRes.json());
     } catch (err) {
-      setError("حدث خطأ في تحميل الأسئلة");
+      setError("حدث خطأ في تحميل البيانات");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchExercises = async () => {
-    try {
-      const response = await fetch(`${API_URL}/exercises/`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      const data = await response.json();
-      setExercises(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleQuestionSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach((key) => {
-      if (key === "question_image" && formData[key]) {
-        formDataToSend.append(key, formData[key]);
-      } else if (key !== "question_image") {
-        formDataToSend.append(key, formData[key]);
-      }
-    });
-
     try {
+      const formData = new FormData();
+      
+      Object.keys(questionData).forEach((key) => {
+        if (key === "question_image") {
+          if (questionData[key] && questionData[key] instanceof File) {
+            formData.append(key, questionData[key]);
+          }
+        } else {
+          formData.append(key, questionData[key]);
+        }
+      });
+
       const url = editingQuestion
         ? `${API_URL}/mcq-questions/${editingQuestion.id}/`
         : `${API_URL}/mcq-questions/`;
+      
       const response = await fetch(url, {
         method: editingQuestion ? "PUT" : "POST",
-        headers: { Authorization: `Bearer ${getToken()}` },
-        body: formDataToSend,
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: formData,
       });
-      if (!response.ok) throw new Error("فشل الحفظ");
-      await fetchQuestions();
-      handleCloseModal();
+
+      if (response.ok) {
+        await fetchInitialData();
+        setShowQuestionModal(false);
+        setEditingQuestion(null);
+        resetQuestionForm();
+      }
     } catch (err) {
-      setError("حدث خطأ أثناء حفظ البيانات");
+      setError("خطأ في حفظ السؤال");
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("هل أنت متأكد؟")) return;
+  const handleDeleteQuestion = async (id) => {
+    if (!window.confirm("هل أنت متأكد من حذف هذا السؤال؟")) return;
+    
     try {
-      await fetch(`${API_URL}/mcq-questions/${id}/`, {
+      const response = await fetch(`${API_URL}/mcq-questions/${id}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-      await fetchQuestions();
+      if (response.ok) {
+        await fetchInitialData();
+      }
     } catch (err) {
-      setError("فشل الحذف");
+      setError("خطأ في حذف السؤال");
     }
   };
 
-  const handleEdit = (question) => {
-    setEditingQuestion(question);
-    setFormData({
-      exercise: question.exercise,
-      question_text: question.question_text,
-      question_image: null,
-      choice_a: question.choice_a,
-      choice_b: question.choice_b,
-      choice_c: question.choice_c,
-      choice_d: question.choice_d,
-      correct_answer: question.correct_answer,
-      explanation: question.explanation || "",
-      points: question.points,
-      order: question.order,
-    });
-    setImagePreview(question.question_image);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditingQuestion(null);
-    setFormData({
+  const resetQuestionForm = () => {
+    setQuestionData({
       exercise: "",
       question_text: "",
       question_image: null,
@@ -148,223 +130,429 @@ export function ExerciseMCQDashboard() {
       explanation: "",
       points: 1,
       order: 1,
+      is_active: true,
     });
-    setImagePreview(null);
   };
 
-  const filteredQuestions = questions.filter((q) => {
-    const matchesSearch = q.question_text
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesExercise = filterExercise
-      ? q.exercise === parseInt(filterExercise)
-      : true;
-    return matchesSearch && matchesExercise;
-  });
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setQuestionData({ ...questionData, question_image: file });
+    }
+  };
 
-  // تم حل مشكلة الاختفاء باستخدام min-h-[400px] بدلاً من h-screen
-  if (isLoading) {
+  const filteredQuestions = selectedExerciseFilter
+    ? questions.filter((q) => q.exercise === parseInt(selectedExerciseFilter))
+    : questions;
+
+  const questionsByExercise = exercises.map((exercise) => ({
+    exercise,
+    questions: questions.filter((q) => q.exercise === exercise.id),
+  }));
+
+  if (isLoading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] w-full py-20">
-        <Loader2 className="w-12 h-12 animate-spin text-yellow-500 mb-2" />
-        <p className="text-gray-500 font-medium">جاري تحميل الأسئلة...</p>
+      <div className="flex justify-center h-screen items-center">
+        <Loader2 className="animate-spin text-yellow-500" size={48} />
       </div>
     );
-  }
 
   return (
-    <div
-      className="w-full max-w-full overflow-x-hidden p-4 md:p-6 bg-gray-50 min-h-screen"
-      dir="rtl"
-    >
-      {/* Header - متجاوب */}
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-4xl font-bold text-black mb-2">
-          أسئلة الاختيار - التمارين
-        </h1>
-        <p className="text-sm md:text-base text-gray-600">
-          إدارة أسئلة MCQ للتمارين
-        </p>
+    <div className="p-6 bg-gray-50 min-h-screen" dir="rtl">
+      <div className="flex justify-between items-center mb-8 border-b pb-4">
+        <div>
+          <h1 className="text-3xl font-bold text-black flex items-center gap-2">
+            <FileText className="text-yellow-500" /> أسئلة الاختيار من متعدد (MCQ)
+          </h1>
+          <p className="text-gray-600 mt-1">
+            إدارة أسئلة الاختيار المرتبطة بالتمارين (Grammar & Vocabulary)
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            resetQuestionForm();
+            setEditingQuestion(null);
+            setShowQuestionModal(true);
+          }}
+          className="bg-black text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-800 transition-all"
+        >
+          <Plus size={20} /> إضافة سؤال جديد
+        </button>
       </div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded flex items-center gap-2">
-          <AlertCircle size={20} />
-          <span className="flex-1 text-sm">{error}</span>
-          <button onClick={() => setError("")}>
-            <X size={20} />
-          </button>
+      <div className="bg-white rounded-xl shadow-sm border p-4 mb-6">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-bold text-gray-700">
+            تصفية حسب التمرين:
+          </label>
+          <select
+            className="flex-1 max-w-md border-2 border-gray-200 p-2 rounded-lg focus:border-yellow-500 outline-none"
+            value={selectedExerciseFilter}
+            onChange={(e) => setSelectedExerciseFilter(e.target.value)}
+          >
+            <option value="">كل التمارين ({questions.length} سؤال)</option>
+            {exercises.map((ex) => (
+              <option key={ex.id} value={ex.id}>
+                {ex.title} ({questions.filter((q) => q.exercise === ex.id).length})
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid gap-8">
+        {questionsByExercise
+          .filter((item) => 
+            !selectedExerciseFilter || 
+            item.exercise.id === parseInt(selectedExerciseFilter)
+          )
+          .map(({ exercise, questions: exQuestions }) => (
+            <div
+              key={exercise.id}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+            >
+              <div className="p-4 bg-gradient-to-r from-yellow-50 to-gray-50 border-b flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="bg-yellow-500 p-2 rounded-lg text-white">
+                    <FileText size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-800">
+                      {exercise.title}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {exQuestions.length} سؤال • {exercise.lesson_title}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setQuestionData({ ...questionData, exercise: exercise.id });
+                    setEditingQuestion(null);
+                    setShowQuestionModal(true);
+                  }}
+                  className="bg-green-600 text-white text-sm px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
+                >
+                  <Plus size={16} /> سؤال جديد
+                </button>
+              </div>
+
+              <div className="p-4">
+                {exQuestions.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400">
+                    <AlertCircle className="mx-auto mb-2" size={32} />
+                    <p>لا توجد أسئلة في هذا التمرين</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {exQuestions.map((q, idx) => (
+                      <div
+                        key={q.id}
+                        className="border border-gray-100 rounded-lg p-4 hover:shadow-md transition-all bg-gray-50/50"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-start gap-3 flex-1">
+                            <span className="bg-black text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                              {idx + 1}
+                            </span>
+                            <div className="flex-1">
+                              <p className="text-gray-800 font-medium mb-2">
+                                {q.question_text}
+                              </p>
+                              {q.question_image && (
+                                <div className="flex items-center gap-1 text-xs text-blue-600 mb-2">
+                                  <Image size={14} />
+                                  <span>يحتوي على صورة</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setEditingQuestion(q);
+                                setQuestionData(q);
+                                setShowQuestionModal(true);
+                              }}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteQuestion(q.id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 mr-10">
+                          {["a", "b", "c", "d"].map((choice) => (
+                            <div
+                              key={choice}
+                              className={`p-2 rounded-md text-sm border ${
+                                q.correct_answer === choice.toUpperCase()
+                                  ? "bg-green-50 border-green-300 text-green-800"
+                                  : "bg-white border-gray-200 text-gray-700"
+                              }`}
+                            >
+                              <span className="font-bold uppercase mr-1">
+                                {choice}:
+                              </span>
+                              {q[`choice_${choice}`]}
+                              {q.correct_answer === choice.toUpperCase() && (
+                                <CheckCircle
+                                  size={14}
+                                  className="inline mr-1 text-green-600"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
+                          <div className="flex gap-4">
+                            <span>النقاط: {q.points}</span>
+                            <span>الترتيب: {q.order}</span>
+                            <span
+                              className={
+                                q.is_active ? "text-green-600" : "text-red-600"
+                              }
+                            >
+                              {q.is_active ? "نشط" : "غير نشط"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+      </div>
+
+      {showQuestionModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b sticky top-0 bg-white z-10 flex justify-between items-center">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                {editingQuestion ? (
+                  <>
+                    <Edit2 size={20} /> تعديل السؤال
+                  </>
+                ) : (
+                  <>
+                    <Plus size={20} /> إضافة سؤال جديد
+                  </>
+                )}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowQuestionModal(false);
+                  setEditingQuestion(null);
+                }}
+                className="hover:bg-gray-200 p-1 rounded-full"
+              >
+                <X />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  التمرين المرتبط *
+                </label>
+                <select
+                  className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                  value={questionData.exercise}
+                  onChange={(e) =>
+                    setQuestionData({
+                      ...questionData,
+                      exercise: e.target.value,
+                    })
+                  }
+                  required
+                >
+                  <option value="">اختر التمرين...</option>
+                  {exercises.map((ex) => (
+                    <option key={ex.id} value={ex.id}>
+                      {ex.title} - {ex.lesson_title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  نص السؤال *
+                </label>
+                <textarea
+                  className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                  rows="3"
+                  placeholder="اكتب السؤال هنا..."
+                  value={questionData.question_text}
+                  onChange={(e) =>
+                    setQuestionData({
+                      ...questionData,
+                      question_text: e.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  صورة السؤال (اختياري)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                  onChange={handleImageChange}
+                />
+                {editingQuestion?.question_image && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    صورة موجودة: {editingQuestion.question_image.split("/").pop()}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {["a", "b", "c", "d"].map((char) => (
+                  <div key={char}>
+                    <label className="block text-xs font-bold mb-2 uppercase text-gray-600">
+                      خيار {char.toUpperCase()} *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                      placeholder={`الخيار ${char.toUpperCase()}`}
+                      value={questionData[`choice_${char}`]}
+                      onChange={(e) =>
+                        setQuestionData({
+                          ...questionData,
+                          [`choice_${char}`]: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-green-700">
+                    الإجابة الصحيحة *
+                  </label>
+                  <select
+                    className="w-full border-2 border-green-100 p-3 rounded-xl focus:border-green-500 outline-none bg-green-50/50"
+                    value={questionData.correct_answer}
+                    onChange={(e) =>
+                      setQuestionData({
+                        ...questionData,
+                        correct_answer: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-gray-700">
+                    النقاط *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                    value={questionData.points}
+                    onChange={(e) =>
+                      setQuestionData({
+                        ...questionData,
+                        points: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-gray-700">
+                    الترتيب *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                    value={questionData.order}
+                    onChange={(e) =>
+                      setQuestionData({
+                        ...questionData,
+                        order: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold mb-2 text-gray-700">
+                    الحالة
+                  </label>
+                  <select
+                    className="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-yellow-500 outline-none"
+                    value={questionData.is_active}
+                    onChange={(e) =>
+                      setQuestionData({
+                        ...questionData,
+                        is_active: e.target.value === "true",
+                      })
+                    }
+                  >
+                    <option value="true">نشط</option>
+                    <option value="false">غير نشط</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2 text-blue-700">
+                  التفسير (Explanation)
+                </label>
+                <textarea
+                  className="w-full border-2 border-blue-50 p-3 rounded-xl focus:border-blue-500 outline-none bg-blue-50/20"
+                  rows="3"
+                  placeholder="اشرح لماذا هذه الإجابة صحيحة..."
+                  value={questionData.explanation}
+                  onChange={(e) =>
+                    setQuestionData({
+                      ...questionData,
+                      explanation: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <button
+                onClick={handleQuestionSubmit}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                <Save size={20} /> حفظ السؤال
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* شريط البحث والفلترة - تم تعديله للموبايل */}
-      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="البحث عن سؤال..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
-            />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <select
-              value={filterExercise}
-              onChange={(e) => setFilterExercise(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded text-sm outline-none"
-            >
-              <option value="">كل التمارين</option>
-              {exercises.map((ex) => (
-                <option key={ex.id} value={ex.id}>
-                  {ex.title}
-                </option>
-              ))}
-            </select>
-
-            <button
-              onClick={() => setShowModal(true)}
-              className="w-full sm:w-auto bg-yellow-500 text-black px-4 py-2 rounded font-bold hover:bg-yellow-600 flex items-center justify-center gap-2 text-sm whitespace-nowrap"
-            >
-              <Plus size={18} /> إضافة سؤال
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* قائمة الأسئلة */}
-      <div className="space-y-4">
-        {filteredQuestions.map((question, index) => (
-          <div
-            key={question.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6"
-          >
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="hidden md:flex flex-shrink-0 w-10 h-10 bg-yellow-500 rounded-full items-center justify-center font-bold text-white">
-                {index + 1}
-              </div>
-
-              <div className="flex-1 overflow-hidden">
-                <div className="flex justify-between items-start gap-2 mb-4">
-                  <h3 className="text-lg font-bold text-gray-800 leading-tight">
-                    <span className="md:hidden text-yellow-600 ml-1">
-                      {index + 1}.
-                    </span>{" "}
-                    {question.question_text}
-                  </h3>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleEdit(question)}
-                      className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
-                    >
-                      <Edit2 size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(question.id)}
-                      className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-
-                {question.question_image && (
-                  <div className="mb-4 flex justify-center md:justify-start">
-                    <img
-                      src={question.question_image}
-                      alt="سؤال"
-                      className="rounded-lg max-h-48 w-full md:w-auto object-contain border border-gray-200"
-                    />
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                  {["a", "b", "c", "d"].map((key) => (
-                    <div
-                      key={key}
-                      className={`p-3 rounded-lg border ${
-                        question.correct_answer === key.toUpperCase()
-                          ? "bg-green-50 border-green-500"
-                          : "bg-gray-50 border-gray-200"
-                      }`}
-                    >
-                      <span className="font-bold uppercase ml-2 text-gray-500">
-                        {key}:
-                      </span>
-                      <span className="text-sm text-gray-700">
-                        {question[`choice_${key}`]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap gap-4 text-xs text-gray-500 border-t pt-3">
-                  <span className="bg-gray-100 px-2 py-1 rounded">
-                    التمرين: {question.exercise_title}
-                  </span>
-                  <span className="bg-gray-100 px-2 py-1 rounded">
-                    النقاط: {question.points}
-                  </span>
-                  <span className="bg-gray-100 px-2 py-1 rounded">
-                    الترتيب: {question.order}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* المودال - تم تعديله للموبايل */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-2 md:p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[95vh] overflow-y-auto shadow-2xl">
-            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
-              <h2 className="text-xl font-bold">
-                {editingQuestion ? "تعديل السؤال" : "إضافة سؤال"}
-              </h2>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 hover:bg-gray-100 rounded-full"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
-              {/* الحقول هنا تبقى كما هي لكن تأكد من استخدام grid-cols-1 للموبايل */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-bold mb-1">
-                    السؤال *
-                  </label>
-                  <textarea
-                    className="w-full p-2 border rounded-lg h-20 outline-none focus:ring-2 focus:ring-yellow-500"
-                    value={formData.question_text}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        question_text: e.target.value,
-                      })
-                    }
-                    required
-                  />
-                </div>
-                {/* ... بقية حقول الفورم ... */}
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors"
-              >
-                حفظ السؤال
-              </button>
-            </form>
-          </div>
+      {error && (
+        <div className="fixed bottom-4 left-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
+          {error}
         </div>
       )}
     </div>
