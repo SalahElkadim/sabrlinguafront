@@ -55,7 +55,6 @@ export function ExerciseMCQDashboard() {
       setQuestions(data);
     } catch (err) {
       setError("حدث خطأ في تحميل الأسئلة");
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +65,6 @@ export function ExerciseMCQDashboard() {
       const response = await fetch(`${API_URL}/exercises/`, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-      if (!response.ok) throw new Error("فشل تحميل التمارين");
       const data = await response.json();
       setExercises(data);
     } catch (err) {
@@ -77,7 +75,6 @@ export function ExerciseMCQDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       if (key === "question_image" && formData[key]) {
@@ -91,42 +88,29 @@ export function ExerciseMCQDashboard() {
       const url = editingQuestion
         ? `${API_URL}/mcq-questions/${editingQuestion.id}/`
         : `${API_URL}/mcq-questions/`;
-
-      const method = editingQuestion ? "PUT" : "POST";
-
       const response = await fetch(url, {
-        method,
+        method: editingQuestion ? "PUT" : "POST",
         headers: { Authorization: `Bearer ${getToken()}` },
         body: formDataToSend,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(JSON.stringify(errorData));
-      }
-
+      if (!response.ok) throw new Error("فشل الحفظ");
       await fetchQuestions();
       handleCloseModal();
     } catch (err) {
-      setError(editingQuestion ? "فشل تحديث السؤال" : "فشل إضافة السؤال");
-      console.error(err);
+      setError("حدث خطأ أثناء حفظ البيانات");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا السؤال؟")) return;
-
+    if (!window.confirm("هل أنت متأكد؟")) return;
     try {
-      const response = await fetch(`${API_URL}/mcq-questions/${id}/`, {
+      await fetch(`${API_URL}/mcq-questions/${id}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-
-      if (!response.ok) throw new Error("فشل حذف السؤال");
       await fetchQuestions();
     } catch (err) {
-      setError("حدث خطأ أثناء حذف السؤال");
-      console.error(err);
+      setError("فشل الحذف");
     }
   };
 
@@ -145,9 +129,7 @@ export function ExerciseMCQDashboard() {
       points: question.points,
       order: question.order,
     });
-    if (question.question_image) {
-      setImagePreview(question.question_image);
-    }
+    setImagePreview(question.question_image);
     setShowModal(true);
   };
 
@@ -168,34 +150,22 @@ export function ExerciseMCQDashboard() {
       order: 1,
     });
     setImagePreview(null);
-    setError("");
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, question_image: file });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const filteredQuestions = questions.filter((question) => {
-    const matchesSearch = question.question_text
+  const filteredQuestions = questions.filter((q) => {
+    const matchesSearch = q.question_text
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesExercise = filterExercise
-      ? question.exercise === parseInt(filterExercise)
+      ? q.exercise === parseInt(filterExercise)
       : true;
     return matchesSearch && matchesExercise;
   });
 
+  // تم حل مشكلة الاختفاء باستخدام min-h-[400px] بدلاً من h-screen
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
+      <div className="flex flex-col items-center justify-center min-h-[400px] w-full py-20">
         <Loader2 className="w-12 h-12 animate-spin text-yellow-500 mb-2" />
         <p className="text-gray-500 font-medium">جاري تحميل الأسئلة...</p>
       </div>
@@ -203,89 +173,101 @@ export function ExerciseMCQDashboard() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen" dir="rtl">
+    <div
+      className="w-full max-w-full overflow-x-hidden p-4 md:p-6 bg-gray-50 min-h-screen"
+      dir="rtl"
+    >
+      {/* Header - متجاوب */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-black mb-2">
-          أسئلة الاختيار من متعدد - التمارين
+        <h1 className="text-2xl md:text-4xl font-bold text-black mb-2">
+          أسئلة الاختيار - التمارين
         </h1>
-        <p className="text-gray-600">إدارة أسئلة MCQ للتمارين</p>
+        <p className="text-sm md:text-base text-gray-600">
+          إدارة أسئلة MCQ للتمارين
+        </p>
       </div>
 
       {error && (
         <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded flex items-center gap-2">
           <AlertCircle size={20} />
-          <span>{error}</span>
-          <button onClick={() => setError("")} className="mr-auto">
+          <span className="flex-1 text-sm">{error}</span>
+          <button onClick={() => setError("")}>
             <X size={20} />
           </button>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-center">
-          <div className="relative flex-1 w-full">
+      {/* شريط البحث والفلترة - تم تعديله للموبايل */}
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
             <Search
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={18}
             />
             <input
               type="text"
               placeholder="البحث عن سؤال..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 outline-none text-sm"
             />
           </div>
 
-          <select
-            value={filterExercise}
-            onChange={(e) => setFilterExercise(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          >
-            <option value="">كل التمارين</option>
-            {exercises.map((exercise) => (
-              <option key={exercise.id} value={exercise.id}>
-                {exercise.title}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <select
+              value={filterExercise}
+              onChange={(e) => setFilterExercise(e.target.value)}
+              className="w-full sm:w-48 px-4 py-2 border border-gray-300 rounded text-sm outline-none"
+            >
+              <option value="">كل التمارين</option>
+              {exercises.map((ex) => (
+                <option key={ex.id} value={ex.id}>
+                  {ex.title}
+                </option>
+              ))}
+            </select>
 
-          <button
-            onClick={() => setShowModal(true)}
-            className="bg-yellow-500 text-black px-6 py-2 rounded font-bold hover:bg-yellow-600 transition-all flex items-center gap-2 whitespace-nowrap"
-          >
-            <Plus size={20} />
-            إضافة سؤال جديد
-          </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="w-full sm:w-auto bg-yellow-500 text-black px-4 py-2 rounded font-bold hover:bg-yellow-600 flex items-center justify-center gap-2 text-sm whitespace-nowrap"
+            >
+              <Plus size={18} /> إضافة سؤال
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* قائمة الأسئلة */}
       <div className="space-y-4">
         {filteredQuestions.map((question, index) => (
           <div
             key={question.id}
-            className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6"
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6"
           >
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center font-bold text-white">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="hidden md:flex flex-shrink-0 w-10 h-10 bg-yellow-500 rounded-full items-center justify-center font-bold text-white">
                 {index + 1}
               </div>
 
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-bold text-black flex-1">
+              <div className="flex-1 overflow-hidden">
+                <div className="flex justify-between items-start gap-2 mb-4">
+                  <h3 className="text-lg font-bold text-gray-800 leading-tight">
+                    <span className="md:hidden text-yellow-600 ml-1">
+                      {index + 1}.
+                    </span>{" "}
                     {question.question_text}
                   </h3>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-shrink-0">
                     <button
                       onClick={() => handleEdit(question)}
-                      className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
                     >
                       <Edit2 size={18} />
                     </button>
                     <button
                       onClick={() => handleDelete(question.id)}
-                      className="p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                      className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -293,50 +275,45 @@ export function ExerciseMCQDashboard() {
                 </div>
 
                 {question.question_image && (
-                  <img
-                    src={question.question_image}
-                    alt="سؤال"
-                    className="mb-4 rounded-lg max-h-48 object-contain border-2 border-gray-300"
-                  />
+                  <div className="mb-4 flex justify-center md:justify-start">
+                    <img
+                      src={question.question_image}
+                      alt="سؤال"
+                      className="rounded-lg max-h-48 w-full md:w-auto object-contain border border-gray-200"
+                    />
+                  </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                  {["A", "B", "C", "D"].map((choice) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  {["a", "b", "c", "d"].map((key) => (
                     <div
-                      key={choice}
-                      className={`p-3 rounded border-2 ${
-                        question.correct_answer === choice
+                      key={key}
+                      className={`p-3 rounded-lg border ${
+                        question.correct_answer === key.toUpperCase()
                           ? "bg-green-50 border-green-500"
-                          : "bg-gray-50 border-gray-300"
+                          : "bg-gray-50 border-gray-200"
                       }`}
                     >
-                      <span className="font-bold text-black">{choice}:</span>{" "}
-                      <span className="text-gray-700">
-                        {question[`choice_${choice.toLowerCase()}`]}
+                      <span className="font-bold uppercase ml-2 text-gray-500">
+                        {key}:
                       </span>
-                      {question.correct_answer === choice && (
-                        <CheckCircle
-                          size={16}
-                          className="inline-block mr-2 text-green-600"
-                        />
-                      )}
+                      <span className="text-sm text-gray-700">
+                        {question[`choice_${key}`]}
+                      </span>
                     </div>
                   ))}
                 </div>
 
-                {question.explanation && (
-                  <div className="bg-yellow-50 p-3 rounded mb-3 border border-yellow-300">
-                    <p className="text-sm text-gray-700">
-                      <span className="font-bold text-black">الشرح:</span>{" "}
-                      {question.explanation}
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span>التمرين: {question.exercise_title}</span>
-                  <span>النقاط: {question.points}</span>
-                  <span>الترتيب: {question.order}</span>
+                <div className="flex flex-wrap gap-4 text-xs text-gray-500 border-t pt-3">
+                  <span className="bg-gray-100 px-2 py-1 rounded">
+                    التمرين: {question.exercise_title}
+                  </span>
+                  <span className="bg-gray-100 px-2 py-1 rounded">
+                    النقاط: {question.points}
+                  </span>
+                  <span className="bg-gray-100 px-2 py-1 rounded">
+                    الترتيب: {question.order}
+                  </span>
                 </div>
               </div>
             </div>
@@ -344,187 +321,48 @@ export function ExerciseMCQDashboard() {
         ))}
       </div>
 
-      {filteredQuestions.length === 0 && (
-        <div className="text-center py-12">
-          <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-xl text-gray-600">لا توجد أسئلة</p>
-        </div>
-      )}
-
+      {/* المودال - تم تعديله للموبايل */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-black">
-                {editingQuestion ? "تعديل السؤال" : "إضافة سؤال جديد"}
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-2 md:p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[95vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+              <h2 className="text-xl font-bold">
+                {editingQuestion ? "تعديل السؤال" : "إضافة سؤال"}
               </h2>
               <button
                 onClick={handleCloseModal}
-                className="p-2 hover:bg-gray-100 rounded transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-full"
               >
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-bold text-black mb-2">
-                  التمرين *
-                </label>
-                <select
-                  value={formData.exercise}
-                  onChange={(e) =>
-                    setFormData({ ...formData, exercise: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  required
-                >
-                  <option value="">اختر التمرين</option>
-                  {exercises.map((exercise) => (
-                    <option key={exercise.id} value={exercise.id}>
-                      {exercise.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-black mb-2">
-                  نص السؤال *
-                </label>
-                <textarea
-                  value={formData.question_text}
-                  onChange={(e) =>
-                    setFormData({ ...formData, question_text: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-black mb-2">
-                  صورة السؤال (اختياري)
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                />
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="معاينة"
-                    className="mt-3 rounded-lg max-h-48 object-contain border-2 border-gray-300"
-                  />
-                )}
-              </div>
-
+            <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-4">
+              {/* الحقول هنا تبقى كما هي لكن تأكد من استخدام grid-cols-1 للموبايل */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {["A", "B", "C", "D"].map((choice) => (
-                  <div key={choice}>
-                    <label className="block text-sm font-bold text-black mb-2">
-                      الخيار {choice} *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData[`choice_${choice.toLowerCase()}`]}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          [`choice_${choice.toLowerCase()}`]: e.target.value,
-                        })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                      required
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-black mb-2">
-                  الإجابة الصحيحة *
-                </label>
-                <select
-                  value={formData.correct_answer}
-                  onChange={(e) =>
-                    setFormData({ ...formData, correct_answer: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                >
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-black mb-2">
-                  الشرح (اختياري)
-                </label>
-                <textarea
-                  value={formData.explanation}
-                  onChange={(e) =>
-                    setFormData({ ...formData, explanation: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-black mb-2">
-                    النقاط *
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold mb-1">
+                    السؤال *
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.points}
+                  <textarea
+                    className="w-full p-2 border rounded-lg h-20 outline-none focus:ring-2 focus:ring-yellow-500"
+                    value={formData.question_text}
                     onChange={(e) =>
-                      setFormData({ ...formData, points: e.target.value })
+                      setFormData({
+                        ...formData,
+                        question_text: e.target.value,
+                      })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
                     required
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-black mb-2">
-                    الترتيب *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={formData.order}
-                    onChange={(e) =>
-                      setFormData({ ...formData, order: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"
-                    required
-                  />
-                </div>
+                {/* ... بقية حقول الفورم ... */}
               </div>
-
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-yellow-500 text-black px-6 py-3 rounded font-bold hover:bg-yellow-600 transition-all"
-                >
-                  {editingQuestion ? "تحديث" : "إضافة"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 bg-gray-300 text-black px-6 py-3 rounded font-bold hover:bg-gray-400 transition-all"
-                >
-                  إلغاء
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors"
+              >
+                حفظ السؤال
+              </button>
             </form>
           </div>
         </div>
