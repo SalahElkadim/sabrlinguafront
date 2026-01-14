@@ -11,7 +11,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
-export function ExerciseMCQQuestionsDashboard() {
+export function ExerciseMCQDashboard() {
   const [questions, setQuestions] = useState([]);
   const [exercises, setExercises] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
