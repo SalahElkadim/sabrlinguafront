@@ -145,7 +145,12 @@ export function ExerciseReadingDashboard() {
         </div>
         <button
           onClick={() => {
-            setPassageData({ exercise: "", title: "", content: "", order: 1 });
+            setPassageData({
+              exercise: null,
+              title: "",
+              passage_text: "",
+              order: 1,
+            });
             setEditingPassage(null);
             setShowPassageModal(true);
           }}
@@ -207,7 +212,7 @@ export function ExerciseReadingDashboard() {
             {/* Content Preview */}
             <div className="p-5 border-b bg-white">
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm italic">
-                {passage.content}
+                {passage.passage_text}
               </p>
             </div>
 
@@ -338,9 +343,12 @@ export function ExerciseReadingDashboard() {
                 <textarea
                   className="w-full border-2 border-gray-100 p-2.5 rounded-xl focus:border-yellow-500 outline-none min-h-[200px]"
                   placeholder="اكتب أو الصق النص هنا..."
-                  value={passageData.content}
+                  value={passageData.passage_text}
                   onChange={(e) =>
-                    setPassageData({ ...passageData, content: e.target.value })
+                    setPassageData({
+                      ...passageData,
+                      passage_text: e.target.value,
+                    })
                   }
                   required
                 />
