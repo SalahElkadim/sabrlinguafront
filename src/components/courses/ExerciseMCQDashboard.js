@@ -195,8 +195,9 @@ export function ExerciseMCQDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-12 h-12 animate-spin text-yellow-500" />
+      <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
+        <Loader2 className="w-12 h-12 animate-spin text-yellow-500 mb-2" />
+        <p className="text-gray-500 font-medium">جاري تحميل الأسئلة...</p>
       </div>
     );
   }
