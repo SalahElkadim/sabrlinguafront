@@ -29,7 +29,10 @@ export function LessonsDashboard() {
     order: 0,
   });
 
-const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
+  const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
+
+  // دالة للحصول على التوكن
+  const getToken = () => localStorage.getItem("token");
 
   useEffect(() => {
     fetchLessons();
@@ -39,7 +42,11 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
   const fetchLessons = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/lessons/`);
+      const response = await fetch(`${API_URL}/lessons/`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       if (!response.ok) throw new Error("فشل تحميل الدروس");
       const data = await response.json();
       setLessons(data);
@@ -53,7 +60,11 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
 
   const fetchSections = async () => {
     try {
-      const response = await fetch(`${API_URL}/sections/`);
+      const response = await fetch(`${API_URL}/sections/`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       if (!response.ok) throw new Error("فشل تحميل الأقسام");
       const data = await response.json();
       setSections(data);
@@ -84,6 +95,9 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
 
       const response = await fetch(url, {
         method,
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
         body: formDataToSend,
       });
 
@@ -106,6 +120,9 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
     try {
       const response = await fetch(`${API_URL}/lessons/${id}/`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
       });
 
       if (!response.ok) throw new Error("فشل حذف الدرس");

@@ -30,7 +30,10 @@ export function ExercisesDashboard() {
     is_active: true,
   });
 
-const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
+  const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
+
+  // دالة للحصول على التوكن
+  const getToken = () => localStorage.getItem("token");
 
   useEffect(() => {
     fetchExercises();
@@ -40,7 +43,11 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
   const fetchExercises = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${API_URL}/exercises/`);
+      const response = await fetch(`${API_URL}/exercises/`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       if (!response.ok) throw new Error("فشل تحميل التمارين");
       const data = await response.json();
       setExercises(data);
@@ -54,7 +61,11 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
 
   const fetchLessons = async () => {
     try {
-      const response = await fetch(`${API_URL}/lessons/`);
+      const response = await fetch(`${API_URL}/lessons/`, {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       if (!response.ok) throw new Error("فشل تحميل الدروس");
       const data = await response.json();
       setLessons(data);
@@ -78,6 +89,7 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify(formData),
       });
@@ -101,6 +113,9 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
     try {
       const response = await fetch(`${API_URL}/exercises/${id}/`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
       });
 
       if (!response.ok) throw new Error("فشل حذف التمرين");
@@ -142,6 +157,7 @@ const API_URL = "https://sabrlinguaa-production.up.railway.app/levels";
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
           ...exercise,
