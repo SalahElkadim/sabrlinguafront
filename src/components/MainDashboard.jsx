@@ -43,13 +43,14 @@ import { ExerciseReadingDashboard } from "./courses/ExerciseReadingDashboard";
 import { ExerciseListeningDashboard } from "./courses/ExerciseListeningDashboard";
 import { ExerciseSpeakingDashboard } from "./courses/ExerciseSpeakingDashboard";
 import { ExerciseWritingDashboard } from "./courses/ExerciseWritingDashboard";
+import { ExerciseMCQDashboard } from "./courses/ExerciseMCQDashboard"; // التأكد من الاستيراد
 
 export default function MainDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tests");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPlacementTestOpen, setIsPlacementTestOpen] = useState(false);
-  const [isCourseManagementOpen, setIsCourseManagementOpen] = useState(true); // جعلتها مفتوحة افتراضياً
+  const [isCourseManagementOpen, setIsCourseManagementOpen] = useState(true);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -96,7 +97,14 @@ export default function MainDashboard() {
       icon: Dumbbell,
       description: "Containers for Qs",
     },
-    // العناصر الجديدة المرتبطة بالتمارين
+
+    // --- الأسئلة المرتبطة بالتمارين (المضافة والمعدلة) ---
+    {
+      id: "ex-mcq",
+      name: "أسئلة الاختيار (تمارين)",
+      icon: FileText,
+      description: "Grammar & Vocab Qs",
+    },
     {
       id: "ex-reading",
       name: "أسئلة القراءة (تمارين)",
@@ -151,7 +159,9 @@ export default function MainDashboard() {
       case "exercises":
         return <ExercisesDashboard />;
 
-      // New Linked Exercise Content
+      // New Linked Exercise Content (تمت إضافة ex-mcq هنا)
+      case "ex-mcq":
+        return <ExerciseMCQDashboard />;
       case "ex-reading":
         return <ExerciseReadingDashboard />;
       case "ex-listening":
@@ -209,7 +219,6 @@ export default function MainDashboard() {
           } fixed lg:sticky top-[73px] right-0 h-[calc(100vh-73px)] w-80 bg-black border-l-2 border-yellow-500 shadow-lg transition-transform lg:translate-x-0 overflow-y-auto z-20`}
         >
           <div className="p-4 space-y-2">
-            {/* القسم الأول: Placement Test */}
             <SidebarSection
               title="Placement Test"
               isOpen={isPlacementTestOpen}
@@ -222,7 +231,6 @@ export default function MainDashboard() {
 
             <div className="border-t border-gray-800 my-4"></div>
 
-            {/* القسم الثاني: Course Management (محدث) */}
             <SidebarSection
               title="إدارة المستويات والتمارين"
               isOpen={isCourseManagementOpen}
@@ -250,7 +258,6 @@ export default function MainDashboard() {
   );
 }
 
-// مكون فرعي للأزرار في القائمة الجانبية لتقليل تكرار الكود
 function SidebarSection({
   title,
   isOpen,
