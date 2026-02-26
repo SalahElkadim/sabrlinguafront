@@ -6,31 +6,26 @@ import api from "../api/axios";
 // ============================================
 
 export const levelsAPI = {
-  // Get all levels
   getAll: async () => {
     const response = await api.get("/levels/levels/");
     return response.data;
   },
 
-  // Get single level
   getById: async (levelId) => {
     const response = await api.get(`/levels/levels/${levelId}/`);
     return response.data;
   },
 
-  // Create level
   create: async (data) => {
     const response = await api.post("/levels/levels/create/", data);
     return response.data;
   },
 
-  // Update level
   update: async (levelId, data) => {
     const response = await api.put(`/levels/levels/${levelId}/update/`, data);
     return response.data;
   },
 
-  // Delete level
   delete: async (levelId) => {
     const response = await api.delete(`/levels/levels/${levelId}/delete/`);
     return response.data;
@@ -42,32 +37,27 @@ export const levelsAPI = {
 // ============================================
 
 export const unitsAPI = {
-  // Get all units (with optional level filter)
   getAll: async (levelId = null) => {
     const params = levelId ? { level_id: levelId } : {};
     const response = await api.get("/levels/units/", { params });
     return response.data;
   },
 
-  // Get single unit
   getById: async (unitId) => {
     const response = await api.get(`/levels/units/${unitId}/`);
     return response.data;
   },
 
-  // Create unit
   create: async (data) => {
     const response = await api.post("/levels/units/create/", data);
     return response.data;
   },
 
-  // Update unit
   update: async (unitId, data) => {
     const response = await api.put(`/levels/units/${unitId}/update/`, data);
     return response.data;
   },
 
-  // Delete unit
   delete: async (unitId) => {
     const response = await api.delete(`/levels/units/${unitId}/delete/`);
     return response.data;
@@ -79,7 +69,6 @@ export const unitsAPI = {
 // ============================================
 
 export const lessonsAPI = {
-  // Get all lessons (with optional filters)
   getAll: async (unitId = null, lessonType = null) => {
     const params = {};
     if (unitId) params.unit_id = unitId;
@@ -88,25 +77,21 @@ export const lessonsAPI = {
     return response.data;
   },
 
-  // Get single lesson
   getById: async (lessonId) => {
     const response = await api.get(`/levels/lessons/${lessonId}/`);
     return response.data;
   },
 
-  // Create lesson
   create: async (data) => {
     const response = await api.post("/levels/lessons/create/", data);
     return response.data;
   },
 
-  // Update lesson
   update: async (lessonId, data) => {
     const response = await api.put(`/levels/lessons/${lessonId}/update/`, data);
     return response.data;
   },
 
-  // Delete lesson
   delete: async (lessonId) => {
     const response = await api.delete(`/levels/lessons/${lessonId}/delete/`);
     return response.data;
@@ -118,97 +103,97 @@ export const lessonsAPI = {
 // ============================================
 
 export const lessonContentAPI = {
-  // Reading Content
+  // ✅ Reading - suffix: /with-passage/
   reading: {
     get: async (lessonId) => {
       const response = await api.get(
-        `/levels/lesson-content/reading/${lessonId}/`
+        `/levels/lesson-content/reading/${lessonId}/with-passage/`
       );
       return response.data;
     },
     create: async (data) => {
       const response = await api.post(
-        "/levels/lesson-content/reading/create/",
+        "/levels/lesson-content/reading/create-with-passage/",
         data
       );
       return response.data;
     },
     update: async (lessonId, data) => {
       const response = await api.put(
-        `/levels/lesson-content/reading/${lessonId}/update/`,
+        `/levels/lesson-content/reading/${lessonId}/update-with-passage/`,
         data
       );
       return response.data;
     },
     delete: async (lessonId) => {
       const response = await api.delete(
-        `/levels/lesson-content/reading/${lessonId}/delete/`
+        `/levels/lesson-content/reading/${lessonId}/delete-with-passage/`
       );
       return response.data;
     },
   },
 
-  // Listening Content
+  // ✅ Listening - suffix: /with-audio/
   listening: {
     get: async (lessonId) => {
       const response = await api.get(
-        `/levels/lesson-content/listening/${lessonId}/`
+        `/levels/lesson-content/listening/${lessonId}/with-audio/`
       );
       return response.data;
     },
     create: async (data) => {
       const response = await api.post(
-        "/levels/lesson-content/listening/create/",
+        "/levels/lesson-content/listening/create-with-audio/",
         data
       );
       return response.data;
     },
     update: async (lessonId, data) => {
       const response = await api.put(
-        `/levels/lesson-content/listening/${lessonId}/update/`,
+        `/levels/lesson-content/listening/${lessonId}/update-with-audio/`,
         data
       );
       return response.data;
     },
     delete: async (lessonId) => {
       const response = await api.delete(
-        `/levels/lesson-content/listening/${lessonId}/delete/`
+        `/levels/lesson-content/listening/${lessonId}/delete-with-audio/`
       );
       return response.data;
     },
   },
 
-  // Speaking Content
+  // ✅ Speaking - suffix: /with-video/
   speaking: {
     get: async (lessonId) => {
       const response = await api.get(
-        `/levels/lesson-content/speaking/${lessonId}/`
+        `/levels/lesson-content/speaking/${lessonId}/with-video/`
       );
       return response.data;
     },
     create: async (data) => {
       const response = await api.post(
-        "/levels/lesson-content/speaking/create/",
+        "/levels/lesson-content/speaking/create-with-video/",
         data
       );
       return response.data;
     },
     update: async (lessonId, data) => {
       const response = await api.put(
-        `/levels/lesson-content/speaking/${lessonId}/update/`,
+        `/levels/lesson-content/speaking/${lessonId}/update-with-video/`,
         data
       );
       return response.data;
     },
     delete: async (lessonId) => {
       const response = await api.delete(
-        `/levels/lesson-content/speaking/${lessonId}/delete/`
+        `/levels/lesson-content/speaking/${lessonId}/delete-with-video/`
       );
       return response.data;
     },
   },
 
-  // Writing Content
+  // ✅ Writing - ماشي صح زي ما هو
   writing: {
     get: async (lessonId) => {
       const response = await api.get(
@@ -244,7 +229,6 @@ export const lessonContentAPI = {
 // ============================================
 
 export const examsAPI = {
-  // Unit Exams
   unit: {
     getAll: async (unitId = null) => {
       const params = unitId ? { unit_id: unitId } : {};
@@ -272,7 +256,6 @@ export const examsAPI = {
     },
   },
 
-  // Level Exams
   level: {
     getAll: async (levelId = null) => {
       const params = levelId ? { level_id: levelId } : {};
@@ -304,11 +287,10 @@ export const examsAPI = {
 };
 
 // ============================================
-// 6. QUESTION BANKS API (For Levels)
+// 6. QUESTION BANKS API
 // ============================================
 
 export const levelQuestionBanksAPI = {
-  // Get all question banks
   getAll: async (unitId = null, levelId = null) => {
     const params = {};
     if (unitId) params.unit_id = unitId;
@@ -317,13 +299,11 @@ export const levelQuestionBanksAPI = {
     return response.data;
   },
 
-  // Get single question bank
   getById: async (bankId) => {
     const response = await api.get(`/levels/question-banks/${bankId}/`);
     return response.data;
   },
 
-  // Get question bank statistics
   getStatistics: async (bankId) => {
     const response = await api.get(
       `/levels/question-banks/${bankId}/statistics/`
@@ -331,7 +311,6 @@ export const levelQuestionBanksAPI = {
     return response.data;
   },
 
-  // Add questions to bank
   addVocabulary: async (bankId, data) => {
     const response = await api.post(
       `/levels/question-banks/${bankId}/add-vocabulary/`,
@@ -410,19 +389,16 @@ export const levelQuestionBanksAPI = {
 // ============================================
 
 export const studentProgressAPI = {
-  // Start level
   startLevel: async (levelId) => {
     const response = await api.post(`/levels/student/start-level/${levelId}/`);
     return response.data;
   },
 
-  // Start unit
   startUnit: async (unitId) => {
     const response = await api.post(`/levels/student/start-unit/${unitId}/`);
     return response.data;
   },
 
-  // Complete lesson
   completeLesson: async (lessonId) => {
     const response = await api.post(
       `/levels/student/complete-lesson/${lessonId}/`
@@ -430,14 +406,12 @@ export const studentProgressAPI = {
     return response.data;
   },
 
-  // Get my progress
   getMyProgress: async (levelId = null) => {
     const params = levelId ? { level_id: levelId } : {};
     const response = await api.get("/levels/student/my-progress/", { params });
     return response.data;
   },
 
-  // Get current level
   getCurrentLevel: async () => {
     const response = await api.get("/levels/student/my-current-level/");
     return response.data;
@@ -449,7 +423,6 @@ export const studentProgressAPI = {
 // ============================================
 
 export const examTakingAPI = {
-  // Unit Exams
   unit: {
     start: async (examId) => {
       const response = await api.post(
@@ -468,15 +441,12 @@ export const examTakingAPI = {
       const params = unitId ? { unit_id: unitId } : {};
       const response = await api.get(
         "/levels/student/exams/unit/my-attempts/",
-        {
-          params,
-        }
+        { params }
       );
       return response.data;
     },
   },
 
-  // Level Exams
   level: {
     start: async (examId) => {
       const response = await api.post(
