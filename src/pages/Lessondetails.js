@@ -39,7 +39,7 @@ export default function LessonDetails() {
       clearError();
       // Fetch lesson basic info
       const lessonResponse = await fetch(
-        `http://127.0.0.1:8000/levels/lessons/${lessonId}/`,
+        `/levels/lessons/${lessonId}/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -56,7 +56,7 @@ export default function LessonDetails() {
       if (lessonData.has_content) {
         const contentType = lessonData.lesson_type.toLowerCase();
         const contentResponse = await fetch(
-          `http://127.0.0.1:8000/levels/lesson-content/${contentType}/${lessonId}/`,
+          `https://sabrlinguaa-production.up.railway.app/levels/lesson-content/${contentType}/${lessonId}/`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -77,7 +77,7 @@ export default function LessonDetails() {
   const handleDelete = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/levels/lessons/${lessonId}/delete/`,
+        `https://sabrlinguaa-production.up.railway.app/levels/lessons/${lessonId}/delete/`,
         {
           method: "DELETE",
           headers: {
