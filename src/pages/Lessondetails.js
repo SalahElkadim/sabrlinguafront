@@ -21,11 +21,13 @@ import {
   Clock,
 } from "lucide-react";
 import { useLevelsStore } from "../store/levelsStore";
+import { lessonContentAPI } from "../services/levelsService";
 
 export default function LessonDetails() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
-  const { loading, error, clearError } = useLevelsStore();
+  const { loading, error, clearError, fetchLessonById, deleteLesson } =
+    useLevelsStore();
   const [lesson, setLesson] = useState(null);
   const [content, setContent] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -37,37 +39,15 @@ export default function LessonDetails() {
   const fetchLessonDetails = async () => {
     try {
       clearError();
-      // Fetch lesson basic info
-      const lessonResponse = await fetch(
-        `/levels/lessons/${lessonId}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        }
-      );
 
-      if (!lessonResponse.ok) throw new Error("فشل تحميل بيانات الدرس");
-
-      const lessonData = await lessonResponse.json();
+      // ✅ استخدام الـ store بدل fetch مباشرة
+      const lessonData = await fetchLessonById(lessonId);
       setLesson(lessonData);
 
-      // Fetch lesson content based on type
       if (lessonData.has_content) {
         const contentType = lessonData.lesson_type.toLowerCase();
-        const contentResponse = await fetch(
-          `https://sabrlinguaa-production.up.railway.app/levels/lesson-content/${contentType}/${lessonId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-            },
-          }
-        );
-
-        if (contentResponse.ok) {
-          const contentData = await contentResponse.json();
-          setContent(contentData);
-        }
+        const contentData = await lessonContentAPI[contentType].get(lessonId);
+        setContent(contentData);
       }
     } catch (err) {
       console.error("Error fetching lesson:", err);
@@ -76,18 +56,8 @@ export default function LessonDetails() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(
-        `https://sabrlinguaa-production.up.railway.app/levels/lessons/${lessonId}/delete/`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("فشل حذف الدرس");
-
+      // ✅ استخدام الـ store بدل fetch مباشرة
+      await deleteLesson(lessonId);
       navigate("/dashboard/lessons");
     } catch (err) {
       console.error("Delete error:", err);
@@ -502,8 +472,6 @@ export default function LessonDetails() {
                 </div>
               </div>
             )}
-
-            
           </div>
         )}
       </div>
