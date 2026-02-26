@@ -121,7 +121,7 @@ export default function AddReadingContent() {
   const fetchLessonData = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/levels/lessons/${lessonId}/`,
+        `https://sabrlinguaa-production.up.railway.app/levels/lessons/${lessonId}/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -194,7 +194,7 @@ export default function AddReadingContent() {
       console.log("📤 Sending payload:", payload); // للتأكد
 
       const response = await fetch(
-        "http://127.0.0.1:8000/levels/lesson-content/reading/create-with-passage/",
+        "https://sabrlinguaa-production.up.railway.app/levels/lesson-content/reading/create-with-passage/",
         {
           method: "POST",
           headers: {

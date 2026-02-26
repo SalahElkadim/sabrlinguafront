@@ -19,7 +19,7 @@ export default function AddLessonContent() {
   const fetchLessonType = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/levels/lessons/${lessonId}/`,
+        `https://sabrlinguaa-production.up.railway.app/levels/lessons/${lessonId}/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,

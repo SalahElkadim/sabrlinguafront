@@ -57,7 +57,7 @@ export default function AddWritingContent() {
   const fetchLessonData = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/levels/lessons/${lessonId}/`,
+        `https://sabrlinguaa-production.up.railway.app/levels/lessons/${lessonId}/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -84,7 +84,7 @@ export default function AddWritingContent() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/levels/lesson-content/writing/create/",
+        "https://sabrlinguaa-production.up.railway.app/levels/lesson-content/writing/create/",
         {
           method: "POST",
           headers: {
