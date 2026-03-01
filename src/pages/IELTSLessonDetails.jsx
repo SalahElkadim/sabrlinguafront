@@ -81,14 +81,8 @@ export default function IELTSLessonDetails() {
       setLoading(true);
       const data = await ieltsLessonsAPI.getById(lessonId);
       setLesson(data);
-
-      // Check actual content
-      setContentLoading(true);
-      const content = await fetchContentBySkill(
-        data.skill_type,
-        data.lesson_pack
-      );
-      setHasContent(!!content);
+      // content بييجي مع الـ lesson مباشرةً — مش محتاج call تاني
+      setHasContent(!!data.content);
     } catch (error) {
       console.error("Error fetching lesson:", error);
       toast.error("فشل في تحميل تفاصيل الدرس");
