@@ -452,7 +452,10 @@ export default function CreateIELTSLesson() {
       try {
         setPacksLoading(true);
         const data = await ieltsLessonPacksAPI.getAll();
-        setLessonPacks(data.results || data || []);
+        console.log("Lesson Packs Response:", data); // ← هنا
+        setLessonPacks(
+          data.lesson_packs || data.results || (Array.isArray(data) ? data : [])
+        );
       } catch {
         toast.error("فشل في تحميل Lesson Packs");
       } finally {
