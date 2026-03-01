@@ -144,50 +144,37 @@ export default function AddIELTSListeningContent() {
     }
   };
 
-  // ===== Submit =====
-  const onSubmit = async (data) => {
-    setLoading(true);
-    setError(null);
+ const onSubmit = async (data) => {
+   setLoading(true);
+   setError(null);
+   try {
+     await api.post(`/ielts/lessons/${lessonId}/content/listening/create/`, {
+       title: data.title,
+       audio_file: data.audio_file,
+       transcript: data.transcript || "",
+       duration: data.duration || null,
+       questions: (data.questions || [])
+         .filter((q) => q.question_text && q.choice_a && q.choice_b)
+         .map((q) => ({
+           question_text: q.question_text,
+           choice_a: q.choice_a,
+           choice_b: q.choice_b,
+           choice_c: q.choice_c,
+           choice_d: q.choice_d,
+           correct_answer: q.correct_answer,
+           explanation: q.explanation || "",
+           points: q.points || 1,
+         })),
+     });
 
-    try {
-      // 1. Create listening audio
-      const audioRes = await api.post("/ielts/listening/audios/create/", {
-        title: data.title,
-        audio_file: data.audio_file,
-        transcript: data.transcript || "",
-        duration: data.duration || null,
-        ielts_lesson_pack: lesson.lesson_pack,
-        usage_type: "IELTS",
-        is_active: true,
-      });
-      const audioId = audioRes.data.audio.id;
-
-      // 2. Create questions
-      const questions =
-        data.questions?.filter(
-          (q) => q.question_text && q.choice_a && q.choice_b
-        ) || [];
-      for (let i = 0; i < questions.length; i++) {
-        const q = questions[i];
-        const options = [q.choice_a, q.choice_b, q.choice_c, q.choice_d];
-        const correctIndex = ["A", "B", "C", "D"].indexOf(q.correct_answer);
-        await api.post(`/ielts/listening/audios/${audioId}/questions/create/`, {
-          question_text: q.question_text,
-          options,
-          correct_answer: options[correctIndex],
-          explanation: q.explanation || "",
-          points: q.points || 1,
-        });
-      }
-
-      setSuccess(true);
-      setTimeout(() => navigate(`/dashboard/ielts/lessons/${lessonId}`), 1500);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || "فشل في الحفظ");
-    } finally {
-      setLoading(false);
-    }
-  };
+     setSuccess(true);
+     setTimeout(() => navigate(`/dashboard/ielts/lessons/${lessonId}`), 1500);
+   } catch (err) {
+     setError(err.response?.data?.error || err.message || "فشل في الحفظ");
+   } finally {
+     setLoading(false);
+   }
+ };
 
   if (pageLoading)
     return (

@@ -102,33 +102,23 @@ export default function AddIELTSReadingContent() {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      // 1. Create reading passage
-      const passageRes = await api.post("/ielts/reading/passages/create/", {
-        title: data.passage_data.title,
+      await api.post(`/ielts/lessons/${lessonId}/content/reading/create/`, {
+        passage_title: data.passage_data.title,
         passage_text: data.passage_data.passage_text,
         source: data.passage_data.source || "Teacher Created",
-        ielts_lesson_pack: lesson.lesson_pack,
-        usage_type: "IELTS",
-        is_active: true,
+        explanation: data.explanation || "",
+        vocabulary_words: data.vocabulary_words || [],
+        questions: data.questions.map((q) => ({
+          question_text: q.question_text,
+          choice_a: q.choice_a,
+          choice_b: q.choice_b,
+          choice_c: q.choice_c,
+          choice_d: q.choice_d,
+          correct_answer: q.correct_answer,
+          explanation: q.explanation || "",
+          points: q.points || 1,
+        })),
       });
-      const passageId = passageRes.data.passage.id;
-
-      // 2. Create questions
-      for (let i = 0; i < data.questions.length; i++) {
-        const q = data.questions[i];
-        const options = [q.choice_a, q.choice_b, q.choice_c, q.choice_d];
-        const correctIndex = ["A", "B", "C", "D"].indexOf(q.correct_answer);
-        await api.post(
-          `/ielts/reading/passages/${passageId}/questions/create/`,
-          {
-            question_text: q.question_text,
-            options,
-            correct_answer: options[correctIndex],
-            explanation: q.explanation || "",
-            points: q.points || 1,
-          }
-        );
-      }
 
       toast.success("تم إضافة محتوى القراءة بنجاح!");
       navigate(`/dashboard/ielts/lessons/${lessonId}`);

@@ -65,21 +65,19 @@ export default function AddIELTSWritingContent() {
   const onSubmit = async (data) => {
     setLoading(true);
     try {
-      await api.post("/ielts/writing/questions/create/", {
+      await api.post(`/ielts/lessons/${lessonId}/content/writing/create/`, {
         title: data.title,
         question_text: data.question_text,
+        writing_instructions: data.question_text, // نفس النص
         min_words: data.min_words,
         max_words: data.max_words,
         sample_answer: data.sample_answer,
         rubric: data.rubric,
         points: data.points || 10,
         pass_threshold: data.pass_threshold || null,
-        ielts_lesson_pack: lesson.lesson_pack,
-        usage_type: "IELTS",
-        is_active: true,
       });
 
-      toast.success("تم إضافة سؤال الكتابة بنجاح!");
+      toast.success("تم إضافة محتوى الكتابة بنجاح!");
       navigate(`/dashboard/ielts/lessons/${lessonId}`);
     } catch (err) {
       toast.error(err.response?.data?.error || "فشل في الحفظ");
@@ -87,7 +85,6 @@ export default function AddIELTSWritingContent() {
       setLoading(false);
     }
   };
-
   if (pageLoading)
     return (
       <div className="flex items-center justify-center h-64">
