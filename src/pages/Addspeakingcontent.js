@@ -107,7 +107,7 @@ export default function AddSpeakingContent() {
   const fetchLessonData = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/levels/lessons/${lessonId}/`,
+        `sabrlinguaa-production.up.railway.app/levels/lessons/${lessonId}/`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,
@@ -268,7 +268,7 @@ export default function AddSpeakingContent() {
       console.log("📤 Sending payload:", payload);
 
       const response = await fetch(
-        "http://127.0.0.1:8000/levels/lesson-content/speaking/create-with-video/",
+        "sabrlinguaa-production.up.railway.app/levels/lesson-content/speaking/create-with-video/",
         {
           method: "POST",
           headers: {
