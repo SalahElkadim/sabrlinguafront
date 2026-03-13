@@ -10,6 +10,7 @@ import {
   Volume2,
   PenTool,
   FileText,
+  Headphones,
 } from "lucide-react";
 import { stepSkillsAPI } from "../services/stepService";
 
@@ -32,6 +33,12 @@ const skillTypeConfig = {
     color: "text-orange-600",
     bg: "bg-orange-50",
   },
+  LISTENING: {
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+  }, // ← جديد
   WRITING: {
     label: "Writing",
     icon: FileText,
@@ -43,7 +50,6 @@ const skillTypeConfig = {
 export default function STEPSkillsList() {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     fetchSkills();
@@ -66,7 +72,7 @@ export default function STEPSkillsList() {
     try {
       await stepSkillsAPI.delete(id);
       setSkills((prev) => prev.filter((s) => s.id !== id));
-    } catch (e) {
+    } catch {
       alert("حدث خطأ أثناء الحذف");
     }
   };
@@ -85,9 +91,7 @@ export default function STEPSkillsList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">STEP Skills</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            إدارة مهارات STEP الأربعة
-          </p>
+          <p className="text-gray-500 text-sm mt-1">إدارة مهارات STEP الخمس</p>
         </div>
         <Link
           to="/dashboard/step/skills/create"
@@ -106,7 +110,7 @@ export default function STEPSkillsList() {
             لا توجد مهارات
           </h3>
           <p className="text-gray-500 text-sm mb-6">
-            ابدأ بإضافة مهارات STEP الأربعة
+            ابدأ بإضافة مهارات STEP الخمس
           </p>
           <Link
             to="/dashboard/step/skills/create"
@@ -117,7 +121,7 @@ export default function STEPSkillsList() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {skills.map((skill) => {
             const config = skillTypeConfig[skill.skill_type] || {};
             const Icon = config.icon || BookOpen;

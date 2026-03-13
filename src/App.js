@@ -1,10 +1,11 @@
-// src/App.jsx - WITH IELTS + STEP ROUTES
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
+import TeachersList from "./pages/TeachersList";
 
 // Placement Test Routes
 import QuestionBanksList from "./pages/QuestionBanksList";
@@ -16,7 +17,6 @@ import AddReadingQuestion from "./pages/Addreadingquestion";
 import AddListeningQuestion from "./pages/AddListeningQuestion";
 import AddSpeakingQuestion from "./pages/AddSpeakingQuestion";
 import AddWritingQuestion from "./pages/Addwritingquestion";
-import TeachersList from "./pages/TeachersList";
 
 // Levels System Routes
 import LevelsList from "./pages/Levelslist";
@@ -71,7 +71,7 @@ import AddIELTSListeningContent from "./pages/AddIELTSListeningContent";
 import AddIELTSSpeakingContent from "./pages/AddIELTSSpeakingContent";
 import AddIELTSWritingContent from "./pages/AddIELTSWritingContent";
 
-// 🆕 STEP Routes
+// STEP Routes
 import STEPMain from "./pages/STEPMain";
 import STEPSkillsList from "./pages/STEPSkillsList";
 import CreateSTEPSkill from "./pages/CreateSTEPSkill";
@@ -81,6 +81,8 @@ import AddVocabularyToSTEP from "./pages/AddVocabularyToSTEP";
 import AddGrammarToSTEP from "./pages/AddGrammarToSTEP";
 import AddReadingPassageToSTEP from "./pages/AddReadingPassageToSTEP";
 import AddReadingQuestionsToSTEP from "./pages/AddReadingQuestionsToSTEP";
+import AddListeningAudioToSTEP from "./pages/AddListeningAudioToSTEP"; // ← جديد
+import AddListeningQuestionsToSTEP from "./pages/AddListeningQuestionsToSTEP"; // ← جديد
 import AddWritingToSTEP from "./pages/AddWritingToSTEP";
 import STEPProgress from "./pages/STEPProgress";
 
@@ -104,8 +106,12 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* Dashboard Home */}
           <Route index element={<Dashboard />} />
+
+          {/* ============================================ */}
+          {/* TEACHERS */}
+          {/* ============================================ */}
+          <Route path="teachers" element={<TeachersList />} />
 
           {/* ============================================ */}
           {/* PLACEMENT TEST ROUTES */}
@@ -115,8 +121,6 @@ function App() {
             path="question-banks/create"
             element={<CreateQuestionBank />}
           />
-          <Route path="teachers" element={<TeachersList />} />
-
           <Route
             path="question-banks/:bankId"
             element={<QuestionBankDetails />}
@@ -288,29 +292,27 @@ function App() {
           />
 
           {/* ============================================ */}
-          {/* 🆕 STEP ROUTES */}
+          {/* STEP ROUTES */}
           {/* ============================================ */}
           <Route path="step" element={<STEPMain />} />
-
-          {/* Skills */}
           <Route path="step/skills" element={<STEPSkillsList />} />
           <Route path="step/skills/create" element={<CreateSTEPSkill />} />
           <Route path="step/skills/:skillId" element={<STEPSkillDetails />} />
           <Route path="step/skills/:skillId/edit" element={<EditSTEPSkill />} />
 
-          {/* Questions - Vocabulary */}
+          {/* Vocabulary */}
           <Route
             path="step/skills/:skillId/add/vocabulary"
             element={<AddVocabularyToSTEP />}
           />
 
-          {/* Questions - Grammar */}
+          {/* Grammar */}
           <Route
             path="step/skills/:skillId/add/grammar"
             element={<AddGrammarToSTEP />}
           />
 
-          {/* Questions - Reading */}
+          {/* Reading */}
           <Route
             path="step/skills/:skillId/add/reading/passage"
             element={<AddReadingPassageToSTEP />}
@@ -320,7 +322,17 @@ function App() {
             element={<AddReadingQuestionsToSTEP />}
           />
 
-          {/* Questions - Writing */}
+          {/* Listening ← جديد */}
+          <Route
+            path="step/skills/:skillId/add/listening/audio"
+            element={<AddListeningAudioToSTEP />}
+          />
+          <Route
+            path="step/skills/:skillId/add/listening/audio/:audioId/questions"
+            element={<AddListeningQuestionsToSTEP />}
+          />
+
+          {/* Writing */}
           <Route
             path="step/skills/:skillId/add/writing"
             element={<AddWritingToSTEP />}
@@ -330,10 +342,7 @@ function App() {
           <Route path="step/progress" element={<STEPProgress />} />
         </Route>
 
-        {/* Redirect root to dashboard or login */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-        {/* 404 - Redirect to dashboard */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>

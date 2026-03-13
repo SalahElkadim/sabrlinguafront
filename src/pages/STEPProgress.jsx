@@ -7,6 +7,7 @@ import {
   Volume2,
   PenTool,
   FileText,
+  Headphones,
 } from "lucide-react";
 import { stepProgressAPI } from "../services/stepService";
 
@@ -29,6 +30,12 @@ const skillTypeConfig = {
     color: "text-orange-600",
     bar: "bg-orange-500",
   },
+  LISTENING: {
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bar: "bg-cyan-500",
+  }, // ← جديد
   WRITING: {
     label: "Writing",
     icon: FileText,
@@ -62,7 +69,6 @@ export default function STEPProgress() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">تقدمي في STEP</h1>
         <p className="text-gray-500 text-sm mt-1">

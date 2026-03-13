@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Eye,
   EyeOff,
+  Headphones,
 } from "lucide-react";
 import { stepSkillsAPI, stepQuestionsAPI } from "../services/stepService";
 
@@ -21,31 +22,50 @@ const skillTypeConfig = {
     icon: Volume2,
     color: "text-blue-600",
     bg: "bg-blue-50",
-    addRoute: "vocabulary",
+    addLabel: "إضافة سؤال",
   },
   GRAMMAR: {
     label: "Grammar",
     icon: PenTool,
     color: "text-purple-600",
     bg: "bg-purple-50",
-    addRoute: "grammar",
+    addLabel: "إضافة سؤال",
   },
   READING: {
     label: "Reading",
     icon: BookOpen,
     color: "text-orange-600",
     bg: "bg-orange-50",
-    addRoute: "reading/passage",
+    addLabel: "إضافة قطعة قراءة",
   },
+  LISTENING: {
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    addLabel: "إضافة تسجيل صوتي",
+  }, // ← جديد
   WRITING: {
     label: "Writing",
     icon: FileText,
     color: "text-green-600",
     bg: "bg-green-50",
-    addRoute: "writing",
+    addLabel: "إضافة سؤال",
   },
 };
 
+const addRouteMap = (skillId, skillType) =>
+  ({
+    VOCABULARY: `/dashboard/step/skills/${skillId}/add/vocabulary`,
+    GRAMMAR: `/dashboard/step/skills/${skillId}/add/grammar`,
+    READING: `/dashboard/step/skills/${skillId}/add/reading/passage`,
+    LISTENING: `/dashboard/step/skills/${skillId}/add/listening/audio`, // ← جديد
+    WRITING: `/dashboard/step/skills/${skillId}/add/writing`,
+  }[skillType]);
+
+// ============================================
+// MCQ Card (Vocabulary / Grammar)
+// ============================================
 function MCQCard({ q, index, color }) {
   const [showAnswer, setShowAnswer] = useState(false);
   const choices = [
@@ -69,7 +89,6 @@ function MCQCard({ q, index, color }) {
         <button
           onClick={() => setShowAnswer((v) => !v)}
           className="text-gray-400 hover:text-gray-600 shrink-0"
-          title="عرض الإجابة"
         >
           {showAnswer ? (
             <EyeOff className="w-4 h-4" />
@@ -78,7 +97,6 @@ function MCQCard({ q, index, color }) {
           )}
         </button>
       </div>
-
       <div className="grid grid-cols-2 gap-2">
         {choices.map((c) => (
           <div
@@ -93,7 +111,6 @@ function MCQCard({ q, index, color }) {
           </div>
         ))}
       </div>
-
       {showAnswer && q.explanation && (
         <p className="mt-3 text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
           💡 {q.explanation}
@@ -103,9 +120,11 @@ function MCQCard({ q, index, color }) {
   );
 }
 
+// ============================================
+// Reading Passage Card
+// ============================================
 function ReadingPassageCard({ passage, index }) {
   const [expanded, setExpanded] = useState(false);
-
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden">
       <button
@@ -131,7 +150,6 @@ function ReadingPassageCard({ passage, index }) {
           )}
         </div>
       </button>
-
       {expanded && (
         <div className="p-4 space-y-4">
           <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed max-h-40 overflow-y-auto">
@@ -146,9 +164,141 @@ function ReadingPassageCard({ passage, index }) {
   );
 }
 
+// ============================================
+// Listening Audio Card ← جديد
+// ============================================
+function ListeningAudioCard({ audio, index, skillId }) {
+  const [expanded, setExpanded] = useState(false);
+  const [showAnswer, setShowAnswer] = useState({});
+
+  const toggleAnswer = (qId) =>
+    setShowAnswer((prev) => ({ ...prev, [qId]: !prev[qId] }));
+
+  const choices = (q) =>
+    [
+      { key: "A", val: q.choice_a },
+      { key: "B", val: q.choice_b },
+      { key: "C", val: q.choice_c },
+      { key: "D", val: q.choice_d },
+    ].filter((c) => c.val);
+
+  return (
+    <div className="border border-cyan-200 rounded-xl overflow-hidden">
+      {/* Header */}
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-cyan-50 hover:bg-cyan-100 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold text-cyan-600 bg-cyan-100 px-2 py-1 rounded-full">
+            {index + 1}
+          </span>
+          <Headphones className="w-4 h-4 text-cyan-500" />
+          <p className="font-medium text-gray-800 text-sm text-right">
+            {audio.title}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {audio.duration > 0 && (
+            <span className="text-xs text-cyan-600">{audio.duration} ث</span>
+          )}
+          <span className="text-xs text-cyan-600">
+            {audio.questions?.length} أسئلة
+          </span>
+          {expanded ? (
+            <ChevronDown className="w-4 h-4 text-cyan-500" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-cyan-500" />
+          )}
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="p-4 space-y-4">
+          {/* Audio Player */}
+          {audio.audio_file && (
+            <div className="bg-cyan-50 rounded-lg p-3">
+              <p className="text-xs text-cyan-600 font-medium mb-2">
+                التسجيل الصوتي:
+              </p>
+              <audio controls className="w-full" src={audio.audio_file}>
+                المتصفح لا يدعم تشغيل الصوت
+              </audio>
+            </div>
+          )}
+
+          {/* Transcript */}
+          {audio.transcript && (
+            <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed max-h-32 overflow-y-auto">
+              <p className="text-xs font-medium text-gray-500 mb-1">النص:</p>
+              {audio.transcript}
+            </div>
+          )}
+
+          {/* Add Question Button */}
+          <Link
+            to={`/dashboard/step/skills/${skillId}/add/listening/audio/${audio.id}/questions`}
+            className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            إضافة سؤال لهذا التسجيل
+          </Link>
+
+          {/* Questions */}
+          {audio.questions?.map((q, qi) => (
+            <div key={q.id} className="border border-gray-200 rounded-xl p-4">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-start gap-3">
+                  <span className="text-xs font-bold text-cyan-600 bg-cyan-50 px-2 py-1 rounded-full">
+                    {qi + 1}
+                  </span>
+                  <p className="text-gray-800 text-sm font-medium">
+                    {q.question_text}
+                  </p>
+                </div>
+                <button
+                  onClick={() => toggleAnswer(q.id)}
+                  className="text-gray-400 hover:text-gray-600 shrink-0"
+                >
+                  {showAnswer[q.id] ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {choices(q).map((c) => (
+                  <div
+                    key={c.key}
+                    className={`text-xs px-3 py-2 rounded-lg border ${
+                      showAnswer[q.id] && q.correct_answer === c.key
+                        ? "bg-green-50 border-green-400 text-green-700 font-semibold"
+                        : "bg-gray-50 border-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {c.key}. {c.val}
+                  </div>
+                ))}
+              </div>
+              {showAnswer[q.id] && q.explanation && (
+                <p className="mt-3 text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
+                  💡 {q.explanation}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// Writing Card
+// ============================================
 function WritingCard({ q, index }) {
   const [showSample, setShowSample] = useState(false);
-
   return (
     <div className="border border-gray-200 rounded-xl p-4">
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -187,6 +337,9 @@ function WritingCard({ q, index }) {
   );
 }
 
+// ============================================
+// Main Page
+// ============================================
 export default function STEPSkillDetails() {
   const { skillId } = useParams();
   const [skill, setSkill] = useState(null);
@@ -228,13 +381,7 @@ export default function STEPSkillDetails() {
 
   const config = skillTypeConfig[skill.skill_type] || {};
   const Icon = config.icon || BookOpen;
-
-  const addRouteMap = {
-    VOCABULARY: `/dashboard/step/skills/${skillId}/add/vocabulary`,
-    GRAMMAR: `/dashboard/step/skills/${skillId}/add/grammar`,
-    READING: `/dashboard/step/skills/${skillId}/add/reading/passage`,
-    WRITING: `/dashboard/step/skills/${skillId}/add/writing`,
-  };
+  const addRoute = addRouteMap(skillId, skill.skill_type);
 
   return (
     <div className="space-y-6">
@@ -259,13 +406,11 @@ export default function STEPSkillDetails() {
 
       {/* Stats + Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex gap-4">
-          <div className="card !py-3 !px-5 text-center">
-            <p className={`text-2xl font-bold ${config.color}`}>
-              {skill.total_questions}
-            </p>
-            <p className="text-xs text-gray-500">إجمالي الأسئلة</p>
-          </div>
+        <div className="card !py-3 !px-5 text-center">
+          <p className={`text-2xl font-bold ${config.color}`}>
+            {skill.total_questions}
+          </p>
+          <p className="text-xs text-gray-500">إجمالي الأسئلة</p>
         </div>
         <div className="flex gap-3">
           <Link
@@ -275,11 +420,11 @@ export default function STEPSkillDetails() {
             تعديل المهارة
           </Link>
           <Link
-            to={addRouteMap[skill.skill_type]}
+            to={addRoute}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
           >
             <Plus className="w-4 h-4" />
-            {skill.skill_type === "READING" ? "إضافة قطعة قراءة" : "إضافة سؤال"}
+            {config.addLabel}
           </Link>
         </div>
       </div>
@@ -308,6 +453,16 @@ export default function STEPSkillDetails() {
             {skill.skill_type === "READING" &&
               questions.map((p, i) => (
                 <ReadingPassageCard key={p.id} passage={p} index={i} />
+              ))}
+
+            {skill.skill_type === "LISTENING" &&
+              questions.map((a, i) => (
+                <ListeningAudioCard
+                  key={a.id}
+                  audio={a}
+                  index={i}
+                  skillId={skillId}
+                />
               ))}
 
             {skill.skill_type === "WRITING" &&

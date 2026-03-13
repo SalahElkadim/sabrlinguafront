@@ -7,6 +7,7 @@ import {
   FileText,
   ArrowLeft,
   BarChart2,
+  Headphones,
 } from "lucide-react";
 
 export default function STEPMain() {
@@ -15,7 +16,7 @@ export default function STEPMain() {
       id: "skills",
       name: "STEP Skills",
       description:
-        "إدارة مهارات STEP الأربعة (Vocabulary, Grammar, Reading, Writing)",
+        "إدارة مهارات STEP الخمس (Vocabulary, Grammar, Reading, Listening, Writing)",
       icon: BookOpen,
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50",
@@ -54,6 +55,12 @@ export default function STEPMain() {
       bg: "bg-orange-50",
     },
     {
+      label: "Listening",
+      icon: Headphones,
+      color: "text-cyan-600",
+      bg: "bg-cyan-50",
+    }, // ← جديد
+    {
       label: "Writing",
       icon: FileText,
       color: "text-green-600",
@@ -78,7 +85,7 @@ export default function STEPMain() {
         <h2 className="text-lg font-bold text-gray-900 mb-4">
           المهارات المتاحة
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {skillCards.map((skill) => {
             const Icon = skill.icon;
             return (

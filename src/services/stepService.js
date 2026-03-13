@@ -87,6 +87,21 @@ export const stepQuestionsAPI = {
     return response.data;
   },
 
+  // ← Listening Audio
+  createListeningAudio: async (data) => {
+    const response = await api.post("/step/listening/audio/create/", data);
+    return response.data;
+  },
+
+  // ← Listening Question (linked to audio)
+  createListeningQuestion: async (audioId, data) => {
+    const response = await api.post(
+      `/step/listening/audio/${audioId}/questions/create/`,
+      data
+    );
+    return response.data;
+  },
+
   // Writing
   createWriting: async (data) => {
     const config = data instanceof FormData ? getFormDataConfig() : {};
