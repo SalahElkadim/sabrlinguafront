@@ -16,6 +16,7 @@ import AddReadingQuestion from "./pages/Addreadingquestion";
 import AddListeningQuestion from "./pages/AddListeningQuestion";
 import AddSpeakingQuestion from "./pages/AddSpeakingQuestion";
 import AddWritingQuestion from "./pages/Addwritingquestion";
+import TeachersList from "./pages/TeachersList";
 
 // Levels System Routes
 import LevelsList from "./pages/Levelslist";
@@ -114,6 +115,8 @@ function App() {
             path="question-banks/create"
             element={<CreateQuestionBank />}
           />
+          <Route path="teachers" element={<TeachersList />} />
+
           <Route
             path="question-banks/:bankId"
             element={<QuestionBankDetails />}

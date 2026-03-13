@@ -12,7 +12,9 @@ import {
   ChevronDown,
   Globe,
   BookMarked,
+  Users,
 } from "lucide-react";
+
 import { useAuthStore } from "../store/authstore";
 
 export default function DashboardLayout() {
@@ -52,6 +54,11 @@ export default function DashboardLayout() {
       name: "STEP System",
       href: "/dashboard/step",
       icon: BookMarked,
+    },
+    {
+      name: "المدرسون",
+      href: "/dashboard/teachers",
+      icon: Users,
     },
   ];
 
