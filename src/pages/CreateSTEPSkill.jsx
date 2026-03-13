@@ -9,6 +9,7 @@ const SKILL_TYPES = [
   { value: "GRAMMAR", label: "Grammar" },
   { value: "READING", label: "Reading" },
   { value: "WRITING", label: "Writing" },
+  { value: "LISTENING", label: "Listening" },
 ];
 
 export default function CreateSTEPSkill() {
