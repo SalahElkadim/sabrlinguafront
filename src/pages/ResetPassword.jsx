@@ -1,7 +1,9 @@
 // src/pages/ResetPassword.jsx
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../api/axios"; // استخدام axios مباشرة بدون auth header
+import axios from "axios"; // ✅ axios عادي بدون الـ interceptor
+
+const API_BASE_URL = "https://sabrlinguaa-production.up.railway.app";
 
 export default function ResetPassword() {
   const { uidb64, token } = useParams();
@@ -36,9 +38,9 @@ export default function ResetPassword() {
     setError("");
 
     try {
-      // ✅ بنبعت الـ request بدون Authorization header
-      await api.post(
-        "/auth/reset-password/",
+      // ✅ plain axios بدون أي interceptor أو auth header
+      await axios.post(
+        `${API_BASE_URL}/auth/reset-password/`,
         {
           uidb64,
           token,
@@ -47,7 +49,7 @@ export default function ResetPassword() {
         },
         {
           headers: {
-            Authorization: undefined,
+            "Content-Type": "application/json",
           },
         }
       );
