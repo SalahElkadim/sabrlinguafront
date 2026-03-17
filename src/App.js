@@ -85,6 +85,7 @@ import AddListeningAudioToSTEP from "./pages/AddListeningAudioToSTEP"; // ← ج
 import AddListeningQuestionsToSTEP from "./pages/AddListeningQuestionsToSTEP"; // ← جديد
 import AddWritingToSTEP from "./pages/AddWritingToSTEP";
 import STEPProgress from "./pages/STEPProgress";
+import ResetPassword from "./pages/ResetPassword";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -96,7 +97,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
+        <Route
+          path="/reset-password/:uidb64/:token"
+          element={<ResetPassword />}
+        />
         {/* Protected Routes */}
         <Route
           path="/dashboard"
