@@ -1,7 +1,7 @@
 // src/pages/ResetPassword.jsx
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { authAPI } from "../api/auth"; // عدّل المسار حسب مشروعك
+import api from "../api/axios"; // استخدام axios مباشرة بدون auth header
 
 export default function ResetPassword() {
   const { uidb64, token } = useParams();
@@ -36,12 +36,21 @@ export default function ResetPassword() {
     setError("");
 
     try {
-      await authAPI.resetPassword({
-        uidb64,
-        token,
-        new_password: formData.new_password,
-        confirm_password: formData.confirm_password,
-      });
+      // ✅ بنبعت الـ request بدون Authorization header
+      await api.post(
+        "/auth/reset-password/",
+        {
+          uidb64,
+          token,
+          new_password: formData.new_password,
+          confirm_password: formData.confirm_password,
+        },
+        {
+          headers: {
+            Authorization: undefined,
+          },
+        }
+      );
       setSuccess(true);
     } catch (err) {
       setError(
