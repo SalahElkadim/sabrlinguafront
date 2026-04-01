@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Save, BookOpen } from "lucide-react";
-import { ieltsLessonsAPI, ieltsLessonPacksAPI } from "../services/Ieltsservice";
+import { ieltsLessonsAPI, ieltsLessonPacksAPI } from "../../services/Ieltsservice";
 import toast from "react-hot-toast";
 
 export default function EditIELTSLesson() {

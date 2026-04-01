@@ -14,8 +14,8 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import { ieltsLessonsAPI } from "../services/Ieltsservice";
-import api from "../api/axios";
+import { ieltsLessonsAPI } from "../../services/Ieltsservice";
+import api from "../../api/axios";
 import toast from "react-hot-toast";
 
 // Map skill_type to content add route

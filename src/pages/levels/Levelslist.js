@@ -13,7 +13,7 @@ import {
   Trash2,
   Eye,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
+import { useLevelsStore } from "../../store/levelsStore";
 
 export default function LevelsList() {
   const { levels, loading, error, fetchLevels, deleteLevel } = useLevelsStore();

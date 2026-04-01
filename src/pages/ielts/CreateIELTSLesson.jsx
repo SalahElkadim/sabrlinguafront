@@ -11,7 +11,7 @@ import {
   ChevronRight,
   Layers,
 } from "lucide-react";
-import { ieltsLessonsAPI, ieltsLessonPacksAPI } from "../services/Ieltsservice";
+import { ieltsLessonsAPI, ieltsLessonPacksAPI } from "../../services/Ieltsservice";
 import toast from "react-hot-toast";
 
 const SKILL_CONFIG = {

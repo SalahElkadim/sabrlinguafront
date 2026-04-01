@@ -17,7 +17,7 @@ import {
   Mic,
   PenTool,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
+import { useLevelsStore } from "../../store/levelsStore";
 
 export default function LessonsList() {
   const {

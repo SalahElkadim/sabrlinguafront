@@ -11,7 +11,7 @@ import {
   Upload,
   CheckCircle,
 } from "lucide-react";
-import { levelQuestionBanksAPI } from "../services/levelsService";
+import { levelQuestionBanksAPI } from "../../services/levelsService";
 
 export default function AddLevelSpeakingQuestion() {
   const { bankId } = useParams();

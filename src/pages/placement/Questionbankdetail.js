@@ -14,7 +14,7 @@ import {
   CheckCircle,
   Edit,
 } from "lucide-react";
-import { useQuestionBanksStore } from "../store/questionbanksstore";
+import { useQuestionBanksStore } from "../../store/questionbanksstore";
 
 export default function QuestionBankDetails() {
   const { bankId } = useParams();

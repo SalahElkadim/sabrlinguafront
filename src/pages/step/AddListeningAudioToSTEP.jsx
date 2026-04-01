@@ -9,7 +9,7 @@ import {
   Upload,
   CheckCircle,
 } from "lucide-react";
-import { stepQuestionsAPI } from "../services/stepService";
+import { stepQuestionsAPI } from "../../services/stepService";
 
 export default function AddListeningAudioToSTEP() {
   const { skillId } = useParams();

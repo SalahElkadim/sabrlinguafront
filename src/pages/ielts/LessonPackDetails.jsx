@@ -12,7 +12,7 @@ import {
   FileText,
   Package,
 } from "lucide-react";
-import { ieltsLessonPacksAPI } from "../services/Ieltsservice";
+import { ieltsLessonPacksAPI } from "../../services/Ieltsservice";
 import toast from "react-hot-toast";
 
 export default function LessonPackDetails() {
@@ -66,7 +66,7 @@ export default function LessonPackDetails() {
     if (!confirm(`هل أنت متأكد من حذف "${lessonTitle}"؟`)) return;
 
     try {
-      const { ieltsLessonsAPI } = await import("../services/Ieltsservice");
+      const { ieltsLessonsAPI } = await import("../../services/Ieltsservice");
       await ieltsLessonsAPI.delete(lessonId);
       toast.success("تم حذف الدرس بنجاح");
       fetchLessons();

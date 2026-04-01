@@ -11,7 +11,7 @@ import {
   Image,
   Upload,
 } from "lucide-react";
-import { useQuestionBanksStore } from "../store/questionbanksstore";
+import { useQuestionBanksStore } from "../../store/questionbanksstore";
 
 const grammarSchema = z.object({
   question_set_title: z

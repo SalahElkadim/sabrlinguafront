@@ -10,7 +10,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import { useQuestionBanksStore } from "../store/questionbanksstore";
+import { useQuestionBanksStore } from "../../store/questionbanksstore";
 
 export default function QuestionBanksList() {
   const { banks, fetchBanks, deleteBank, loading, error } =

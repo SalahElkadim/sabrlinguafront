@@ -11,7 +11,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import { useAuthStore } from "../store/authstore";
+import { useAuthStore } from "../../store/authstore";
 
 const registerSchema = z
   .object({

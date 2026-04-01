@@ -9,7 +9,7 @@ import {
   FileText,
   Headphones,
 } from "lucide-react";
-import { stepProgressAPI } from "../services/stepService";
+import { stepProgressAPI } from "../../services/stepService";
 
 const skillTypeConfig = {
   VOCABULARY: {

@@ -11,7 +11,7 @@ import {
   Upload,
   Plus,
 } from "lucide-react";
-import { useQuestionBanksStore } from "../store/questionbanksstore";
+import { useQuestionBanksStore } from "../../store/questionbanksstore";
 
 const audioSchema = z.object({
   title: z.string().min(5),

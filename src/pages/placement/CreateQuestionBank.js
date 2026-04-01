@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowRight, Database, AlertCircle, CheckCircle } from "lucide-react";
-import { useQuestionBanksStore } from "../store/questionbanksstore";
+import { useQuestionBanksStore } from "../../store/questionbanksstore";
 
 const createBankSchema = z.object({
   title: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل"),

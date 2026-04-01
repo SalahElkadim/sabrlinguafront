@@ -16,7 +16,7 @@ import {
   XCircle,
   TrendingUp,
 } from "lucide-react";
-import { levelQuestionBanksAPI } from "../services/levelsService";
+import { levelQuestionBanksAPI } from "../../services/levelsService";
 
 export default function LevelQuestionBankDetails() {
   const { bankId } = useParams();

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowRight, Plus, Trash2, Save } from "lucide-react";
-import { stepQuestionsAPI } from "../services/stepService";
+import { stepQuestionsAPI } from "../../services/stepService";
 
 export default function AddVocabularyToSTEP() {
   const { skillId } = useParams();

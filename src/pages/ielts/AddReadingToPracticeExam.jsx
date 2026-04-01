@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Save, Plus, X, FileText } from "lucide-react";
-import api from "../api/axios";
+import api from "../../api/axios";
 import toast from "react-hot-toast";
 
 export default function AddReadingToPracticeExam() {

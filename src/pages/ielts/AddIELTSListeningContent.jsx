@@ -16,8 +16,8 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { ieltsLessonsAPI } from "../services/Ieltsservice";
-import api from "../api/axios";
+import { ieltsLessonsAPI } from "../../services/Ieltsservice";
+import api from "../../api/axios";
 import toast from "react-hot-toast";
 
 const CLOUDINARY_CLOUD = "dyxozpomy";

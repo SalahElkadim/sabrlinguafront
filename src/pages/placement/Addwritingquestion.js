@@ -11,7 +11,7 @@ import {
   Image,
   Upload,
 } from "lucide-react";
-import { useQuestionBanksStore } from "../store/questionbanksstore";
+import { useQuestionBanksStore } from "../../store/questionbanksstore";
 
 const writingSchema = z.object({
   title: z.string().min(5, "العنوان يجب أن يكون 5 أحرف على الأقل"),

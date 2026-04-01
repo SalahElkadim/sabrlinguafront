@@ -12,7 +12,7 @@ import {
   Info,
   Loader2,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
+import { useLevelsStore } from "../../store/levelsStore";
 
 const updateUnitSchema = z.object({
   level: z.number(),

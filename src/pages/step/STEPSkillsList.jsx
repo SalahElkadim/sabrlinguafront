@@ -12,7 +12,7 @@ import {
   FileText,
   Headphones,
 } from "lucide-react";
-import { stepSkillsAPI } from "../services/stepService";
+import { stepSkillsAPI } from "../../services/stepService";
 
 const skillTypeConfig = {
   VOCABULARY: {

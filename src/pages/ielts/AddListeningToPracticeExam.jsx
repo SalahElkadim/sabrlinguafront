@@ -11,7 +11,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import api from "../api/axios";
+import api from "../../api/axios";
 import toast from "react-hot-toast";
 
 export default function AddListeningToPracticeExam() {

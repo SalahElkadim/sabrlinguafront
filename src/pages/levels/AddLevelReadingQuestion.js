@@ -9,7 +9,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { levelQuestionBanksAPI } from "../services/levelsService";
+import { levelQuestionBanksAPI } from "../../services/levelsService";
 
 export default function AddLevelReadingQuestion() {
   const { bankId } = useParams();

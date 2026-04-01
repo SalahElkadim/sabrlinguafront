@@ -12,7 +12,7 @@ import {
   Info,
   Loader2,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
+import { useLevelsStore } from "../../store/levelsStore";
 
 const updateLevelSchema = z.object({
   code: z.enum(["A1", "A2", "B1", "B2"]),

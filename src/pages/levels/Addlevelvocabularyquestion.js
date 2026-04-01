@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowRight, BookOpen, Loader2, AlertCircle } from "lucide-react";
-import { levelQuestionBanksAPI } from "../services/levelsService";
+import { levelQuestionBanksAPI } from "../../services/levelsService";
 
 export default function AddLevelVocabularyQuestion() {
   const { bankId } = useParams();

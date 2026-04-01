@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowRight, Save } from "lucide-react";
-import { stepSkillsAPI } from "../services/stepService";
+import { stepSkillsAPI } from "../../services/stepService";
 
 const SKILL_TYPES = [
   { value: "VOCABULARY", label: "Vocabulary" },

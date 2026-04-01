@@ -20,8 +20,8 @@ import {
   Eye,
   Clock,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
-import { lessonContentAPI } from "../services/levelsService";
+import { useLevelsStore } from "../../store/levelsStore";
+import { lessonContentAPI } from "../../services/levelsService";
 
 export default function LessonDetails() {
   const { lessonId } = useParams();

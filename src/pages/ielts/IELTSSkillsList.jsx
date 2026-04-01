@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, BookOpen, Edit, Trash2, ArrowLeft } from "lucide-react";
-import { ieltsSkillsAPI } from "../services/Ieltsservice";
+import { ieltsSkillsAPI } from "../../services/Ieltsservice";
 import toast from "react-hot-toast";
 
 export default function IELTSSkillsList() {

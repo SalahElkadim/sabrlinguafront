@@ -10,7 +10,7 @@ import {
   CheckCircle,
   ArrowRight,
 } from "lucide-react";
-import { useAuthStore } from "../store/authstore";
+import { useAuthStore } from "../../store/authstore";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),

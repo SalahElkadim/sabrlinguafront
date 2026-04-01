@@ -19,8 +19,8 @@ import {
   PenTool,
   TrendingUp,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
-import { levelQuestionBanksAPI } from "../services/levelsService";
+import { useLevelsStore } from "../../store/levelsStore";
+import { levelQuestionBanksAPI } from "../../services/levelsService";
 
 export default function LevelDetails() {
   const { levelId } = useParams();

@@ -10,7 +10,7 @@ import {
   CheckCircle,
   Headphones,
 } from "lucide-react";
-import { stepQuestionsAPI } from "../services/stepService";
+import { stepQuestionsAPI } from "../../services/stepService";
 
 const EMPTY_QUESTION = () => ({
   question_text: "",

@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ArrowLeft, Save, Edit, Loader2, AlertCircle } from "lucide-react";
-import { ieltsLessonsAPI } from "../services/Ieltsservice";
-import api from "../api/axios";
+import { ieltsLessonsAPI } from "../../services/Ieltsservice";
+import api from "../../api/axios";
 import toast from "react-hot-toast";
 
 const schema = z

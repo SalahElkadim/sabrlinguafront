@@ -9,7 +9,7 @@ import {
   Search,
   Filter,
 } from "lucide-react";
-import { levelQuestionBanksAPI } from "../services/levelsService";
+import { levelQuestionBanksAPI } from "../../services/levelsService";
 
 export default function LevelQuestionBanksList() {
   const [banks, setBanks] = useState([]);

@@ -15,7 +15,7 @@ import {
   X,
   Layers,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
+import { useLevelsStore } from "../../store/levelsStore";
 
 export default function UnitsList() {
   const { units, levels, loading, error, fetchUnits, fetchLevels, deleteUnit } =

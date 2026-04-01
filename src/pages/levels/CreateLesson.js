@@ -16,7 +16,7 @@ import {
   Mic,
   PenTool,
 } from "lucide-react";
-import { useLevelsStore } from "../store/levelsStore";
+import { useLevelsStore } from "../../store/levelsStore";
 
 const createLessonSchema = z.object({
   unit: z.number({ required_error: "يجب اختيار الوحدة" }),

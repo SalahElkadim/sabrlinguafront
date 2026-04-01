@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowRight, Save } from "lucide-react";
-import { stepQuestionsAPI } from "../services/stepService";
+import { stepQuestionsAPI } from "../../services/stepService";
 
 export default function AddWritingToSTEP() {
   const { skillId } = useParams();

@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { LogIn, Mail, Lock, AlertCircle } from "lucide-react";
-import { useAuthStore } from "../store/authstore";
+import { useAuthStore } from "../../store/authstore";
 
 const loginSchema = z.object({
   email: z.string().email("البريد الإلكتروني غير صحيح"),

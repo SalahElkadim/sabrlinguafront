@@ -19,7 +19,7 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
-import { stepSkillsAPI, stepQuestionsAPI } from "../../services/stepService";
+import { stepSkillsAPI, stepQuestionsAPI } from "../../../../services/stepService";
 
 // ============================================
 // Config
