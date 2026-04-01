@@ -1442,7 +1442,10 @@ export default function STEPSkillDetails() {
                   index={i}
                   color={config.color}
                   updateFn={stepQuestionsAPI.updateVocabulary}
-                  onDelete={() => fetchData()}
+                  onDelete={async (id) => {
+                    await stepQuestionsAPI.deleteVocabulary(id); // ✅ أضف هذا
+                    fetchData();
+                  }}
                   onUpdate={() => fetchData()}
                 />
               ))}
@@ -1455,7 +1458,10 @@ export default function STEPSkillDetails() {
                   index={i}
                   color={config.color}
                   updateFn={stepQuestionsAPI.updateGrammar}
-                  onDelete={() => fetchData()}
+                  onDelete={async (id) => {
+                    await stepQuestionsAPI.deleteGrammar(id); // ✅ أضف هذا
+                    fetchData();
+                  }}
                   onUpdate={() => fetchData()}
                 />
               ))}
