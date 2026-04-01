@@ -72,6 +72,15 @@ const addRouteMap = (skillId, skillType) =>
   }[skillType]);
 
 // ============================================
+// Difficulty Badge Helper
+// ============================================
+const difficultyBadge = {
+  EASY: { label: "سهل", color: "bg-green-100 text-green-700" },
+  MEDIUM: { label: "متوسط", color: "bg-yellow-100 text-yellow-700" },
+  HARD: { label: "صعب", color: "bg-red-100 text-red-700" },
+};
+
+// ============================================
 // Confirm Delete Modal
 // ============================================
 function ConfirmDeleteModal({ message, onConfirm, onCancel, loading }) {
@@ -124,6 +133,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
     points: q.points,
+    difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -150,6 +160,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
         correct_answer: correctText,
         explanation: form.explanation,
         points: form.points,
+        difficulty: form.difficulty,
       });
       onSave();
     } catch (e) {
@@ -214,6 +225,20 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
           onChange={(e) => setForm({ ...form, explanation: e.target.value })}
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
         />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          مستوى الصعوبة
+        </label>
+        <select
+          value={form.difficulty}
+          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+        >
+          <option value="EASY">سهل</option>
+          <option value="MEDIUM">متوسط</option>
+          <option value="HARD">صعب</option>
+        </select>
       </div>
       {error && <p className="text-red-500 text-xs">{error}</p>}
       <div className="flex gap-2 justify-end">
@@ -303,6 +328,15 @@ function MCQCard({ q, index, color, onDelete, onUpdate, updateFn }) {
             </p>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {q.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  difficultyBadge[q.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[q.difficulty]?.label}
+              </span>
+            )}
             <button
               onClick={() => setShowAnswer((v) => !v)}
               className="text-gray-400 hover:text-gray-600 p-1"
@@ -362,6 +396,7 @@ function PassageEditForm({ passage, onSave, onCancel }) {
     title: passage.title,
     passage_text: passage.passage_text,
     source: passage.source || "",
+    difficulty: passage.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
 
@@ -408,6 +443,20 @@ function PassageEditForm({ passage, onSave, onCancel }) {
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
         />
       </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          مستوى الصعوبة
+        </label>
+        <select
+          value={form.difficulty}
+          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+        >
+          <option value="EASY">سهل</option>
+          <option value="MEDIUM">متوسط</option>
+          <option value="HARD">صعب</option>
+        </select>
+      </div>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
@@ -444,6 +493,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
     choice_d: q.choice_d || "",
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
+    difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
 
@@ -467,6 +517,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
         options,
         correct_answer: correctText,
         explanation: form.explanation,
+        difficulty: form.difficulty,
       });
       onSave();
     } finally {
@@ -517,6 +568,20 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
         placeholder="التوضيح (اختياري)"
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          مستوى الصعوبة
+        </label>
+        <select
+          value={form.difficulty}
+          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300"
+        >
+          <option value="EASY">سهل</option>
+          <option value="MEDIUM">متوسط</option>
+          <option value="HARD">صعب</option>
+        </select>
+      </div>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
@@ -613,6 +678,15 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
             <p className="font-medium text-gray-800 text-sm">{passage.title}</p>
           </button>
           <div className="flex items-center gap-1">
+            {passage.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium mr-1 ${
+                  difficultyBadge[passage.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[passage.difficulty]?.label}
+              </span>
+            )}
             <span className="text-xs text-orange-600 mr-2">
               {passage.questions?.length} أسئلة
             </span>
@@ -668,7 +742,16 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
                           {q.question_text}
                         </p>
                       </div>
-                      <div className="flex gap-1 shrink-0">
+                      <div className="flex gap-1 shrink-0 items-center">
+                        {q.difficulty && (
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              difficultyBadge[q.difficulty]?.color
+                            }`}
+                          >
+                            {difficultyBadge[q.difficulty]?.label}
+                          </span>
+                        )}
                         <button
                           onClick={() => setEditingQuestion(q.id)}
                           className="p-1 text-gray-400 hover:text-blue-600"
@@ -724,6 +807,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
     audio_file: audio.audio_file || "",
     transcript: audio.transcript || "",
     duration: audio.duration || 0,
+    difficulty: audio.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
 
@@ -781,6 +865,20 @@ function AudioEditForm({ audio, onSave, onCancel }) {
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
         />
       </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          مستوى الصعوبة
+        </label>
+        <select
+          value={form.difficulty}
+          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        >
+          <option value="EASY">سهل</option>
+          <option value="MEDIUM">متوسط</option>
+          <option value="HARD">صعب</option>
+        </select>
+      </div>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
@@ -817,6 +915,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
     choice_d: q.choice_d || "",
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
+    difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
 
@@ -840,6 +939,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
         options,
         correct_answer: correctText,
         explanation: form.explanation,
+        difficulty: form.difficulty,
       });
       onSave();
     } finally {
@@ -890,6 +990,20 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
         placeholder="التوضيح (اختياري)"
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          مستوى الصعوبة
+        </label>
+        <select
+          value={form.difficulty}
+          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-300"
+        >
+          <option value="EASY">سهل</option>
+          <option value="MEDIUM">متوسط</option>
+          <option value="HARD">صعب</option>
+        </select>
+      </div>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
@@ -987,6 +1101,15 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
             <p className="font-medium text-gray-800 text-sm">{audio.title}</p>
           </button>
           <div className="flex items-center gap-1">
+            {audio.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium mr-1 ${
+                  difficultyBadge[audio.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[audio.difficulty]?.label}
+              </span>
+            )}
             {audio.duration > 0 && (
               <span className="text-xs text-cyan-600 mr-1">
                 {audio.duration} ث
@@ -1068,7 +1191,16 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
                           {q.question_text}
                         </p>
                       </div>
-                      <div className="flex gap-1 shrink-0">
+                      <div className="flex gap-1 shrink-0 items-center">
+                        {q.difficulty && (
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              difficultyBadge[q.difficulty]?.color
+                            }`}
+                          >
+                            {difficultyBadge[q.difficulty]?.label}
+                          </span>
+                        )}
                         <button
                           onClick={() => setEditingQuestion(q.id)}
                           className="p-1 text-gray-400 hover:text-blue-600"
@@ -1126,6 +1258,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
     max_words: q.max_words,
     sample_answer: q.sample_answer || "",
     rubric: q.rubric || "",
+    difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
 
@@ -1208,6 +1341,20 @@ function WritingEditForm({ q, onSave, onCancel }) {
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
         />
       </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          مستوى الصعوبة
+        </label>
+        <select
+          value={form.difficulty}
+          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+        >
+          <option value="EASY">سهل</option>
+          <option value="MEDIUM">متوسط</option>
+          <option value="HARD">صعب</option>
+        </select>
+      </div>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
@@ -1287,6 +1434,15 @@ function WritingCard({ q, index, onDelete, onUpdate }) {
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {q.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  difficultyBadge[q.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[q.difficulty]?.label}
+              </span>
+            )}
             <button
               onClick={() => setShowSample((v) => !v)}
               className="p-1 text-gray-400 hover:text-gray-600"
@@ -1443,7 +1599,7 @@ export default function STEPSkillDetails() {
                   color={config.color}
                   updateFn={stepQuestionsAPI.updateVocabulary}
                   onDelete={async (id) => {
-                    await stepQuestionsAPI.deleteVocabulary(id); // ✅ أضف هذا
+                    await stepQuestionsAPI.deleteVocabulary(id);
                     fetchData();
                   }}
                   onUpdate={() => fetchData()}
@@ -1459,7 +1615,7 @@ export default function STEPSkillDetails() {
                   color={config.color}
                   updateFn={stepQuestionsAPI.updateGrammar}
                   onDelete={async (id) => {
-                    await stepQuestionsAPI.deleteGrammar(id); // ✅ أضف هذا
+                    await stepQuestionsAPI.deleteGrammar(id);
                     fetchData();
                   }}
                   onUpdate={() => fetchData()}
