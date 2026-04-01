@@ -20,12 +20,12 @@ export default function AddListeningAudioToSTEP() {
     audio_file: "",
     transcript: "",
     duration: "",
+    difficulty: "MEDIUM",
     order: 0,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🆕 States للرفع
   const [uploadingAudio, setUploadingAudio] = useState(false);
   const [audioUrl, setAudioUrl] = useState("");
   const [audioPreview, setAudioPreview] = useState(null);
@@ -35,7 +35,6 @@ export default function AddListeningAudioToSTEP() {
     setError("");
   };
 
-  // 🆕 دالة رفع الملف الصوتي لـ Cloudinary
   const handleAudioUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -156,7 +155,7 @@ export default function AddListeningAudioToSTEP() {
             />
           </div>
 
-          {/* 🆕 Audio File Upload - بدل input النص */}
+          {/* Audio File Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               ملف الصوت <span className="text-red-500">*</span>
@@ -192,7 +191,6 @@ export default function AddListeningAudioToSTEP() {
               )}
             </div>
 
-            {/* Audio Preview */}
             {audioPreview && (
               <div className="mt-3">
                 <audio controls className="w-full" src={audioPreview}>
@@ -231,6 +229,23 @@ export default function AddListeningAudioToSTEP() {
               rows={5}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
             />
+          </div>
+
+          {/* Difficulty */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              مستوى الصعوبة
+            </label>
+            <select
+              name="difficulty"
+              value={form.difficulty}
+              onChange={handleChange}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            >
+              <option value="EASY">سهل</option>
+              <option value="MEDIUM">متوسط</option>
+              <option value="HARD">صعب</option>
+            </select>
           </div>
 
           {/* Submit */}

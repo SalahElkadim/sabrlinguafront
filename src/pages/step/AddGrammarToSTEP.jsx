@@ -13,6 +13,7 @@ export default function AddGrammarToSTEP() {
     question_text: "",
     explanation: "",
     points: 1,
+    difficulty: "MEDIUM",
     is_active: true,
   });
   const [options, setOptions] = useState(["", "", "", ""]);
@@ -185,6 +186,23 @@ export default function AddGrammarToSTEP() {
             min={1}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
+        </div>
+
+        {/* Difficulty */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            مستوى الصعوبة
+          </label>
+          <select
+            name="difficulty"
+            value={form.difficulty}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <option value="EASY">سهل</option>
+            <option value="MEDIUM">متوسط</option>
+            <option value="HARD">صعب</option>
+          </select>
         </div>
 
         {errors.general && (

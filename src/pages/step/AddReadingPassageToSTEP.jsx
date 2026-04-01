@@ -13,6 +13,7 @@ export default function AddReadingPassageToSTEP() {
     title: "",
     passage_text: "",
     source: "",
+    difficulty: "MEDIUM",
     is_active: true,
   });
 
@@ -33,7 +34,6 @@ export default function AddReadingPassageToSTEP() {
         ...form,
         step_skill: skillId,
       });
-      // Navigate to add questions for this passage
       navigate(
         `/dashboard/step/skills/${skillId}/add/reading/passage/${res.passage.id}/questions`
       );
@@ -113,6 +113,23 @@ export default function AddReadingPassageToSTEP() {
             placeholder="مثال: National Geographic, 2023"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
+        </div>
+
+        {/* Difficulty */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            مستوى الصعوبة
+          </label>
+          <select
+            name="difficulty"
+            value={form.difficulty}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option value="EASY">سهل</option>
+            <option value="MEDIUM">متوسط</option>
+            <option value="HARD">صعب</option>
+          </select>
         </div>
 
         {/* Active */}
