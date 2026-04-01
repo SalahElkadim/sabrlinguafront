@@ -52,22 +52,41 @@ export const stepSkillsAPI = {
 };
 
 // ============================================
-// 2. STEP QUESTIONS API (Create)
+// 2. STEP QUESTIONS API (Create + Update + Delete)
 // ============================================
 export const stepQuestionsAPI = {
-  // Vocabulary
+  // ---------- Vocabulary ----------
   createVocabulary: async (data) => {
     const response = await api.post("/step/vocabulary/create/", data);
     return response.data;
   },
+  updateVocabulary: async (questionId, data) => {
+    const response = await api.put(
+      `/step/vocabulary/${questionId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteVocabulary: async (questionId) => {
+    const response = await api.delete(`/step/vocabulary/${questionId}/delete/`);
+    return response.data;
+  },
 
-  // Grammar
+  // ---------- Grammar ----------
   createGrammar: async (data) => {
     const response = await api.post("/step/grammar/create/", data);
     return response.data;
   },
+  updateGrammar: async (questionId, data) => {
+    const response = await api.put(`/step/grammar/${questionId}/update/`, data);
+    return response.data;
+  },
+  deleteGrammar: async (questionId) => {
+    const response = await api.delete(`/step/grammar/${questionId}/delete/`);
+    return response.data;
+  },
 
-  // Reading Passage
+  // ---------- Reading Passage ----------
   createReadingPassage: async (data) => {
     const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.post(
@@ -77,8 +96,21 @@ export const stepQuestionsAPI = {
     );
     return response.data;
   },
+  updateReadingPassage: async (passageId, data) => {
+    const response = await api.put(
+      `/step/reading/passages/${passageId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteReadingPassage: async (passageId) => {
+    const response = await api.delete(
+      `/step/reading/passages/${passageId}/delete/`
+    );
+    return response.data;
+  },
 
-  // Reading Question (linked to passage)
+  // ---------- Reading Question ----------
   createReadingQuestion: async (passageId, data) => {
     const response = await api.post(
       `/step/reading/passages/${passageId}/questions/create/`,
@@ -86,14 +118,40 @@ export const stepQuestionsAPI = {
     );
     return response.data;
   },
+  updateReadingQuestion: async (questionId, data) => {
+    const response = await api.put(
+      `/step/reading/questions/${questionId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteReadingQuestion: async (questionId) => {
+    const response = await api.delete(
+      `/step/reading/questions/${questionId}/delete/`
+    );
+    return response.data;
+  },
 
-  // ← Listening Audio
+  // ---------- Listening Audio ----------
   createListeningAudio: async (data) => {
     const response = await api.post("/step/listening/audio/create/", data);
     return response.data;
   },
+  updateListeningAudio: async (audioId, data) => {
+    const response = await api.put(
+      `/step/listening/audio/${audioId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteListeningAudio: async (audioId) => {
+    const response = await api.delete(
+      `/step/listening/audio/${audioId}/delete/`
+    );
+    return response.data;
+  },
 
-  // ← Listening Question (linked to audio)
+  // ---------- Listening Question ----------
   createListeningQuestion: async (audioId, data) => {
     const response = await api.post(
       `/step/listening/audio/${audioId}/questions/create/`,
@@ -101,8 +159,21 @@ export const stepQuestionsAPI = {
     );
     return response.data;
   },
+  updateListeningQuestion: async (questionId, data) => {
+    const response = await api.put(
+      `/step/listening/questions/${questionId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteListeningQuestion: async (questionId) => {
+    const response = await api.delete(
+      `/step/listening/questions/${questionId}/delete/`
+    );
+    return response.data;
+  },
 
-  // Writing
+  // ---------- Writing ----------
   createWriting: async (data) => {
     const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.post(
@@ -112,8 +183,21 @@ export const stepQuestionsAPI = {
     );
     return response.data;
   },
+  updateWriting: async (questionId, data) => {
+    const response = await api.put(
+      `/step/writing/questions/${questionId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteWriting: async (questionId) => {
+    const response = await api.delete(
+      `/step/writing/questions/${questionId}/delete/`
+    );
+    return response.data;
+  },
 
-  // Get questions for a skill
+  // ---------- General ----------
   getSkillQuestions: async (skillId, page = 1, pageSize = 20) => {
     const response = await api.get(`/step/skills/${skillId}/questions/`, {
       params: { page, page_size: pageSize },
@@ -121,7 +205,6 @@ export const stepQuestionsAPI = {
     return response.data;
   },
 
-  // Mark question as viewed
   markViewed: async (skillId, questionType, questionId) => {
     const response = await api.post(
       `/step/skills/${skillId}/questions/${questionType}/${questionId}/mark-viewed/`

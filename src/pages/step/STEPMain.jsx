@@ -23,16 +23,6 @@ export default function STEPMain() {
       iconColor: "text-blue-600",
       link: "/dashboard/step/skills",
     },
-    {
-      id: "progress",
-      name: "تقدم الطلاب",
-      description: "عرض تقدم الطلاب في مهارات STEP",
-      icon: BarChart2,
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
-      iconColor: "text-green-600",
-      link: "/dashboard/step/progress",
-    },
   ];
 
   const skillCards = [
@@ -75,7 +65,7 @@ export default function STEPMain() {
         <div>
           <h1 className="text-3xl font-bold mb-2">STEP System</h1>
           <p className="text-blue-100">
-            إدارة منظومة اختبار STEP - المهارات والأسئلة ومتابعة تقدم الطلاب
+            إدارة منظومة اختبار STEP -المهارات والاسئلة 
           </p>
         </div>
       </div>

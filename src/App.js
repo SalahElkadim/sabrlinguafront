@@ -1,91 +1,97 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
+
+// Auth
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+
+// Dashboard
+import Dashboard from "./pages/dashboard/Dashboard";
 import DashboardLayout from "./components/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import TeachersList from "./pages/TeachersList";
+
+// Teachers
+import TeachersList from "./pages/teachers/TeachersList";
 
 // Placement Test Routes
-import QuestionBanksList from "./pages/QuestionBanksList";
-import CreateQuestionBank from "./pages/CreateQuestionBank";
-import QuestionBankDetails from "./pages/Questionbankdetail";
-import AddVocabularyQuestion from "./pages/Addvocabularyquestion";
-import AddGrammarQuestion from "./pages/Addgrammarquestion";
-import AddReadingQuestion from "./pages/Addreadingquestion";
-import AddListeningQuestion from "./pages/AddListeningQuestion";
-import AddSpeakingQuestion from "./pages/AddSpeakingQuestion";
-import AddWritingQuestion from "./pages/Addwritingquestion";
+import QuestionBanksList from "./pages/placement/QuestionBanksList";
+import CreateQuestionBank from "./pages/placement/CreateQuestionBank";
+import QuestionBankDetails from "./pages/placement/Questionbankdetail";
+import AddVocabularyQuestion from "./pages/placement/Addvocabularyquestion";
+import AddGrammarQuestion from "./pages/placement/Addgrammarquestion";
+import AddReadingQuestion from "./pages/placement/Addreadingquestion";
+import AddListeningQuestion from "./pages/placement/AddListeningQuestion";
+import AddSpeakingQuestion from "./pages/placement/AddSpeakingQuestion";
+import AddWritingQuestion from "./pages/placement/Addwritingquestion";
 
 // Levels System Routes
-import LevelsList from "./pages/Levelslist";
-import CreateLevel from "./pages/Createlevel";
-import LevelDetails from "./pages/Leveldetails";
-import EditLevel from "./pages/Editlevel";
+import LevelsList from "./pages/levels/Levelslist";
+import CreateLevel from "./pages/levels/Createlevel";
+import LevelDetails from "./pages/levels/Leveldetails";
+import EditLevel from "./pages/levels/Editlevel";
 
 // Units Routes
-import UnitsList from "./pages/UnitsList";
-import CreateUnit from "./pages/CreateUnit";
-import UnitDetails from "./pages/UnitDetails";
-import EditUnit from "./pages/EditUnit";
-import AddLessonContent from "./pages/AddLessonContent";
+import UnitsList from "./pages/levels/UnitsList";
+import CreateUnit from "./pages/levels/CreateUnit";
+import UnitDetails from "./pages/levels/UnitDetails";
+import EditUnit from "./pages/levels/EditUnit";
+import AddLessonContent from "./pages/levels/AddLessonContent";
 
 // Lessons Routes
-import LessonsList from "./pages/LessonsList";
-import CreateLesson from "./pages/CreateLesson";
-import LessonDetails from "./pages/Lessondetails";
-import EditLesson from "./pages/Editlesson";
+import LessonsList from "./pages/levels/LessonsList";
+import CreateLesson from "./pages/levels/CreateLesson";
+import LessonDetails from "./pages/levels/Lessondetails";
+import EditLesson from "./pages/levels/Editlesson";
 
 // Level Question Banks Routes
-import LevelQuestionBanksList from "./pages/Levelquestionbankslist";
-import LevelQuestionBankDetails from "./pages/Levelquestionbankdetails";
-import AddLevelVocabularyQuestion from "./pages/Addlevelvocabularyquestion";
-import AddLevelGrammarQuestion from "./pages/Addlevelgrammarquestion";
-import AddLevelReadingQuestion from "./pages/AddLevelReadingQuestion";
-import AddLevelListeningQuestion from "./pages/AddLevelListeningQuestion";
-import AddLevelSpeakingQuestion from "./pages/AddLevelSpeakingQuestion";
-import AddLevelWritingQuestion from "./pages/AddLevelWritingQuestion";
+import LevelQuestionBanksList from "./pages/levels/Levelquestionbankslist";
+import LevelQuestionBankDetails from "./pages/levels/Levelquestionbankdetails";
+import AddLevelVocabularyQuestion from "./pages/levels/Addlevelvocabularyquestion";
+import AddLevelGrammarQuestion from "./pages/levels/Addlevelgrammarquestion";
+import AddLevelReadingQuestion from "./pages/levels/AddLevelReadingQuestion";
+import AddLevelListeningQuestion from "./pages/levels/AddLevelListeningQuestion";
+import AddLevelSpeakingQuestion from "./pages/levels/AddLevelSpeakingQuestion";
+import AddLevelWritingQuestion from "./pages/levels/AddLevelWritingQuestion";
 
 // IELTS Routes
-import IELTSMain from "./pages/IELTSMain";
-import IELTSSkillsList from "./pages/IELTSSkillsList";
-import CreateIELTSSkill from "./pages/CreateIELTSSkill";
-import EditIELTSSkill from "./pages/EditIELTSSkill";
-import IELTSSkillDetails from "./pages/IELTSSkillDetails";
-import CreateLessonPack from "./pages/CreateLessonPack";
-import LessonPackDetails from "./pages/LessonPackDetails";
-import EditLessonPack from "./pages/EditLessonPack";
-import CreateIELTSLesson from "./pages/CreateIELTSLesson";
-import EditIELTSLesson from "./pages/EditIELTSLesson";
-import IELTSLessonDetails from "./pages/IELTSLessonDetails";
-import PracticeExamDetails from "./pages/PracticeExamDetails";
-import AddVocabularyToPracticeExam from "./pages/AddVocabularyToPracticeExam";
-import AddGrammarToPracticeExam from "./pages/AddGrammarToPracticeExam";
-import AddReadingToPracticeExam from "./pages/AddReadingToPracticeExam";
-import AddListeningToPracticeExam from "./pages/AddListeningToPracticeExam";
-import AddSpeakingToPracticeExam from "./pages/AddSpeakingToPracticeExam";
-import AddWritingToPracticeExam from "./pages/AddWritingToPracticeExam";
-import AddIELTSReadingContent from "./pages/AddIELTSReadingContent";
-import AddIELTSListeningContent from "./pages/AddIELTSListeningContent";
-import AddIELTSSpeakingContent from "./pages/AddIELTSSpeakingContent";
-import AddIELTSWritingContent from "./pages/AddIELTSWritingContent";
+import IELTSMain from "./pages/ielts/IELTSMain";
+import IELTSSkillsList from "./pages/ielts/IELTSSkillsList";
+import CreateIELTSSkill from "./pages/ielts/CreateIELTSSkill";
+import EditIELTSSkill from "./pages/ielts/EditIELTSSkill";
+import IELTSSkillDetails from "./pages/ielts/IELTSSkillDetails";
+import CreateLessonPack from "./pages/ielts/CreateLessonPack";
+import LessonPackDetails from "./pages/ielts/LessonPackDetails";
+import EditLessonPack from "./pages/ielts/EditLessonPack";
+import CreateIELTSLesson from "./pages/ielts/CreateIELTSLesson";
+import EditIELTSLesson from "./pages/ielts/EditIELTSLesson";
+import IELTSLessonDetails from "./pages/ielts/IELTSLessonDetails";
+import PracticeExamDetails from "./pages/ielts/PracticeExamDetails";
+import AddVocabularyToPracticeExam from "./pages/ielts/AddVocabularyToPracticeExam";
+import AddGrammarToPracticeExam from "./pages/ielts/AddGrammarToPracticeExam";
+import AddReadingToPracticeExam from "./pages/ielts/AddReadingToPracticeExam";
+import AddListeningToPracticeExam from "./pages/ielts/AddListeningToPracticeExam";
+import AddSpeakingToPracticeExam from "./pages/ielts/AddSpeakingToPracticeExam";
+import AddWritingToPracticeExam from "./pages/ielts/AddWritingToPracticeExam";
+import AddIELTSReadingContent from "./pages/ielts/AddIELTSReadingContent";
+import AddIELTSListeningContent from "./pages/ielts/AddIELTSListeningContent";
+import AddIELTSSpeakingContent from "./pages/ielts/AddIELTSSpeakingContent";
+import AddIELTSWritingContent from "./pages/ielts/AddIELTSWritingContent";
 
 // STEP Routes
-import STEPMain from "./pages/STEPMain";
-import STEPSkillsList from "./pages/STEPSkillsList";
-import CreateSTEPSkill from "./pages/CreateSTEPSkill";
-import EditSTEPSkill from "./pages/EditSTEPSkill";
-import STEPSkillDetails from "./pages/STEPSkillDetails";
-import AddVocabularyToSTEP from "./pages/AddVocabularyToSTEP";
-import AddGrammarToSTEP from "./pages/AddGrammarToSTEP";
-import AddReadingPassageToSTEP from "./pages/AddReadingPassageToSTEP";
-import AddReadingQuestionsToSTEP from "./pages/AddReadingQuestionsToSTEP";
-import AddListeningAudioToSTEP from "./pages/AddListeningAudioToSTEP"; // ← جديد
-import AddListeningQuestionsToSTEP from "./pages/AddListeningQuestionsToSTEP"; // ← جديد
-import AddWritingToSTEP from "./pages/AddWritingToSTEP";
-import STEPProgress from "./pages/STEPProgress";
-import ResetPassword from "./pages/ResetPassword";
+import STEPMain from "./pages/step/STEPMain";
+import STEPSkillsList from "./pages/step/STEPSkillsList";
+import CreateSTEPSkill from "./pages/step/CreateSTEPSkill";
+import EditSTEPSkill from "./pages/step/EditSTEPSkill";
+import STEPSkillDetails from "./pages/step/STEPSkillDetails";
+import AddVocabularyToSTEP from "./pages/step/AddVocabularyToSTEP";
+import AddGrammarToSTEP from "./pages/step/AddGrammarToSTEP";
+import AddReadingPassageToSTEP from "./pages/step/AddReadingPassageToSTEP";
+import AddReadingQuestionsToSTEP from "./pages/step/AddReadingQuestionsToSTEP";
+import AddListeningAudioToSTEP from "./pages/step/AddListeningAudioToSTEP";
+import AddListeningQuestionsToSTEP from "./pages/step/AddListeningQuestionsToSTEP";
+import AddWritingToSTEP from "./pages/step/AddWritingToSTEP";
+import STEPProgress from "./pages/step/STEPProgress";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -101,6 +107,7 @@ function App() {
           path="/reset-password/:uidb64/:token"
           element={<ResetPassword />}
         />
+
         {/* Protected Routes */}
         <Route
           path="/dashboard"
@@ -326,7 +333,7 @@ function App() {
             element={<AddReadingQuestionsToSTEP />}
           />
 
-          {/* Listening ← جديد */}
+          {/* Listening */}
           <Route
             path="step/skills/:skillId/add/listening/audio"
             element={<AddListeningAudioToSTEP />}

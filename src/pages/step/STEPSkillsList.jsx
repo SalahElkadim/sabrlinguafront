@@ -91,14 +91,14 @@ export default function STEPSkillsList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">STEP Skills</h1>
-          <p className="text-gray-500 text-sm mt-1">إدارة مهارات STEP الخمس</p>
+          <p className="text-gray-500 text-sm mt-1">Manage Step Skills</p>
         </div>
         <Link
           to="/dashboard/step/skills/create"
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="w-5 h-5" />
-          <span>إضافة مهارة</span>
+          <span>Add skill</span>
         </Link>
       </div>
 
@@ -107,17 +107,17 @@ export default function STEPSkillsList() {
         <div className="card text-center py-16">
           <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-gray-900 mb-2">
-            لا توجد مهارات
+            No skills 
           </h3>
           <p className="text-gray-500 text-sm mb-6">
-            ابدأ بإضافة مهارات STEP الخمس
+            Start Adding Skills
           </p>
           <Link
             to="/dashboard/step/skills/create"
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
           >
             <Plus className="w-4 h-4" />
-            إضافة مهارة
+            Add New Skill
           </Link>
         </div>
       ) : (
@@ -149,7 +149,7 @@ export default function STEPSkillsList() {
                 )}
 
                 <div className="flex items-center justify-between text-sm mb-4">
-                  <span className="text-gray-500">إجمالي الأسئلة</span>
+                  <span className="text-gray-500">total questions</span>
                   <span className={`font-bold ${config.color}`}>
                     {skill.total_questions}
                   </span>
@@ -160,8 +160,8 @@ export default function STEPSkillsList() {
                     to={`/dashboard/step/skills/${skill.id}`}
                     className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition-colors"
                   >
-                    <Eye className="w-4 h-4" />
-                    عرض
+                    
+                    Add New Question
                   </Link>
                   <Link
                     to={`/dashboard/step/skills/${skill.id}/edit`}
