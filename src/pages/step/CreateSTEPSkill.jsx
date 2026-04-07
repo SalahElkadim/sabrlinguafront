@@ -10,6 +10,7 @@ const SKILL_TYPES = [
   { value: "READING", label: "Reading" },
   { value: "WRITING", label: "Writing" },
   { value: "LISTENING", label: "Listening" },
+  { value: "SPEAKING", label: "Speaking" },
   { value: "GENERAL_PATH", label: "General path" },
 ];
 
