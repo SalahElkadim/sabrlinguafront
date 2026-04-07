@@ -10,7 +10,7 @@ const SKILL_TYPES = [
   { value: "READING", label: "Reading" },
   { value: "WRITING", label: "Writing" },
   { value: "LISTENING", label: "Listening" },
-  { value: "GENERAL_PATH", label: "المسار العام" },
+  { value: "GENERAL_PATH", label: "General path" },
 ];
 
 export default function CreateSTEPSkill() {
