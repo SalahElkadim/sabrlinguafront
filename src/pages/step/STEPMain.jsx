@@ -1,4 +1,4 @@
-// src/pages/STEPMain.jsx
+// src/pages/step/STEPMain.jsx
 import { Link } from "react-router-dom";
 import {
   BookOpen,
@@ -6,8 +6,9 @@ import {
   Volume2,
   FileText,
   ArrowLeft,
-  BarChart2,
   Headphones,
+  Sparkles,
+  Video,
 } from "lucide-react";
 
 export default function STEPMain() {
@@ -16,12 +17,24 @@ export default function STEPMain() {
       id: "skills",
       name: "STEP Skills",
       description:
-        "إدارة مهارات STEP الخمس (Vocabulary, Grammar, Reading, Listening, Writing)",
+        "إدارة مهارات STEP (Vocabulary, Grammar, Reading, Listening, Speaking, Writing)",
       icon: BookOpen,
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
       link: "/dashboard/step/skills",
+    },
+    {
+      id: "ai",
+      name: "توليد بالذكاء الاصطناعي",
+      description:
+        "ارفع كتباً أو ملفات صوت/فيديو وولّد أسئلة STEP تلقائياً بالـ AI",
+      icon: Sparkles,
+      color: "from-violet-500 to-indigo-600",
+      bgColor: "bg-violet-50",
+      iconColor: "text-violet-600",
+      link: "/dashboard/step/ai",
+      badge: "جديد ✨",
     },
   ];
 
@@ -49,7 +62,13 @@ export default function STEPMain() {
       icon: Headphones,
       color: "text-cyan-600",
       bg: "bg-cyan-50",
-    }, // ← جديد
+    },
+    {
+      label: "Speaking",
+      icon: Video,
+      color: "text-rose-600",
+      bg: "bg-rose-50",
+    },
     {
       label: "Writing",
       icon: FileText,
@@ -65,7 +84,7 @@ export default function STEPMain() {
         <div>
           <h1 className="text-3xl font-bold mb-2">STEP System</h1>
           <p className="text-blue-100">
-            إدارة منظومة اختبار STEP -المهارات والاسئلة 
+            إدارة منظومة اختبار STEP - المهارات والأسئلة
           </p>
         </div>
       </div>
@@ -75,16 +94,18 @@ export default function STEPMain() {
         <h2 className="text-lg font-bold text-gray-900 mb-4">
           المهارات المتاحة
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {skillCards.map((skill) => {
             const Icon = skill.icon;
             return (
               <div
                 key={skill.label}
-                className={`${skill.bg} rounded-xl p-4 text-center`}
+                className={`${skill.bg} rounded-xl p-3 text-center`}
               >
-                <Icon className={`w-8 h-8 ${skill.color} mx-auto mb-2`} />
-                <p className="font-semibold text-gray-800">{skill.label}</p>
+                <Icon className={`w-7 h-7 ${skill.color} mx-auto mb-1.5`} />
+                <p className="font-semibold text-gray-800 text-xs">
+                  {skill.label}
+                </p>
               </div>
             );
           })}
@@ -110,9 +131,16 @@ export default function STEPMain() {
                       <Icon className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white mb-1">
-                        {section.name}
-                      </h2>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-white mb-1">
+                          {section.name}
+                        </h2>
+                        {section.badge && (
+                          <span className="text-xs bg-white/25 text-white px-2 py-0.5 rounded-full font-medium">
+                            {section.badge}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-white/80 text-sm">
                         {section.description}
                       </p>

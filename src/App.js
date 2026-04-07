@@ -94,6 +94,7 @@ import AddSpeakingVideoToSTEP from "./pages/step/AddSpeakingVideoToSTEP";
 import AddSpeakingQuestionsToSTEP from "./pages/step/AddSpeakingQuestionsToSTEP";
 import AddWritingToSTEP from "./pages/step/AddWritingToSTEP";
 import STEPProgress from "./pages/step/STEPProgress";
+import STEPAIGeneration from "./pages/step/STEPAIGeneration";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -354,7 +355,7 @@ function App() {
             path="step/skills/:skillId/add/speaking/video/:videoId/questions"
             element={<AddSpeakingQuestionsToSTEP />}
           />
-
+          <Route path="step/ai" element={<STEPAIGeneration />} />
           {/* Writing */}
           <Route
             path="step/skills/:skillId/add/writing"
