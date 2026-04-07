@@ -49,6 +49,7 @@ export const stepSkillsAPI = {
     const response = await api.delete(`/step/skills/${skillId}/delete/`);
     return response.data;
   },
+
   setChildSkills: async (skillId, childSkillIds) => {
     const response = await api.post(`/step/skills/${skillId}/set-children/`, {
       child_skill_ids: childSkillIds,
@@ -179,6 +180,47 @@ export const stepQuestionsAPI = {
     return response.data;
   },
 
+  // ---------- Speaking Video ----------
+  createSpeakingVideo: async (data) => {
+    const response = await api.post("/step/speaking/videos/create/", data);
+    return response.data;
+  },
+  updateSpeakingVideo: async (videoId, data) => {
+    const response = await api.put(
+      `/step/speaking/videos/${videoId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteSpeakingVideo: async (videoId) => {
+    const response = await api.delete(
+      `/step/speaking/videos/${videoId}/delete/`
+    );
+    return response.data;
+  },
+
+  // ---------- Speaking Question ----------
+  createSpeakingQuestion: async (videoId, data) => {
+    const response = await api.post(
+      `/step/speaking/videos/${videoId}/questions/create/`,
+      data
+    );
+    return response.data;
+  },
+  updateSpeakingQuestion: async (questionId, data) => {
+    const response = await api.put(
+      `/step/speaking/questions/${questionId}/update/`,
+      data
+    );
+    return response.data;
+  },
+  deleteSpeakingQuestion: async (questionId) => {
+    const response = await api.delete(
+      `/step/speaking/questions/${questionId}/delete/`
+    );
+    return response.data;
+  },
+
   // ---------- Writing ----------
   createWriting: async (data) => {
     const config = data instanceof FormData ? getFormDataConfig() : {};
@@ -233,4 +275,3 @@ export const stepProgressAPI = {
     return response.data;
   },
 };
-

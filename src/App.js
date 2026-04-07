@@ -90,6 +90,8 @@ import AddReadingPassageToSTEP from "./pages/step/AddReadingPassageToSTEP";
 import AddReadingQuestionsToSTEP from "./pages/step/AddReadingQuestionsToSTEP";
 import AddListeningAudioToSTEP from "./pages/step/AddListeningAudioToSTEP";
 import AddListeningQuestionsToSTEP from "./pages/step/AddListeningQuestionsToSTEP";
+import AddSpeakingVideoToSTEP from "./pages/step/AddSpeakingVideoToSTEP";
+import AddSpeakingQuestionsToSTEP from "./pages/step/AddSpeakingQuestionsToSTEP";
 import AddWritingToSTEP from "./pages/step/AddWritingToSTEP";
 import STEPProgress from "./pages/step/STEPProgress";
 
@@ -341,6 +343,16 @@ function App() {
           <Route
             path="step/skills/:skillId/add/listening/audio/:audioId/questions"
             element={<AddListeningQuestionsToSTEP />}
+          />
+
+          {/* Speaking ← جديد */}
+          <Route
+            path="step/skills/:skillId/add/speaking/video"
+            element={<AddSpeakingVideoToSTEP />}
+          />
+          <Route
+            path="step/skills/:skillId/add/speaking/video/:videoId/questions"
+            element={<AddSpeakingQuestionsToSTEP />}
           />
 
           {/* Writing */}
