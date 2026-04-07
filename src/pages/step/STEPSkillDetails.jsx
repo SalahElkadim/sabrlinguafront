@@ -18,6 +18,9 @@ import {
   X,
   Check,
   Loader2,
+  GitBranch,
+  Link2,
+  Link2Off,
 } from "lucide-react";
 import { stepSkillsAPI, stepQuestionsAPI } from "../../services/stepService";
 
@@ -60,6 +63,22 @@ const skillTypeConfig = {
     bg: "bg-green-50",
     addLabel: "إضافة سؤال",
   },
+  GENERAL_PATH: {
+    label: "المسار العام",
+    icon: GitBranch,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    addLabel: "إدارة المهارات الفرعية",
+  },
+};
+
+const skillTypeBadgeColor = {
+  VOCABULARY: "bg-blue-100 text-blue-700",
+  GRAMMAR: "bg-purple-100 text-purple-700",
+  READING: "bg-orange-100 text-orange-700",
+  LISTENING: "bg-cyan-100 text-cyan-700",
+  WRITING: "bg-green-100 text-green-700",
+  GENERAL_PATH: "bg-indigo-100 text-indigo-700",
 };
 
 const addRouteMap = (skillId, skillType) =>
@@ -116,6 +135,189 @@ function ConfirmDeleteModal({ message, onConfirm, onCancel, loading }) {
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ============================================
+// GENERAL PATH — Child Skills Manager
+// ============================================
+function ChildSkillsManager({ skill, onUpdate }) {
+  const [allSkills, setAllSkills] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(
+    (skill.child_skills || []).map((c) => c.id)
+  );
+  const [saving, setSaving] = useState(false);
+  const [loadingSkills, setLoadingSkills] = useState(true);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const data = await stepSkillsAPI.getAll();
+        // استبعد المسار العام نفسه والـ GENERAL_PATH الأخرى
+        const filtered = (data.skills || []).filter(
+          (s) => s.skill_type !== "GENERAL_PATH" && s.id !== skill.id
+        );
+        setAllSkills(filtered);
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+    fetchAll();
+  }, [skill.id]);
+
+  const toggleSkill = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+    setSaved(false);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await stepSkillsAPI.setChildSkills(skill.id, selectedIds);
+      setSaved(true);
+      onUpdate();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const currentChildren = skill.child_skills || [];
+
+  return (
+    <div className="space-y-4">
+      {/* Current linked skills */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          المهارات الفرعية المرتبطة حالياً
+        </h3>
+        {currentChildren.length === 0 ? (
+          <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            <Link2Off className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <p className="text-gray-400 text-sm">
+              لا توجد مهارات فرعية مرتبطة بعد
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {currentChildren.map((c) => {
+              const cfg = skillTypeConfig[c.skill_type] || {};
+              const Icon = cfg.icon || BookOpen;
+              return (
+                <div
+                  key={c.id}
+                  className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-1.5"
+                >
+                  <Icon className={`w-3.5 h-3.5 ${cfg.color}`} />
+                  <span className="text-sm text-indigo-800 font-medium">
+                    {c.title}
+                  </span>
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded-full ${
+                      skillTypeBadgeColor[c.skill_type]
+                    }`}
+                  >
+                    {cfg.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* All available skills to link */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          اختر المهارات الفرعية للمسار
+        </h3>
+        {loadingSkills ? (
+          <div className="flex items-center justify-center py-6">
+            <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+          </div>
+        ) : allSkills.length === 0 ? (
+          <p className="text-gray-400 text-sm text-center py-4">
+            لا توجد مهارات متاحة للربط
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {allSkills.map((s) => {
+              const cfg = skillTypeConfig[s.skill_type] || {};
+              const Icon = cfg.icon || BookOpen;
+              const isSelected = selectedIds.includes(s.id);
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => toggleSkill(s.id)}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all text-left ${
+                    isSelected
+                      ? "border-indigo-400 bg-indigo-50"
+                      : "border-gray-200 bg-white hover:bg-gray-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`p-1.5 rounded-lg ${cfg.bg}`}>
+                      <Icon className={`w-4 h-4 ${cfg.color}`} />
+                    </div>
+                    <div className="text-right">
+                      <p
+                        className={`text-sm font-medium ${
+                          isSelected ? "text-indigo-800" : "text-gray-800"
+                        }`}
+                      >
+                        {s.title}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {s.total_questions} سؤال
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      isSelected
+                        ? "border-indigo-500 bg-indigo-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Save button */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-sm transition-colors ${
+          saved
+            ? "bg-green-500 text-white"
+            : "bg-indigo-600 hover:bg-indigo-700 text-white"
+        }`}
+      >
+        {saving ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : saved ? (
+          <>
+            <Check className="w-4 h-4" />
+            تم الحفظ
+          </>
+        ) : (
+          <>
+            <Link2 className="w-4 h-4" />
+            حفظ المهارات الفرعية ({selectedIds.length} مختارة)
+          </>
+        )}
+      </button>
     </div>
   );
 }
@@ -187,8 +389,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
         {["A", "B", "C", "D"].map((letter) => (
           <div key={letter}>
             <label className="text-xs text-gray-500 mb-1 block">
-              الخيار {letter}{" "}
-              <span className="text-gray-400">(اختر الصحيح)</span>
+              الخيار {letter}
             </label>
             <div className="flex gap-1">
               <input
@@ -340,7 +541,6 @@ function MCQCard({ q, index, color, onDelete, onUpdate, updateFn }) {
             <button
               onClick={() => setShowAnswer((v) => !v)}
               className="text-gray-400 hover:text-gray-600 p-1"
-              title="إظهار/إخفاء الإجابة"
             >
               {showAnswer ? (
                 <EyeOff className="w-4 h-4" />
@@ -351,14 +551,12 @@ function MCQCard({ q, index, color, onDelete, onUpdate, updateFn }) {
             <button
               onClick={() => setEditing(true)}
               className="text-gray-400 hover:text-blue-600 p-1"
-              title="تعديل"
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={() => setConfirmDelete(true)}
               className="text-gray-400 hover:text-red-600 p-1"
-              title="حذف"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -569,9 +767,6 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
       <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          مستوى الصعوبة
-        </label>
         <select
           value={form.difficulty}
           onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
@@ -714,7 +909,6 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
             </button>
           </div>
         </div>
-
         {expanded && (
           <div className="p-4 space-y-4">
             <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed max-h-40 overflow-y-auto">
@@ -743,15 +937,6 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
                         </p>
                       </div>
                       <div className="flex gap-1 shrink-0 items-center">
-                        {q.difficulty && (
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                              difficultyBadge[q.difficulty]?.color
-                            }`}
-                          >
-                            {difficultyBadge[q.difficulty]?.label}
-                          </span>
-                        )}
                         <button
                           onClick={() => setEditingQuestion(q.id)}
                           className="p-1 text-gray-400 hover:text-blue-600"
@@ -810,7 +995,6 @@ function AudioEditForm({ audio, onSave, onCancel }) {
     difficulty: audio.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
-
   const handleSubmit = async () => {
     setSaving(true);
     try {
@@ -990,20 +1174,15 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
         placeholder="التوضيح (اختياري)"
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
-      <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          مستوى الصعوبة
-        </label>
-        <select
-          value={form.difficulty}
-          onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-300"
-        >
-          <option value="EASY">سهل</option>
-          <option value="MEDIUM">متوسط</option>
-          <option value="HARD">صعب</option>
-        </select>
-      </div>
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
@@ -1045,7 +1224,6 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
       setConfirmDelete(false);
     }
   };
-
   const handleDeleteQuestion = async () => {
     setDeletingQuestion(true);
     try {
@@ -1057,7 +1235,7 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
     }
   };
 
-  if (editing) {
+  if (editing)
     return (
       <AudioEditForm
         audio={audio}
@@ -1068,7 +1246,6 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
         }}
       />
     );
-  }
 
   return (
     <>
@@ -1142,7 +1319,6 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
             </button>
           </div>
         </div>
-
         {expanded && (
           <div className="p-4 space-y-4">
             {audio.audio_file && (
@@ -1168,7 +1344,6 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
               <Plus className="w-4 h-4" />
               إضافة سؤال لهذا التسجيل
             </Link>
-
             {audio.questions?.map((q, qi) => (
               <div key={q.id}>
                 {editingQuestion === q.id ? (
@@ -1192,15 +1367,6 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
                         </p>
                       </div>
                       <div className="flex gap-1 shrink-0 items-center">
-                        {q.difficulty && (
-                          <span
-                            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                              difficultyBadge[q.difficulty]?.color
-                            }`}
-                          >
-                            {difficultyBadge[q.difficulty]?.label}
-                          </span>
-                        )}
                         <button
                           onClick={() => setEditingQuestion(q.id)}
                           className="p-1 text-gray-400 hover:text-blue-600"
@@ -1261,7 +1427,6 @@ function WritingEditForm({ q, onSave, onCancel }) {
     difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
-
   const handleSubmit = async () => {
     setSaving(true);
     try {
@@ -1399,7 +1564,7 @@ function WritingCard({ q, index, onDelete, onUpdate }) {
     }
   };
 
-  if (editing) {
+  if (editing)
     return (
       <WritingEditForm
         q={q}
@@ -1410,7 +1575,6 @@ function WritingCard({ q, index, onDelete, onUpdate }) {
         }}
       />
     );
-  }
 
   return (
     <>
@@ -1528,6 +1692,7 @@ export default function STEPSkillDetails() {
   const config = skillTypeConfig[skill.skill_type] || {};
   const Icon = config.icon || BookOpen;
   const addRoute = addRouteMap(skillId, skill.skill_type);
+  const isGeneralPath = skill.skill_type === "GENERAL_PATH";
 
   return (
     <div className="space-y-6">
@@ -1565,120 +1730,138 @@ export default function STEPSkillDetails() {
           >
             تعديل المهارة
           </Link>
-          <Link
-            to={addRoute}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            {config.addLabel}
-          </Link>
+          {/* زرار الإضافة بس لو مش GENERAL_PATH */}
+          {!isGeneralPath && addRoute && (
+            <Link
+              to={addRoute}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {config.addLabel}
+            </Link>
+          )}
         </div>
       </div>
 
-      {/* Questions */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-bold text-gray-900">الأسئلة</h2>
-
-        {questions.length === 0 ? (
-          <div className="card text-center py-12">
-            <Icon
-              className={`w-10 h-10 ${config.color} mx-auto mb-3 opacity-30`}
-            />
-            <p className="text-gray-500 text-sm">
-              لا توجد أسئلة بعد. ابدأ بإضافة أسئلة.
-            </p>
+      {/* GENERAL_PATH — Child Skills Manager */}
+      {isGeneralPath ? (
+        <div className="card space-y-2">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="bg-indigo-50 p-2 rounded-lg">
+              <GitBranch className="w-5 h-5 text-indigo-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">
+                إدارة المهارات الفرعية
+              </h2>
+              <p className="text-xs text-gray-500">
+                اختر المهارات التي يشملها هذا المسار
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {skill.skill_type === "VOCABULARY" &&
-              questions.map((q, i) => (
-                <MCQCard
-                  key={q.id}
-                  q={q}
-                  index={i}
-                  color={config.color}
-                  updateFn={stepQuestionsAPI.updateVocabulary}
-                  onDelete={async (id) => {
-                    await stepQuestionsAPI.deleteVocabulary(id);
-                    fetchData();
-                  }}
-                  onUpdate={() => fetchData()}
-                />
-              ))}
+          <ChildSkillsManager skill={skill} onUpdate={fetchData} />
+        </div>
+      ) : (
+        /* Normal Skills — Questions */
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-gray-900">الأسئلة</h2>
+          {questions.length === 0 ? (
+            <div className="card text-center py-12">
+              <Icon
+                className={`w-10 h-10 ${config.color} mx-auto mb-3 opacity-30`}
+              />
+              <p className="text-gray-500 text-sm">
+                لا توجد أسئلة بعد. ابدأ بإضافة أسئلة.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {skill.skill_type === "VOCABULARY" &&
+                questions.map((q, i) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    color={config.color}
+                    updateFn={stepQuestionsAPI.updateVocabulary}
+                    onDelete={async (id) => {
+                      await stepQuestionsAPI.deleteVocabulary(id);
+                      fetchData();
+                    }}
+                    onUpdate={() => fetchData()}
+                  />
+                ))}
+              {skill.skill_type === "GRAMMAR" &&
+                questions.map((q, i) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    color={config.color}
+                    updateFn={stepQuestionsAPI.updateGrammar}
+                    onDelete={async (id) => {
+                      await stepQuestionsAPI.deleteGrammar(id);
+                      fetchData();
+                    }}
+                    onUpdate={() => fetchData()}
+                  />
+                ))}
+              {skill.skill_type === "READING" &&
+                questions.map((p, i) => (
+                  <ReadingPassageCard
+                    key={p.id}
+                    passage={p}
+                    index={i}
+                    onUpdate={fetchData}
+                  />
+                ))}
+              {skill.skill_type === "LISTENING" &&
+                questions.map((a, i) => (
+                  <ListeningAudioCard
+                    key={a.id}
+                    audio={a}
+                    index={i}
+                    skillId={skillId}
+                    onUpdate={fetchData}
+                  />
+                ))}
+              {skill.skill_type === "WRITING" &&
+                questions.map((q, i) => (
+                  <WritingCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    onDelete={() => fetchData()}
+                    onUpdate={() => fetchData()}
+                  />
+                ))}
+            </div>
+          )}
 
-            {skill.skill_type === "GRAMMAR" &&
-              questions.map((q, i) => (
-                <MCQCard
-                  key={q.id}
-                  q={q}
-                  index={i}
-                  color={config.color}
-                  updateFn={stepQuestionsAPI.updateGrammar}
-                  onDelete={async (id) => {
-                    await stepQuestionsAPI.deleteGrammar(id);
-                    fetchData();
-                  }}
-                  onUpdate={() => fetchData()}
-                />
-              ))}
-
-            {skill.skill_type === "READING" &&
-              questions.map((p, i) => (
-                <ReadingPassageCard
-                  key={p.id}
-                  passage={p}
-                  index={i}
-                  onUpdate={fetchData}
-                />
-              ))}
-
-            {skill.skill_type === "LISTENING" &&
-              questions.map((a, i) => (
-                <ListeningAudioCard
-                  key={a.id}
-                  audio={a}
-                  index={i}
-                  skillId={skillId}
-                  onUpdate={fetchData}
-                />
-              ))}
-
-            {skill.skill_type === "WRITING" &&
-              questions.map((q, i) => (
-                <WritingCard
-                  key={q.id}
-                  q={q}
-                  index={i}
-                  onDelete={() => fetchData()}
-                  onUpdate={() => fetchData()}
-                />
-              ))}
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {pagination.total_pages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
-          >
-            السابق
-          </button>
-          <span className="text-sm text-gray-600">
-            صفحة {page} من {pagination.total_pages}
-          </span>
-          <button
-            onClick={() =>
-              setPage((p) => Math.min(pagination.total_pages, p + 1))
-            }
-            disabled={page === pagination.total_pages}
-            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
-          >
-            التالي
-          </button>
+          {/* Pagination */}
+          {pagination.total_pages > 1 && (
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
+              >
+                السابق
+              </button>
+              <span className="text-sm text-gray-600">
+                صفحة {page} من {pagination.total_pages}
+              </span>
+              <button
+                onClick={() =>
+                  setPage((p) => Math.min(pagination.total_pages, p + 1))
+                }
+                disabled={page === pagination.total_pages}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
+              >
+                التالي
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

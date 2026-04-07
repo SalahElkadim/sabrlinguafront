@@ -1,7 +1,7 @@
-// src/pages/CreateSTEPSkill.jsx
+// src/pages/step/CreateSTEPSkill.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, Save } from "lucide-react";
+import { ArrowRight, Save, GitBranch } from "lucide-react";
 import { stepSkillsAPI } from "../../services/stepService";
 
 const SKILL_TYPES = [
@@ -10,6 +10,7 @@ const SKILL_TYPES = [
   { value: "READING", label: "Reading" },
   { value: "WRITING", label: "Writing" },
   { value: "LISTENING", label: "Listening" },
+  { value: "GENERAL_PATH", label: "المسار العام" },
 ];
 
 export default function CreateSTEPSkill() {
@@ -50,6 +51,8 @@ export default function CreateSTEPSkill() {
       setLoading(false);
     }
   };
+
+  const isGeneralPath = form.skill_type === "GENERAL_PATH";
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
@@ -92,6 +95,23 @@ export default function CreateSTEPSkill() {
           )}
         </div>
 
+        {/* GENERAL_PATH info banner */}
+        {isGeneralPath && (
+          <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+            <GitBranch className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-indigo-800">
+                المسار العام
+              </p>
+              <p className="text-xs text-indigo-600 mt-1 leading-relaxed">
+                المسار العام يجمع أسئلة من مهارات فرعية متعددة (Vocabulary,
+                Grammar, Reading, Listening). بعد إنشاء المسار، يمكنك ربط
+                المهارات الفرعية به من صفحة تفاصيل المسار.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -103,7 +123,11 @@ export default function CreateSTEPSkill() {
             value={form.title}
             onChange={handleChange}
             required
-            placeholder="مثال: Vocabulary Skills"
+            placeholder={
+              isGeneralPath
+                ? "مثال: المسار العام - STEP"
+                : "مثال: Vocabulary Skills"
+            }
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.title && (
@@ -121,7 +145,11 @@ export default function CreateSTEPSkill() {
             value={form.description}
             onChange={handleChange}
             rows={3}
-            placeholder="وصف اختياري للمهارة..."
+            placeholder={
+              isGeneralPath
+                ? "مثال: مسار شامل يضم أسئلة Vocabulary و Grammar و Reading و Listening..."
+                : "وصف اختياري للمهارة..."
+            }
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
         </div>

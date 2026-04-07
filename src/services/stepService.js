@@ -49,6 +49,12 @@ export const stepSkillsAPI = {
     const response = await api.delete(`/step/skills/${skillId}/delete/`);
     return response.data;
   },
+  setChildSkills: async (skillId, childSkillIds) => {
+    const response = await api.post(`/step/skills/${skillId}/set-children/`, {
+      child_skill_ids: childSkillIds,
+    });
+    return response.data;
+  },
 };
 
 // ============================================
@@ -227,3 +233,4 @@ export const stepProgressAPI = {
     return response.data;
   },
 };
+
