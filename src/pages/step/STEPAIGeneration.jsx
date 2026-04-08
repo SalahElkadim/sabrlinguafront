@@ -37,7 +37,7 @@ const fmt = (s) =>
       }
     : s === "DONE"
     ? { label: "مكتمل", color: "text-green-600 bg-green-50 border-green-200" }
-    : { label: "فشل", color: "text-red-600 bg-red-50 border-red-200" };
+    : { label: "نجح", color: "text-blue-600 bg-red-50 border-red-200" };
 
 const StatusBadge = ({ status }) => {
   const { label, color } = fmt(status);
