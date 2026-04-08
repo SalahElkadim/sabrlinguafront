@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Zap,
   Brain,
+  Check,
 } from "lucide-react";
 import api from "../../api/axios";
 
@@ -37,7 +38,7 @@ const fmt = (s) =>
       }
     : s === "DONE"
     ? { label: "مكتمل", color: "text-green-600 bg-green-50 border-green-200" }
-    : { label: "نجح", color: "text-blue-600 bg-red-50 border-red-200" };
+    : { label: "فشل", color: "text-red-600 bg-red-50 border-red-200" };
 
 const StatusBadge = ({ status }) => {
   const { label, color } = fmt(status);
@@ -88,6 +89,154 @@ function Section({ icon: Icon, title, color, children, defaultOpen = true }) {
   );
 }
 
+// ─── Multi-select dropdown ──────────────────────────────────────────────────
+function MultiSelectDropdown({
+  items,
+  selected,
+  onToggle,
+  placeholder,
+  color = "indigo",
+  renderItem,
+  renderTag,
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef();
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const colorMap = {
+    indigo: {
+      border: "border-indigo-400",
+      bg: "bg-indigo-50",
+      tag: "bg-indigo-100 text-indigo-700",
+      check: "accent-indigo-600",
+      hover: "hover:bg-indigo-50",
+      selected: "bg-indigo-50",
+    },
+    cyan: {
+      border: "border-cyan-400",
+      bg: "bg-cyan-50",
+      tag: "bg-cyan-100 text-cyan-700",
+      check: "accent-cyan-600",
+      hover: "hover:bg-cyan-50",
+      selected: "bg-cyan-50",
+    },
+  };
+  const c = colorMap[color];
+
+  return (
+    <div ref={ref} className="relative">
+      {/* Selected tags */}
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {selected.map((id) => {
+            const item = items.find((x) => x.id === id);
+            return (
+              <span
+                key={id}
+                className={`flex items-center gap-1 ${c.tag} text-xs px-2.5 py-1 rounded-full font-medium`}
+              >
+                {renderTag ? renderTag(item) : item?.name}
+                <button
+                  onClick={() => onToggle(id)}
+                  className="hover:opacity-70 transition-opacity"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`w-full flex items-center justify-between border rounded-xl px-4 py-2.5 text-sm transition-colors bg-white ${
+          open ? `${c.border} ${c.bg}` : "border-gray-200 hover:border-gray-300"
+        }`}
+      >
+        <span
+          className={
+            selected.length > 0 ? "text-gray-700 font-medium" : "text-gray-400"
+          }
+        >
+          {selected.length > 0 ? `${selected.length} عنصر محدد` : placeholder}
+        </span>
+        {open ? (
+          <ChevronUp className="w-4 h-4 text-gray-400" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-gray-400" />
+        )}
+      </button>
+
+      {/* Dropdown list */}
+      {open && (
+        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+          <div className="max-h-52 overflow-y-auto divide-y divide-gray-100">
+            {items.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">
+                لا توجد عناصر جاهزة
+              </p>
+            ) : (
+              items.map((item) => (
+                <label
+                  key={item.id}
+                  className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${
+                    selected.includes(item.id) ? c.selected : c.hover
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
+                      selected.includes(item.id)
+                        ? `bg-${color}-600 border-${color}-600`
+                        : "border-gray-300"
+                    }`}
+                    style={
+                      selected.includes(item.id)
+                        ? {
+                            backgroundColor:
+                              color === "indigo" ? "#4f46e5" : "#0891b2",
+                            borderColor:
+                              color === "indigo" ? "#4f46e5" : "#0891b2",
+                          }
+                        : {}
+                    }
+                  >
+                    {selected.includes(item.id) && (
+                      <Check className="w-2.5 h-2.5 text-white" />
+                    )}
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(item.id)}
+                    onChange={() => onToggle(item.id)}
+                    className="hidden"
+                  />
+                  {renderItem ? (
+                    renderItem(item, selected.includes(item.id))
+                  ) : (
+                    <span className="text-sm text-gray-700 flex-1 truncate">
+                      {item.name}
+                    </span>
+                  )}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════════
 // 1. BOOKS SECTION
 // ══════════════════════════════════════════════════════════════════
@@ -99,7 +248,6 @@ function BooksSection({ books, onRefresh }) {
   const fileRef = useRef();
   const pollingRef = useRef({});
 
-  // poll pending/processing books
   useEffect(() => {
     books.forEach((b) => {
       if (
@@ -145,7 +293,6 @@ function BooksSection({ books, onRefresh }) {
 
   return (
     <Section icon={BookOpen} title="رفع الكتب (PDF)" color="text-indigo-600">
-      {/* Upload form */}
       <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-5 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
@@ -186,7 +333,6 @@ function BooksSection({ books, onRefresh }) {
         </button>
       </div>
 
-      {/* Book list */}
       {books.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-4">
           لا توجد كتب مرفوعة بعد
@@ -282,7 +428,6 @@ function MediaSection({ media, onRefresh }) {
       title="رفع الفيديو / الصوت (Transcription)"
       color="text-cyan-600"
     >
-      {/* Upload form */}
       <div className="bg-cyan-50 border border-cyan-100 rounded-xl p-4 mb-5 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
@@ -328,7 +473,6 @@ function MediaSection({ media, onRefresh }) {
         </p>
       </div>
 
-      {/* Media list */}
       {media.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-4">
           لا توجد ملفات وسائط بعد
@@ -368,8 +512,12 @@ function MediaSection({ media, onRefresh }) {
 // ══════════════════════════════════════════════════════════════════
 // 3. GENERATE SKILL SECTION
 // ══════════════════════════════════════════════════════════════════
-function GenerateSection({ doneBooks, doneMedia, onRefresh, jobs }) {
+function GenerateSection({ onRefresh, jobs }) {
   const pollingRef = useRef({});
+
+  const [doneBooks, setDoneBooks] = useState([]);
+  const [doneMedia, setDoneMedia] = useState([]);
+  const [loadingSources, setLoadingSources] = useState(true);
 
   const [form, setForm] = useState({
     skill_type: "",
@@ -384,6 +532,24 @@ function GenerateSection({ doneBooks, doneMedia, onRefresh, jobs }) {
   const [selectedMedia, setSelectedMedia] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
+
+  // جيب الكتب والميديا الجاهزة مستقل
+  const fetchSources = async () => {
+    setLoadingSources(true);
+    try {
+      const [bRes, mRes] = await Promise.all([
+        api.get("/step/ai/extract-book/"),
+        api.get("/step/ai/extract-media/"),
+      ]);
+      setDoneBooks(bRes.data.books || []);
+      setDoneMedia(mRes.data.media || []);
+    } catch {}
+    setLoadingSources(false);
+  };
+
+  useEffect(() => {
+    fetchSources();
+  }, []);
 
   // poll active jobs
   useEffect(() => {
@@ -411,6 +577,7 @@ function GenerateSection({ doneBooks, doneMedia, onRefresh, jobs }) {
     setSelectedBooks((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+
   const toggleMedia = (id) =>
     setSelectedMedia((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
@@ -548,34 +715,36 @@ function GenerateSection({ doneBooks, doneMedia, onRefresh, jobs }) {
             <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
               <BookOpen className="w-3.5 h-3.5" /> الكتب المصدر
             </label>
-            {doneBooks.length === 0 ? (
-              <div className="border border-dashed border-gray-200 rounded-xl p-3 text-center">
-                <p className="text-xs text-gray-400">لا توجد كتب جاهزة</p>
+            {loadingSources ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جاري التحميل...
               </div>
             ) : (
-              <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                {doneBooks.map((b) => (
-                  <label
-                    key={b.id}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all text-sm ${
-                      selectedBooks.includes(b.id)
-                        ? "bg-indigo-50 border-indigo-400 text-indigo-700"
-                        : "bg-gray-50 border-gray-200 text-gray-700 hover:border-indigo-300"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedBooks.includes(b.id)}
-                      onChange={() => toggleBook(b.id)}
-                      className="w-4 h-4 accent-indigo-600"
-                    />
-                    <span className="truncate">{b.name}</span>
-                    <span className="text-xs text-gray-400 shrink-0">
-                      {b.page_count} ص
+              <MultiSelectDropdown
+                items={doneBooks}
+                selected={selectedBooks}
+                onToggle={toggleBook}
+                placeholder="اختر كتاباً أو أكثر..."
+                color="indigo"
+                renderTag={(item) => (
+                  <span className="flex items-center gap-1">
+                    <FileText className="w-3 h-3" />
+                    {item?.name}
+                  </span>
+                )}
+                renderItem={(item, isSelected) => (
+                  <>
+                    <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
+                    <span className="text-sm text-gray-700 flex-1 truncate">
+                      {item.name}
                     </span>
-                  </label>
-                ))}
-              </div>
+                    <span className="text-xs text-gray-400 shrink-0">
+                      {item.page_count} ص
+                    </span>
+                  </>
+                )}
+              />
             )}
           </div>
 
@@ -584,39 +753,60 @@ function GenerateSection({ doneBooks, doneMedia, onRefresh, jobs }) {
             <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
               <Headphones className="w-3.5 h-3.5" /> ملفات الوسائط المصدر
             </label>
-            {doneMedia.length === 0 ? (
-              <div className="border border-dashed border-gray-200 rounded-xl p-3 text-center">
-                <p className="text-xs text-gray-400">لا توجد وسائط جاهزة</p>
+            {loadingSources ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جاري التحميل...
               </div>
             ) : (
-              <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                {doneMedia.map((m) => (
-                  <label
-                    key={m.id}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border cursor-pointer transition-all text-sm ${
-                      selectedMedia.includes(m.id)
-                        ? "bg-cyan-50 border-cyan-400 text-cyan-700"
-                        : "bg-gray-50 border-gray-200 text-gray-700 hover:border-cyan-300"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedMedia.includes(m.id)}
-                      onChange={() => toggleMedia(m.id)}
-                      className="w-4 h-4 accent-cyan-600"
-                    />
-                    {m.media_type === "VIDEO" ? (
-                      <Video className="w-3.5 h-3.5 shrink-0" />
+              <MultiSelectDropdown
+                items={doneMedia}
+                selected={selectedMedia}
+                onToggle={toggleMedia}
+                placeholder="اختر ملف صوت أو فيديو..."
+                color="cyan"
+                renderTag={(item) => (
+                  <span className="flex items-center gap-1">
+                    {item?.media_type === "VIDEO" ? (
+                      <Video className="w-3 h-3" />
                     ) : (
-                      <Headphones className="w-3.5 h-3.5 shrink-0" />
+                      <Headphones className="w-3 h-3" />
                     )}
-                    <span className="truncate">{m.name}</span>
-                  </label>
-                ))}
-              </div>
+                    {item?.name}
+                  </span>
+                )}
+                renderItem={(item, isSelected) => (
+                  <>
+                    {item.media_type === "VIDEO" ? (
+                      <Video className="w-4 h-4 text-cyan-400 shrink-0" />
+                    ) : (
+                      <Headphones className="w-4 h-4 text-cyan-400 shrink-0" />
+                    )}
+                    <span className="text-sm text-gray-700 flex-1 truncate">
+                      {item.name}
+                    </span>
+                    <span className="text-xs text-gray-400 shrink-0">
+                      {item.media_type === "VIDEO" ? "فيديو" : "صوت"}
+                    </span>
+                  </>
+                )}
+              />
             )}
           </div>
         </div>
+
+        {/* Refresh sources button */}
+        <button
+          type="button"
+          onClick={fetchSources}
+          disabled={loadingSources}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${loadingSources ? "animate-spin" : ""}`}
+          />
+          تحديث قائمة المصادر
+        </button>
 
         {/* Additional notes */}
         <div>
@@ -727,14 +917,12 @@ export default function STEPAIGeneration() {
     setRefreshing(false);
   };
 
-  // fetch all books/media including non-done for status display
   const fetchAllWithStatus = async () => {
     try {
       const [bRes, mRes] = await Promise.all([
         api.get("/step/ai/extract-book/"),
         api.get("/step/ai/extract-media/"),
       ]);
-      // merge with existing to show processing too
       setBooks((prev) => {
         const done = bRes.data.books || [];
         const doneIds = done.map((b) => b.id);
@@ -755,9 +943,6 @@ export default function STEPAIGeneration() {
   }, []);
 
   const handleRefresh = () => fetchAll(true);
-
-  const doneBooks = books.filter((b) => b.status === "DONE");
-  const doneMedia = media.filter((m) => m.status === "DONE");
 
   if (loading) {
     return (
@@ -817,24 +1002,12 @@ export default function STEPAIGeneration() {
       </div>
 
       {/* Sections */}
-      <BooksSection
-        books={books}
-        onRefresh={() => {
-          fetchAllWithStatus();
-        }}
-      />
-      <MediaSection
-        media={media}
-        onRefresh={() => {
-          fetchAllWithStatus();
-        }}
-      />
+      <BooksSection books={books} onRefresh={fetchAllWithStatus} />
+      <MediaSection media={media} onRefresh={fetchAllWithStatus} />
       <GenerateSection
-        doneBooks={doneBooks}
-        doneMedia={doneMedia}
         jobs={jobs}
         onRefresh={() => {
-          setJobs((prev) => prev); // trigger re-poll
+          setJobs((prev) => prev);
           handleRefresh();
         }}
       />
