@@ -1,399 +1,212 @@
 // src/pages/EditIELTSSkill.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ArrowLeft, Save, BookOpen, Upload, X } from "lucide-react";
-import { ieltsSkillsAPI } from "../../services/Ieltsservice";
-import toast from "react-hot-toast";
+import { ArrowRight, Save } from "lucide-react";
+import { ieltsSkillsAPI } from "../../services/ieltsService";
+
+const SKILL_TYPES = [
+  { value: "VOCABULARY", label: "Vocabulary" },
+  { value: "GRAMMAR", label: "Grammar" },
+  { value: "READING", label: "Reading" },
+  { value: "WRITING", label: "Writing" },
+];
 
 export default function EditIELTSSkill() {
-  const navigate = useNavigate();
   const { skillId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const [fetching, setFetching] = useState(true);
-  const [iconPreview, setIconPreview] = useState(null);
-  const [currentIcon, setCurrentIcon] = useState(null);
-
-  const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [iconFile, setIconFile] = useState(null);
+  const [form, setForm] = useState({
     skill_type: "",
     title: "",
     description: "",
     order: 0,
     is_active: true,
-    icon: null,
   });
 
-  const [errors, setErrors] = useState({});
-
-  const skillTypes = [
-    { value: "READING", label: "Reading", icon: "📖", color: "blue" },
-    { value: "WRITING", label: "Writing", icon: "✍️", color: "purple" },
-    { value: "SPEAKING", label: "Speaking", icon: "🗣️", color: "green" },
-    { value: "LISTENING", label: "Listening", icon: "👂", color: "orange" },
-  ];
-
   useEffect(() => {
-    fetchSkillData();
-  }, [skillId]);
-
-  const fetchSkillData = async () => {
-    try {
-      setFetching(true);
-      const data = await ieltsSkillsAPI.getById(skillId);
-
-      setFormData({
-        skill_type: data.skill_type || "",
-        title: data.title || "",
-        description: data.description || "",
-        order: data.order || 0,
-        is_active: data.is_active ?? true,
-        icon: null,
-      });
-
-      if (data.icon) {
-        setCurrentIcon(data.icon);
+    const fetch = async () => {
+      try {
+        const data = await ieltsSkillsAPI.getById(skillId);
+        setForm({
+          skill_type: data.skill_type || "",
+          title: data.title || "",
+          description: data.description || "",
+          order: data.order || 0,
+          is_active: data.is_active ?? true,
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching skill:", error);
-      toast.error("فشل في تحميل بيانات المهارة");
-      navigate("/dashboard/ielts/skills");
-    } finally {
-      setFetching(false);
-    }
-  };
+    };
+    fetch();
+  }, [skillId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setForm((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
-    }
-  };
-
-  const handleIconChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast.error("يرجى اختيار صورة صالحة");
-        return;
-      }
-
-      // Validate file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("حجم الصورة يجب أن يكون أقل من 2 ميجابايت");
-        return;
-      }
-
-      setFormData((prev) => ({ ...prev, icon: file }));
-
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setIconPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeIcon = () => {
-    setFormData((prev) => ({ ...prev, icon: null }));
-    setIconPreview(null);
-  };
-
-  const validate = () => {
-    const newErrors = {};
-
-    if (!formData.skill_type) {
-      newErrors.skill_type = "نوع المهارة مطلوب";
-    }
-
-    if (!formData.title.trim()) {
-      newErrors.title = "العنوان مطلوب";
-    }
-
-    if (formData.order < 0) {
-      newErrors.order = "الترتيب يجب أن يكون رقم موجب";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validate()) {
-      toast.error("يرجى تصحيح الأخطاء في النموذج");
-      return;
-    }
-
+    setSaving(true);
+    setErrors({});
     try {
-      setLoading(true);
-
-      // Prepare form data
-      const submitData = new FormData();
-      submitData.append("skill_type", formData.skill_type);
-      submitData.append("title", formData.title);
-      submitData.append("description", formData.description);
-      submitData.append("order", formData.order);
-      submitData.append("is_active", formData.is_active);
-
-      // Only append new icon if changed
-      if (formData.icon) {
-        submitData.append("icon", formData.icon);
-      }
-
-      const response = await ieltsSkillsAPI.update(skillId, submitData);
-      toast.success(response.message || "تم تحديث المهارة بنجاح");
+      const formData = new FormData();
+      Object.entries(form).forEach(([k, v]) => formData.append(k, v));
+      if (iconFile) formData.append("icon", iconFile);
+      await ieltsSkillsAPI.update(skillId, formData);
       navigate("/dashboard/ielts/skills");
-    } catch (error) {
-      console.error("Error updating skill:", error);
-      if (error.response?.data) {
-        const serverErrors = error.response.data;
-        setErrors(serverErrors);
-        toast.error("فشل في تحديث المهارة");
-      } else {
-        toast.error("حدث خطأ في الاتصال بالخادم");
-      }
+    } catch (err) {
+      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  if (fetching) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <BookOpen className="w-8 h-8 text-primary-600" />
-            <h1 className="text-2xl font-bold text-gray-900">تعديل المهارة</h1>
-          </div>
-          <p className="text-gray-600">تحديث بيانات المهارة</p>
-        </div>
+    <div className="max-w-xl mx-auto space-y-6">
+      <div className="flex items-center gap-3">
         <Link
           to="/dashboard/ielts/skills"
-          className="btn-secondary flex items-center gap-2"
+          className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>رجوع</span>
+          <ArrowRight className="w-5 h-5" />
         </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">تعديل مهارة IELTS</h1>
+          <p className="text-gray-500 text-sm">تحديث بيانات المهارة</p>
+        </div>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="card">
-        <div className="space-y-6">
-          {/* Skill Type Selection (Read-only in edit mode) */}
-          <div>
-            <label className="block text-sm font-bold text-gray-900 mb-3">
-              نوع المهارة <span className="text-red-500">*</span>
-            </label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {skillTypes.map((type) => (
-                <div
-                  key={type.value}
-                  className={`p-4 rounded-lg border-2 ${
-                    formData.skill_type === type.value
-                      ? `border-${type.color}-500 bg-${type.color}-50`
-                      : "border-gray-200 opacity-50"
-                  }`}
-                >
-                  <div className="text-4xl mb-2">{type.icon}</div>
-                  <div className="text-sm font-bold text-gray-900">
-                    {type.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              ⚠️ لا يمكن تغيير نوع المهارة بعد الإنشاء
-            </p>
-          </div>
-
-          {/* Title */}
-          <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-bold text-gray-900 mb-2"
-            >
-              العنوان <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className={`input ${errors.title ? "border-red-500" : ""}`}
-              placeholder="مثال: Reading Skills"
-            />
-            {errors.title && (
-              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-bold text-gray-900 mb-2"
-            >
-              الوصف
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-              className="input"
-              placeholder="وصف المهارة وأهدافها..."
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-            )}
-          </div>
-
-          {/* Icon Upload */}
-          <div>
-            <label className="block text-sm font-bold text-gray-900 mb-2">
-              أيقونة المهارة
-            </label>
-
-            {/* Show current icon if exists */}
-            {currentIcon && !iconPreview && (
-              <div className="mb-3">
-                <p className="text-sm text-gray-600 mb-2">الأيقونة الحالية:</p>
-                <img
-                  src={currentIcon}
-                  alt="Current icon"
-                  className="w-32 h-32 rounded-lg object-cover border-2 border-gray-200"
-                />
-              </div>
-            )}
-
-            {!iconPreview ? (
-              <div className="flex items-center gap-4">
-                <label
-                  htmlFor="icon"
-                  className="btn-secondary flex items-center gap-2 cursor-pointer"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>{currentIcon ? "تغيير الصورة" : "رفع صورة"}</span>
-                </label>
-                <input
-                  type="file"
-                  id="icon"
-                  accept="image/*"
-                  onChange={handleIconChange}
-                  className="hidden"
-                />
-                <p className="text-sm text-gray-600">
-                  PNG, JPG, GIF (حد أقصى 2MB)
-                </p>
-              </div>
-            ) : (
-              <div>
-                <p className="text-sm text-gray-600 mb-2">الأيقونة الجديدة:</p>
-                <div className="relative inline-block">
-                  <img
-                    src={iconPreview}
-                    alt="Icon preview"
-                    className="w-32 h-32 rounded-lg object-cover border-2 border-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeIcon}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-            {errors.icon && (
-              <p className="text-red-500 text-sm mt-1">{errors.icon}</p>
-            )}
-          </div>
-
-          {/* Order and Active */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label
-                htmlFor="order"
-                className="block text-sm font-bold text-gray-900 mb-2"
-              >
-                الترتيب
-              </label>
-              <input
-                type="number"
-                id="order"
-                name="order"
-                value={formData.order}
-                onChange={handleChange}
-                min="0"
-                className={`input ${errors.order ? "border-red-500" : ""}`}
-              />
-              {errors.order && (
-                <p className="text-red-500 text-sm mt-1">{errors.order}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                الحالة
-              </label>
-              <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="is_active"
-                  checked={formData.is_active}
-                  onChange={handleChange}
-                  className="w-5 h-5 text-primary-600 rounded"
-                />
-                <span className="text-sm font-bold text-gray-900">
-                  المهارة نشطة
-                </span>
-              </label>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex items-center gap-3 pt-6 border-t border-gray-200">
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary flex items-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  <span>جاري الحفظ...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  <span>حفظ التغييرات</span>
-                </>
-              )}
-            </button>
-            <Link to="/dashboard/ielts/skills" className="btn-secondary">
-              إلغاء
-            </Link>
-          </div>
+      <form onSubmit={handleSubmit} className="card space-y-5">
+        {/* Skill Type */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            نوع المهارة
+          </label>
+          <select
+            name="skill_type"
+            value={form.skill_type}
+            onChange={handleChange}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {SKILL_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            العنوان <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.title && (
+            <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+          )}
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            الوصف
+          </label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            rows={3}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          />
+        </div>
+
+        {/* Icon */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            تغيير الأيقونة (اختياري)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setIconFile(e.target.files[0])}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+        </div>
+
+        {/* Order */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            الترتيب
+          </label>
+          <input
+            type="number"
+            name="order"
+            value={form.order}
+            onChange={handleChange}
+            min={0}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Active */}
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            name="is_active"
+            id="is_active"
+            checked={form.is_active}
+            onChange={handleChange}
+            className="w-4 h-4 text-blue-600"
+          />
+          <label
+            htmlFor="is_active"
+            className="text-sm font-medium text-gray-700"
+          >
+            نشط
+          </label>
+        </div>
+
+        {errors.general && (
+          <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
+            {errors.general}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-medium transition-colors"
+        >
+          <Save className="w-5 h-5" />
+          {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+        </button>
       </form>
     </div>
   );

@@ -1,9 +1,51 @@
 // src/pages/IELTSSkillsList.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, BookOpen, Edit, Trash2, ArrowLeft } from "lucide-react";
-import { ieltsSkillsAPI } from "../../services/Ieltsservice";
-import toast from "react-hot-toast";
+import {
+  Plus,
+  BookOpen,
+  Eye,
+  Edit2,
+  Trash2,
+  Volume2,
+  PenTool,
+  FileText,
+  Headphones,
+} from "lucide-react";
+import { ieltsSkillsAPI } from "../../services/ieltsService";
+
+const skillTypeConfig = {
+  VOCABULARY: {
+    label: "Vocabulary",
+    icon: Volume2,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+  },
+  GRAMMAR: {
+    label: "Grammar",
+    icon: PenTool,
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+  },
+  READING: {
+    label: "Reading",
+    icon: BookOpen,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+  },
+  LISTENING: {
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+  }, // ← جديد
+  WRITING: {
+    label: "Writing",
+    icon: FileText,
+    color: "text-green-600",
+    bg: "bg-green-50",
+  },
+};
 
 export default function IELTSSkillsList() {
   const [skills, setSkills] = useState([]);
@@ -18,51 +60,27 @@ export default function IELTSSkillsList() {
       setLoading(true);
       const data = await ieltsSkillsAPI.getAll();
       setSkills(data.skills || []);
-    } catch (error) {
-      console.error("Error fetching skills:", error);
-      toast.error("فشل في تحميل المهارات");
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (skillId) => {
-    if (!confirm("هل أنت متأكد من حذف هذه المهارة؟")) return;
-
+  const handleDelete = async (id) => {
+    if (!window.confirm("هل أنت متأكد من حذف هذه المهارة؟")) return;
     try {
-      await ieltsSkillsAPI.delete(skillId);
-      toast.success("تم حذف المهارة بنجاح");
-      fetchSkills();
-    } catch (error) {
-      console.error("Error deleting skill:", error);
-      toast.error("فشل في حذف المهارة");
+      await ieltsSkillsAPI.delete(id);
+      setSkills((prev) => prev.filter((s) => s.id !== id));
+    } catch {
+      alert("حدث خطأ أثناء الحذف");
     }
-  };
-
-  const getSkillIcon = (skillType) => {
-    const icons = {
-      READING: "📖",
-      WRITING: "✍️",
-      SPEAKING: "🗣️",
-      LISTENING: "👂",
-    };
-    return icons[skillType] || "📚";
-  };
-
-  const getSkillColor = (skillType) => {
-    const colors = {
-      READING: "from-blue-500 to-blue-600",
-      WRITING: "from-purple-500 to-purple-600",
-      SPEAKING: "from-green-500 to-green-600",
-      LISTENING: "from-orange-500 to-orange-600",
-    };
-    return colors[skillType] || "from-gray-500 to-gray-600";
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -73,110 +91,94 @@ export default function IELTSSkillsList() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">IELTS Skills</h1>
-          <p className="text-gray-600 mt-1">إدارة المهارات الأربعة الرئيسية</p>
+          <p className="text-gray-500 text-sm mt-1">Manage Step Skills</p>
         </div>
         <Link
           to="/dashboard/ielts/skills/create"
-          className="btn-primary flex items-center gap-2"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
         >
           <Plus className="w-5 h-5" />
-          <span>إضافة مهارة</span>
+          <span>Add skill</span>
         </Link>
       </div>
 
       {/* Skills Grid */}
       {skills.length === 0 ? (
-        <div className="card text-center py-12">
-          <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <div className="card text-center py-16">
+          <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-gray-900 mb-2">
-            لا توجد مهارات
+            No skills 
           </h3>
-          <p className="text-gray-600 mb-4">ابدأ بإضافة المهارات الأربعة</p>
+          <p className="text-gray-500 text-sm mb-6">
+            Start Adding Skills
+          </p>
           <Link
             to="/dashboard/ielts/skills/create"
-            className="btn-primary inline-flex items-center gap-2"
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
           >
-            <Plus className="w-5 h-5" />
-            <span>إضافة مهارة</span>
+            <Plus className="w-4 h-4" />
+            Add New Skill
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {skills.map((skill) => (
-            <div
-              key={skill.id}
-              className="card group hover:shadow-xl transition-all"
-            >
-              {/* Header with gradient */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+          {skills.map((skill) => {
+            const config = skillTypeConfig[skill.skill_type] || {};
+            const Icon = config.icon || BookOpen;
+            return (
               <div
-                className={`bg-gradient-to-r ${getSkillColor(
-                  skill.skill_type
-                )} p-6 rounded-t-xl -m-6 mb-6`}
+                key={skill.id}
+                className="card hover:shadow-lg transition-shadow"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="text-4xl">
-                      {getSkillIcon(skill.skill_type)}
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-white mb-1">
-                        {skill.title}
-                      </h2>
-                      <p className="text-white/80 text-sm">
-                        {skill.skill_type}
-                      </p>
-                    </div>
+                <div
+                  className={`${config.bg} rounded-xl p-4 mb-4 flex items-center gap-3`}
+                >
+                  <Icon className={`w-8 h-8 ${config.color}`} />
+                  <div>
+                    <p className="font-bold text-gray-900">{skill.title}</p>
+                    <p className={`text-xs font-medium ${config.color}`}>
+                      {config.label}
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Description */}
-              {skill.description && (
-                <p className="text-gray-600 text-sm mb-4">
-                  {skill.description}
-                </p>
-              )}
-
-              {/* Stats */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex-1 bg-gray-50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-1">Lesson Packs</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {skill.lesson_packs_count || 0}
+                {skill.description && (
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    {skill.description}
                   </p>
-                </div>
-                <div className="flex-1 bg-gray-50 p-3 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-1">الترتيب</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {skill.order}
-                  </p>
-                </div>
-              </div>
+                )}
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
-                <Link
-                  to={`/dashboard/ielts/skills/${skill.id}`}
-                  className="flex-1 btn-secondary text-center"
-                >
-                  <ArrowLeft className="w-4 h-4 inline mr-2" />
-                  التفاصيل
-                </Link>
-                <Link
-                  to={`/dashboard/ielts/skills/${skill.id}/edit`}
-                  className="btn-secondary"
-                >
-                  <Edit className="w-4 h-4" />
-                </Link>
-                <button
-                  onClick={() => handleDelete(skill.id)}
-                  className="btn-secondary text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center justify-between text-sm mb-4">
+                  <span className="text-gray-500">total questions</span>
+                  <span className={`font-bold ${config.color}`}>
+                    {skill.total_questions}
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <Link
+                    to={`/dashboard/ielts/skills/${skill.id}`}
+                    className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition-colors"
+                  >
+                    
+                    Add New Question
+                  </Link>
+                  <Link
+                    to={`/dashboard/ielts/skills/${skill.id}/edit`}
+                    className="flex items-center justify-center p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(skill.id)}
+                    className="flex items-center justify-center p-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

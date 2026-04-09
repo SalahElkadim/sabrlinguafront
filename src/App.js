@@ -60,23 +60,18 @@ import IELTSSkillsList from "./pages/ielts/IELTSSkillsList";
 import CreateIELTSSkill from "./pages/ielts/CreateIELTSSkill";
 import EditIELTSSkill from "./pages/ielts/EditIELTSSkill";
 import IELTSSkillDetails from "./pages/ielts/IELTSSkillDetails";
-import CreateLessonPack from "./pages/ielts/CreateLessonPack";
-import LessonPackDetails from "./pages/ielts/LessonPackDetails";
-import EditLessonPack from "./pages/ielts/EditLessonPack";
-import CreateIELTSLesson from "./pages/ielts/CreateIELTSLesson";
-import EditIELTSLesson from "./pages/ielts/EditIELTSLesson";
-import IELTSLessonDetails from "./pages/ielts/IELTSLessonDetails";
-import PracticeExamDetails from "./pages/ielts/PracticeExamDetails";
-import AddVocabularyToPracticeExam from "./pages/ielts/AddVocabularyToPracticeExam";
-import AddGrammarToPracticeExam from "./pages/ielts/AddGrammarToPracticeExam";
-import AddReadingToPracticeExam from "./pages/ielts/AddReadingToPracticeExam";
-import AddListeningToPracticeExam from "./pages/ielts/AddListeningToPracticeExam";
-import AddSpeakingToPracticeExam from "./pages/ielts/AddSpeakingToPracticeExam";
-import AddWritingToPracticeExam from "./pages/ielts/AddWritingToPracticeExam";
-import AddIELTSReadingContent from "./pages/ielts/AddIELTSReadingContent";
-import AddIELTSListeningContent from "./pages/ielts/AddIELTSListeningContent";
-import AddIELTSSpeakingContent from "./pages/ielts/AddIELTSSpeakingContent";
-import AddIELTSWritingContent from "./pages/ielts/AddIELTSWritingContent";
+import AddVocabularyToIELTS from "./pages/ielts/AddVocabularyToIELTS";
+import AddGrammarToIELTS from "./pages/ielts/AddGrammarToIELTS";
+import AddReadingPassageToIELTS from "./pages/ielts/AddReadingPassageToIELTS";
+import AddReadingQuestionsToIELTS from "./pages/ielts/AddReadingQuestionsToIELTS";
+import AddListeningAudioToIELTS from "./pages/ielts/AddListeningAudioToIELTS";
+import AddListeningQuestionsToIELTS from "./pages/ielts/AddListeningQuestionsToIELTS";
+import AddSpeakingVideoToIELTS from "./pages/ielts/AddSpeakingVideoToIELTS";
+import AddSpeakingQuestionsToIELTS from "./pages/ielts/AddSpeakingQuestionsToIELTS";
+import AddWritingToIELTS from "./pages/ielts/AddWritingToIELTS";
+import IELTSProgress from "./pages/ielts/IELTSProgress";
+import IELTSAIGeneration from "./pages/ielts/IELTSAIGeneration";
+
 
 // STEP Routes
 import STEPMain from "./pages/step/STEPMain";
@@ -231,80 +226,63 @@ function App() {
           {/* ============================================ */}
           {/* IELTS ROUTES */}
           {/* ============================================ */}
+          
           <Route path="ielts" element={<IELTSMain />} />
           <Route path="ielts/skills" element={<IELTSSkillsList />} />
           <Route path="ielts/skills/create" element={<CreateIELTSSkill />} />
           <Route path="ielts/skills/:skillId" element={<IELTSSkillDetails />} />
+          <Route path="ielts/skills/:skillId/edit" element={<EditIELTSSkill />} />
+
+          {/* Vocabulary */}
           <Route
-            path="ielts/skills/:skillId/edit"
-            element={<EditIELTSSkill />}
-          />
-          <Route
-            path="ielts/lesson-packs/create"
-            element={<CreateLessonPack />}
-          />
-          <Route
-            path="ielts/lesson-packs/:packId"
-            element={<LessonPackDetails />}
-          />
-          <Route
-            path="ielts/lesson-packs/:packId/edit"
-            element={<EditLessonPack />}
-          />
-          <Route path="ielts/lessons/create" element={<CreateIELTSLesson />} />
-          <Route
-            path="ielts/lessons/:lessonId"
-            element={<IELTSLessonDetails />}
-          />
-          <Route
-            path="ielts/lessons/:lessonId/edit"
-            element={<EditIELTSLesson />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId"
-            element={<PracticeExamDetails />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId/add/vocabulary"
-            element={<AddVocabularyToPracticeExam />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId/add/grammar"
-            element={<AddGrammarToPracticeExam />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId/add/reading"
-            element={<AddReadingToPracticeExam />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId/add/listening"
-            element={<AddListeningToPracticeExam />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId/add/speaking"
-            element={<AddSpeakingToPracticeExam />}
-          />
-          <Route
-            path="ielts/practice-exams/:examId/add/writing"
-            element={<AddWritingToPracticeExam />}
-          />
-          <Route
-            path="ielts/lessons/:lessonId/content/add/reading"
-            element={<AddIELTSReadingContent />}
-          />
-          <Route
-            path="ielts/lessons/:lessonId/content/add/listening"
-            element={<AddIELTSListeningContent />}
-          />
-          <Route
-            path="ielts/lessons/:lessonId/content/add/speaking"
-            element={<AddIELTSSpeakingContent />}
-          />
-          <Route
-            path="ielts/lessons/:lessonId/content/add/writing"
-            element={<AddIELTSWritingContent />}
+            path="ielts/skills/:skillId/add/vocabulary"
+            element={<AddVocabularyToIELTS />}
           />
 
+          {/* Grammar */}
+          <Route
+            path="ielts/skills/:skillId/add/grammar"
+            element={<AddGrammarToIELTS />}
+          />
+
+          {/* Reading */}
+          <Route
+            path="ielts/skills/:skillId/add/reading/passage"
+            element={<AddReadingPassageToIELTS />}
+          />
+          <Route
+            path="ielts/skills/:skillId/add/reading/passage/:passageId/questions"
+            element={<AddReadingQuestionsToIELTS />}
+          />
+
+          {/* Listening */}
+          <Route
+            path="ielts/skills/:skillId/add/listening/audio"
+            element={<AddListeningAudioToIELTS />}
+          />
+          <Route
+            path="ielts/skills/:skillId/add/listening/audio/:audioId/questions"
+            element={<AddListeningQuestionsToIELTS />}
+          />
+
+          {/* Speaking ← جديد */}
+          <Route
+            path="ielts/skills/:skillId/add/speaking/video"
+            element={<AddSpeakingVideoToIELTS />}
+          />
+          <Route
+            path="ielts/skills/:skillId/add/speaking/video/:videoId/questions"
+            element={<AddSpeakingQuestionsToIELTS />}
+          />
+          <Route path="ielts/ai" element={<IELTSAIGeneration />} />
+          {/* Writing */}
+          <Route
+            path="ielts/skills/:skillId/add/writing"
+            element={<AddWritingToIELTS />}
+          />
+
+          {/* Progress */}
+          <Route path="ielts/progress" element={<IELTSProgress />} />
           {/* ============================================ */}
           {/* STEP ROUTES */}
           {/* ============================================ */}

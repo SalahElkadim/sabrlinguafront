@@ -1,306 +1,2257 @@
-// src/pages/IELTSSkillDetails.jsx
+// src/pages/ielts/IELTSSkillDetails.jsx
 import { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
-  ArrowLeft,
+  ArrowRight,
   Plus,
   BookOpen,
-  Edit,
-  Trash2,
-  Package,
-  Clock,
-  Target,
+  Volume2,
+  PenTool,
   FileText,
+  ChevronRight,
+  ChevronDown,
+  Eye,
+  EyeOff,
+  Headphones,
+  Pencil,
+  Trash2,
+  Check,
+  Loader2,
+  GitBranch,
+  Video,
 } from "lucide-react";
-import { ieltsSkillsAPI } from "../../services/Ieltsservice";
-import toast from "react-hot-toast";
+import { ieltsSkillsAPI, ieltsQuestionsAPI } from "../../services/ieltsService";
 
-export default function IELTSSkillDetails() {
-  const { skillId } = useParams();
-  const navigate = useNavigate();
-  const [skill, setSkill] = useState(null);
-  const [lessonPacks, setLessonPacks] = useState([]);
-  const [loading, setLoading] = useState(true);
+// ============================================
+// Config
+// ============================================
+const skillTypeConfig = {
+  VOCABULARY: {
+    label: "Vocabulary",
+    icon: Volume2,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    addLabel: "إضافة سؤال",
+  },
+  GRAMMAR: {
+    label: "Grammar",
+    icon: PenTool,
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+    addLabel: "إضافة سؤال",
+  },
+  READING: {
+    label: "Reading",
+    icon: BookOpen,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+    addLabel: "إضافة قطعة قراءة",
+  },
+  LISTENING: {
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    addLabel: "إضافة تسجيل صوتي",
+  },
+  SPEAKING: {
+    label: "Speaking",
+    icon: Video,
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    addLabel: "إضافة فيديو",
+  },
+  WRITING: {
+    label: "Writing",
+    icon: FileText,
+    color: "text-green-600",
+    bg: "bg-green-50",
+    addLabel: "إضافة سؤال",
+  },
+  GENERAL_PATH: {
+    label: "المسار العام",
+    icon: GitBranch,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    addLabel: "",
+  },
+};
 
-  useEffect(() => {
-    fetchSkillDetails();
-    fetchLessonPacks();
-  }, [skillId]);
+// الـ sections جوّا المسار العام
+const GENERAL_PATH_SECTIONS = [
+  {
+    type: "VOCABULARY",
+    label: "Vocabulary",
+    icon: Volume2,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+    headerBg: "bg-blue-50",
+    btnColor: "bg-blue-500 hover:bg-blue-600",
+    addLabel: "إضافة سؤال Vocabulary",
+    addRoute: (skillId) => `/dashboard/ielts/skills/${skillId}/add/vocabulary`,
+  },
+  {
+    type: "GRAMMAR",
+    label: "Grammar",
+    icon: PenTool,
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    headerBg: "bg-purple-50",
+    btnColor: "bg-purple-500 hover:bg-purple-600",
+    addLabel: "إضافة سؤال Grammar",
+    addRoute: (skillId) => `/dashboard/ielts/skills/${skillId}/add/grammar`,
+  },
+  {
+    type: "READING",
+    label: "Reading",
+    icon: BookOpen,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    headerBg: "bg-orange-50",
+    btnColor: "bg-orange-500 hover:bg-orange-600",
+    addLabel: "إضافة قطعة Reading",
+    addRoute: (skillId) =>
+      `/dashboard/ielts/skills/${skillId}/add/reading/passage`,
+  },
+  {
+    type: "LISTENING",
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    border: "border-cyan-200",
+    headerBg: "bg-cyan-50",
+    btnColor: "bg-cyan-500 hover:bg-cyan-600",
+    addLabel: "إضافة تسجيل Listening",
+    addRoute: (skillId) =>
+      `/dashboard/ielts/skills/${skillId}/add/listening/audio`,
+  },
+  {
+    type: "SPEAKING",
+    label: "Speaking",
+    icon: Video,
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+    headerBg: "bg-rose-50",
+    btnColor: "bg-rose-500 hover:bg-rose-600",
+    addLabel: "إضافة فيديو Speaking",
+    addRoute: (skillId) =>
+      `/dashboard/ielts/skills/${skillId}/add/speaking/video`,
+  },
+];
 
-  const fetchSkillDetails = async () => {
-    try {
-      const data = await ieltsSkillsAPI.getById(skillId);
-      setSkill(data);
-    } catch (error) {
-      console.error("Error fetching skill:", error);
-      toast.error("فشل في تحميل تفاصيل المهارة");
-    }
-  };
+const addRouteMap = (skillId, skillType) =>
+  ({
+    VOCABULARY: `/dashboard/ielts/skills/${skillId}/add/vocabulary`,
+    GRAMMAR: `/dashboard/ielts/skills/${skillId}/add/grammar`,
+    READING: `/dashboard/ielts/skills/${skillId}/add/reading/passage`,
+    LISTENING: `/dashboard/ielts/skills/${skillId}/add/listening/audio`,
+    SPEAKING: `/dashboard/ielts/skills/${skillId}/add/speaking/video`,
+    WRITING: `/dashboard/ielts/skills/${skillId}/add/writing`,
+  }[skillType]);
 
-  const fetchLessonPacks = async () => {
-    try {
-      setLoading(true);
-      const data = await ieltsSkillsAPI.getLessonPacks(skillId);
-      setLessonPacks(data.lesson_packs || []);
-    } catch (error) {
-      console.error("Error fetching lesson packs:", error);
-      toast.error("فشل في تحميل Lesson Packs");
-    } finally {
-      setLoading(false);
-    }
-  };
+const difficultyBadge = {
+  EASY: { label: "سهل", color: "bg-green-100 text-green-700" },
+  MEDIUM: { label: "متوسط", color: "bg-yellow-100 text-yellow-700" },
+  HARD: { label: "صعب", color: "bg-red-100 text-red-700" },
+};
 
-  const handleDeleteLessonPack = async (packId, packTitle) => {
-    if (!confirm(`هل أنت متأكد من حذف "${packTitle}"؟`)) return;
-
-    try {
-      const { ieltsLessonPacksAPI } = await import("../../services/Ieltsservice");
-      await ieltsLessonPacksAPI.delete(packId);
-      toast.success("تم حذف Lesson Pack بنجاح");
-      fetchLessonPacks();
-    } catch (error) {
-      console.error("Error deleting lesson pack:", error);
-      toast.error("فشل في حذف Lesson Pack");
-    }
-  };
-
-  const getSkillIcon = (skillType) => {
-    const icons = {
-      READING: "📖",
-      WRITING: "✍️",
-      SPEAKING: "🗣️",
-      LISTENING: "👂",
-    };
-    return icons[skillType] || "📚";
-  };
-
-  const getSkillColor = (skillType) => {
-    const colors = {
-      READING: "blue",
-      WRITING: "purple",
-      SPEAKING: "green",
-      LISTENING: "orange",
-    };
-    return colors[skillType] || "gray";
-  };
-
-  if (!skill) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+// ============================================
+// Confirm Delete Modal
+// ============================================
+function ConfirmDeleteModal({ message, onConfirm, onCancel, loading }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-red-100 p-2 rounded-xl">
+            <Trash2 className="w-5 h-5 text-red-600" />
+          </div>
+          <h3 className="font-bold text-gray-900">تأكيد الحذف</h3>
+        </div>
+        <p className="text-gray-600 text-sm mb-6">{message}</p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
+          >
+            إلغاء
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Trash2 className="w-4 h-4" />
+            )}
+            حذف
+          </button>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  const color = getSkillColor(skill.skill_type);
+// ============================================
+// MCQ Edit Form
+// ============================================
+function MCQEditForm({ q, onSave, onCancel, updateFn }) {
+  const [form, setForm] = useState({
+    question_text: q.question_text,
+    choice_a: q.choice_a,
+    choice_b: q.choice_b,
+    choice_c: q.choice_c || "",
+    choice_d: q.choice_d || "",
+    correct_answer: q.correct_answer,
+    explanation: q.explanation || "",
+    points: q.points,
+    difficulty: q.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    if (!form.question_text.trim()) return setError("نص السؤال مطلوب");
+    setSaving(true);
+    try {
+      const options = [
+        form.choice_a,
+        form.choice_b,
+        form.choice_c,
+        form.choice_d,
+      ].filter(Boolean);
+      const correctText = {
+        A: form.choice_a,
+        B: form.choice_b,
+        C: form.choice_c,
+        D: form.choice_d,
+      }[form.correct_answer];
+      await updateFn(q.id, {
+        question_text: form.question_text,
+        options,
+        correct_answer: correctText,
+        explanation: form.explanation,
+        points: form.points,
+        difficulty: form.difficulty,
+      });
+      onSave();
+    } catch {
+      setError("حدث خطأ أثناء الحفظ");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Link
-          to="/dashboard/ielts/skills"
-          className="btn-secondary flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>رجوع للمهارات</span>
-        </Link>
-        <Link
-          to={`/dashboard/ielts/skills/${skillId}/edit`}
-          className="btn-secondary flex items-center gap-2"
-        >
-          <Edit className="w-4 h-4" />
-          <span>تعديل المهارة</span>
-        </Link>
+    <div className="border-2 border-blue-200 rounded-xl p-4 bg-blue-50/30 space-y-3">
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          نص السؤال
+        </label>
+        <textarea
+          value={form.question_text}
+          onChange={(e) => setForm({ ...form, question_text: e.target.value })}
+          rows={2}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+        />
       </div>
-
-      {/* Skill Info Card */}
-      <div className="card overflow-hidden">
-        <div
-          className={`bg-gradient-to-r from-${color}-500 to-${color}-600 p-8 -m-6 mb-6`}
-        >
-          <div className="flex items-center gap-6">
-            <div className="text-6xl">{getSkillIcon(skill.skill_type)}</div>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold text-white mb-2">
-                {skill.title}
-              </h1>
-              <p className="text-white/90 text-lg">{skill.skill_type}</p>
-            </div>
-          </div>
-        </div>
-
-        {skill.description && (
-          <div className="mb-6">
-            <h3 className="text-sm font-bold text-gray-900 mb-2">الوصف</h3>
-            <p className="text-gray-600">{skill.description}</p>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Package className="w-5 h-5 text-primary-600" />
-              <span className="text-xs font-bold text-gray-600">
-                Lesson Packs
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {skill.lesson_packs_count || 0}
-            </p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-5 h-5 text-primary-600" />
-              <span className="text-xs font-bold text-gray-600">الترتيب</span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">{skill.order}</p>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-5 h-5 text-primary-600" />
-              <span className="text-xs font-bold text-gray-600">الحالة</span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900">
-              {skill.is_active ? (
-                <span className="text-green-600">نشط</span>
-              ) : (
-                <span className="text-red-600">غير نشط</span>
-              )}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Lesson Packs Section */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">
-              Lesson Packs
-            </h2>
-            <p className="text-sm text-gray-600">
-              مجموعات الدروس التابعة لهذه المهارة
-            </p>
-          </div>
-          <Link
-            to={`/dashboard/ielts/lesson-packs/create?skill_id=${skillId}`}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>إضافة Lesson Pack</span>
-          </Link>
-        </div>
-
-        {/* Lesson Packs List */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-          </div>
-        ) : lessonPacks.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              لا توجد Lesson Packs
-            </h3>
-            <p className="text-gray-600 mb-4">ابدأ بإضافة مجموعة دروس جديدة</p>
-            <Link
-              to={`/dashboard/ielts/lesson-packs/create?skill_id=${skillId}`}
-              className="btn-primary inline-flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>إضافة Lesson Pack</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {lessonPacks.map((pack) => (
-              <div
-                key={pack.id}
-                className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 hover:shadow-md transition-all overflow-hidden"
+      <div className="grid grid-cols-2 gap-2">
+        {["A", "B", "C", "D"].map((letter) => (
+          <div key={letter}>
+            <label className="text-xs text-gray-500 mb-1 block">
+              الخيار {letter}
+            </label>
+            <div className="flex gap-1">
+              <input
+                value={form[`choice_${letter.toLowerCase()}`]}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    [`choice_${letter.toLowerCase()}`]: e.target.value,
+                  })
+                }
+                className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-300"
+              />
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, correct_answer: letter })}
+                className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                  form.correct_answer === letter
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-100 text-gray-500"
+                }`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-gray-900 break-words">
-                        {pack.title}
-                      </h3>
-                      <span
-                        className={`px-2 py-1 text-xs font-bold rounded ${
-                          pack.is_active
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {pack.is_active ? "نشط" : "غير نشط"}
-                      </span>
-                    </div>
+                ✓
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <input
+        value={form.explanation}
+        onChange={(e) => setForm({ ...form, explanation: e.target.value })}
+        placeholder="التوضيح (اختياري)"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+      />
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      {error && <p className="text-red-500 text-xs">{error}</p>}
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Check className="w-3 h-3" />
+          )}
+          حفظ
+        </button>
+      </div>
+    </div>
+  );
+}
 
-                    {pack.description && (
-                      <p className="text-sm text-gray-600 mb-3 break-words whitespace-pre-wrap">
-                        {pack.description}
-                      </p>
-                    )}
+// ============================================
+// MCQ Card
+// ============================================
+function MCQCard({ q, index, color, onDelete, onUpdate, updateFn }) {
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const choices = [
+    { key: "A", val: q.choice_a },
+    { key: "B", val: q.choice_b },
+    { key: "C", val: q.choice_c },
+    { key: "D", val: q.choice_d },
+  ].filter((c) => c.val);
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await onDelete(q.id);
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+  if (editing)
+    return (
+      <MCQEditForm
+        q={q}
+        updateFn={updateFn}
+        onCancel={() => setEditing(false)}
+        onSave={() => {
+          setEditing(false);
+          onUpdate();
+        }}
+      />
+    );
+  return (
+    <>
+      {confirmDelete && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا السؤال؟"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+          loading={deleting}
+        />
+      )}
+      <div className="border border-gray-200 rounded-xl p-4">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-start gap-3">
+            <span
+              className={`text-xs font-bold px-2 py-1 rounded-full ${color} bg-opacity-10`}
+            >
+              {index + 1}
+            </span>
+            <p className="text-gray-800 text-sm font-medium">
+              {q.question_text}
+            </p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {q.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  difficultyBadge[q.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[q.difficulty]?.label}
+              </span>
+            )}
+            <button
+              onClick={() => setShowAnswer((v) => !v)}
+              className="text-gray-400 hover:text-gray-600 p-1"
+            >
+              {showAnswer ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              onClick={() => setEditing(true)}
+              className="text-gray-400 hover:text-blue-600 p-1"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-gray-400 hover:text-red-600 p-1"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {choices.map((c) => (
+            <div
+              key={c.key}
+              className={`text-xs px-3 py-2 rounded-lg border ${
+                showAnswer && q.correct_answer === c.key
+                  ? "bg-green-50 border-green-400 text-green-700 font-semibold"
+                  : "bg-gray-50 border-gray-200 text-gray-600"
+              }`}
+            >
+              {c.key}. {c.val}
+            </div>
+          ))}
+        </div>
+        {showAnswer && q.explanation && (
+          <p className="mt-3 text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2">
+            💡 {q.explanation}
+          </p>
+        )}
+      </div>
+    </>
+  );
+}
 
-                    <div className="flex items-center gap-6 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="w-4 h-4" />
-                        <span>
-                          {pack.lessons_count || 0}{" "}
-                          {pack.lessons_count === 1 ? "درس" : "دروس"}
+// ============================================
+// Reading Passage Edit Form
+// ============================================
+function PassageEditForm({ passage, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    title: passage.title,
+    passage_text: passage.passage_text,
+    source: passage.source || "",
+    difficulty: passage.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await ieltsQuestionsAPI.updateReadingPassage(passage.id, form);
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border-2 border-orange-200 rounded-xl p-4 bg-orange-50/30 space-y-3">
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          العنوان
+        </label>
+        <input
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          نص القطعة
+        </label>
+        <textarea
+          value={form.passage_text}
+          onChange={(e) => setForm({ ...form, passage_text: e.target.value })}
+          rows={4}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          المصدر (اختياري)
+        </label>
+        <input
+          value={form.source}
+          onChange={(e) => setForm({ ...form, source: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+        />
+      </div>
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-orange-500 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Check className="w-3 h-3" />
+          )}
+          حفظ
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Reading Question Edit Form
+// ============================================
+function ReadingQuestionEditForm({ q, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    question_text: q.question_text,
+    choice_a: q.choice_a,
+    choice_b: q.choice_b,
+    choice_c: q.choice_c || "",
+    choice_d: q.choice_d || "",
+    correct_answer: q.correct_answer,
+    explanation: q.explanation || "",
+    difficulty: q.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      const options = [
+        form.choice_a,
+        form.choice_b,
+        form.choice_c,
+        form.choice_d,
+      ].filter(Boolean);
+      const correctText = {
+        A: form.choice_a,
+        B: form.choice_b,
+        C: form.choice_c,
+        D: form.choice_d,
+      }[form.correct_answer];
+      await ieltsQuestionsAPI.updateReadingQuestion(q.id, {
+        question_text: form.question_text,
+        options,
+        correct_answer: correctText,
+        explanation: form.explanation,
+        difficulty: form.difficulty,
+      });
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border border-orange-200 rounded-xl p-3 bg-orange-50/20 space-y-2 mt-2">
+      <textarea
+        value={form.question_text}
+        onChange={(e) => setForm({ ...form, question_text: e.target.value })}
+        rows={2}
+        placeholder="نص السؤال"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300"
+      />
+      <div className="grid grid-cols-2 gap-2">
+        {["A", "B", "C", "D"].map((letter) => (
+          <div key={letter} className="flex gap-1">
+            <input
+              value={form[`choice_${letter.toLowerCase()}`]}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  [`choice_${letter.toLowerCase()}`]: e.target.value,
+                })
+              }
+              placeholder={`الخيار ${letter}`}
+              className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, correct_answer: letter })}
+              className={`px-2 rounded-lg text-xs font-bold ${
+                form.correct_answer === letter
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              ✓
+            </button>
+          </div>
+        ))}
+      </div>
+      <input
+        value={form.explanation}
+        onChange={(e) => setForm({ ...form, explanation: e.target.value })}
+        placeholder="التوضيح (اختياري)"
+        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
+      />
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1 rounded-lg border text-xs text-gray-600"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1 rounded-lg bg-orange-500 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "حفظ"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Reading Passage Card
+// ============================================
+function ReadingPassageCard({ passage, index, onUpdate }) {
+  const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [confirmDeleteQuestion, setConfirmDeleteQuestion] = useState(null);
+  const [deletingQuestion, setDeletingQuestion] = useState(false);
+  const handleDeletePassage = async () => {
+    setDeleting(true);
+    try {
+      await ieltsQuestionsAPI.deleteReadingPassage(passage.id);
+      onUpdate();
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+  const handleDeleteQuestion = async () => {
+    setDeletingQuestion(true);
+    try {
+      await ieltsQuestionsAPI.deleteReadingQuestion(confirmDeleteQuestion);
+      onUpdate();
+    } finally {
+      setDeletingQuestion(false);
+      setConfirmDeleteQuestion(null);
+    }
+  };
+  if (editing)
+    return (
+      <PassageEditForm
+        passage={passage}
+        onCancel={() => setEditing(false)}
+        onSave={() => {
+          setEditing(false);
+          onUpdate();
+        }}
+      />
+    );
+  return (
+    <>
+      {confirmDelete && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذه القطعة وجميع أسئلتها؟"
+          onConfirm={handleDeletePassage}
+          onCancel={() => setConfirmDelete(false)}
+          loading={deleting}
+        />
+      )}
+      {confirmDeleteQuestion && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا السؤال؟"
+          onConfirm={handleDeleteQuestion}
+          onCancel={() => setConfirmDeleteQuestion(null)}
+          loading={deletingQuestion}
+        />
+      )}
+      <div className="border border-gray-200 rounded-xl overflow-hidden">
+        <div className="w-full flex items-center justify-between px-4 py-3 bg-orange-50">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-3 flex-1 text-left"
+          >
+            <span className="text-xs font-bold text-orange-600 bg-orange-100 px-2 py-1 rounded-full">
+              {index + 1}
+            </span>
+            <p className="font-medium text-gray-800 text-sm">{passage.title}</p>
+          </button>
+          <div className="flex items-center gap-1">
+            {passage.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium mr-1 ${
+                  difficultyBadge[passage.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[passage.difficulty]?.label}
+              </span>
+            )}
+            <span className="text-xs text-orange-600 mr-2">
+              {passage.questions?.length} أسئلة
+            </span>
+            <button
+              onClick={() => setEditing(true)}
+              className="p-1 text-gray-400 hover:text-blue-600"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1 text-gray-400 hover:text-red-600"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="p-1 text-orange-500"
+            >
+              {expanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
+        {expanded && (
+          <div className="p-4 space-y-4">
+            <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed max-h-40 overflow-y-auto">
+              {passage.passage_text}
+            </div>
+            {passage.questions?.map((q, qi) => (
+              <div key={q.id}>
+                {editingQuestion === q.id ? (
+                  <ReadingQuestionEditForm
+                    q={q}
+                    onCancel={() => setEditingQuestion(null)}
+                    onSave={() => {
+                      setEditingQuestion(null);
+                      onUpdate();
+                    }}
+                  />
+                ) : (
+                  <div className="border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-full">
+                          {qi + 1}
                         </span>
+                        <p className="text-gray-800 text-sm font-medium">
+                          {q.question_text}
+                        </p>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        <span>{pack.exam_time_limit} دقيقة</span>
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          onClick={() => setEditingQuestion(q.id)}
+                          className="p-1 text-gray-400 hover:text-blue-600"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteQuestion(q.id)}
+                          className="p-1 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-
-                      <div className="flex items-center gap-2">
-                        <Target className="w-4 h-4" />
-                        <span>نسبة النجاح: {pack.exam_passing_score}%</span>
-                      </div>
-
-                      {pack.has_practice_exam && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <FileText className="w-4 h-4" />
-                          <span>يوجد امتحان</span>
-                        </div>
-                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { key: "A", val: q.choice_a },
+                        { key: "B", val: q.choice_b },
+                        { key: "C", val: q.choice_c },
+                        { key: "D", val: q.choice_d },
+                      ]
+                        .filter((c) => c.val)
+                        .map((c) => (
+                          <div
+                            key={c.key}
+                            className={`text-xs px-3 py-2 rounded-lg border ${
+                              q.correct_answer === c.key
+                                ? "bg-green-50 border-green-400 text-green-700 font-semibold"
+                                : "bg-gray-50 border-gray-200 text-gray-600"
+                            }`}
+                          >
+                            {c.key}. {c.val}
+                          </div>
+                        ))}
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2 ml-4">
-                    <Link
-                      to={`/dashboard/ielts/lesson-packs/${pack.id}`}
-                      className="btn-secondary text-sm"
-                    >
-                      التفاصيل
-                    </Link>
-                    <Link
-                      to={`/dashboard/ielts/lesson-packs/${pack.id}/edit`}
-                      className="btn-secondary"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Link>
-                    <button
-                      onClick={() =>
-                        handleDeleteLessonPack(pack.id, pack.title)
-                      }
-                      className="btn-secondary text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
+    </>
+  );
+}
+
+// ============================================
+// Listening Audio Edit Form
+// ============================================
+function AudioEditForm({ audio, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    title: audio.title,
+    audio_file: audio.audio_file || "",
+    transcript: audio.transcript || "",
+    duration: audio.duration || 0,
+    difficulty: audio.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await ieltsQuestionsAPI.updateListeningAudio(audio.id, form);
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border-2 border-cyan-200 rounded-xl p-4 bg-cyan-50/30 space-y-3">
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          العنوان
+        </label>
+        <input
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          رابط الصوت
+        </label>
+        <input
+          value={form.audio_file}
+          onChange={(e) => setForm({ ...form, audio_file: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          النص (اختياري)
+        </label>
+        <textarea
+          value={form.transcript}
+          onChange={(e) => setForm({ ...form, transcript: e.target.value })}
+          rows={3}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          المدة (ثانية)
+        </label>
+        <input
+          type="number"
+          value={form.duration}
+          onChange={(e) => setForm({ ...form, duration: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+        />
+      </div>
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Check className="w-3 h-3" />
+          )}
+          حفظ
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Listening Question Edit Form
+// ============================================
+function ListeningQuestionEditForm({ q, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    question_text: q.question_text,
+    choice_a: q.choice_a,
+    choice_b: q.choice_b,
+    choice_c: q.choice_c || "",
+    choice_d: q.choice_d || "",
+    correct_answer: q.correct_answer,
+    explanation: q.explanation || "",
+    difficulty: q.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      const options = [
+        form.choice_a,
+        form.choice_b,
+        form.choice_c,
+        form.choice_d,
+      ].filter(Boolean);
+      const correctText = {
+        A: form.choice_a,
+        B: form.choice_b,
+        C: form.choice_c,
+        D: form.choice_d,
+      }[form.correct_answer];
+      await ieltsQuestionsAPI.updateListeningQuestion(q.id, {
+        question_text: form.question_text,
+        options,
+        correct_answer: correctText,
+        explanation: form.explanation,
+        difficulty: form.difficulty,
+      });
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border border-cyan-200 rounded-xl p-3 bg-cyan-50/20 space-y-2 mt-2">
+      <textarea
+        value={form.question_text}
+        onChange={(e) => setForm({ ...form, question_text: e.target.value })}
+        rows={2}
+        placeholder="نص السؤال"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none"
+      />
+      <div className="grid grid-cols-2 gap-2">
+        {["A", "B", "C", "D"].map((letter) => (
+          <div key={letter} className="flex gap-1">
+            <input
+              value={form[`choice_${letter.toLowerCase()}`]}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  [`choice_${letter.toLowerCase()}`]: e.target.value,
+                })
+              }
+              placeholder={`الخيار ${letter}`}
+              className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, correct_answer: letter })}
+              className={`px-2 rounded-lg text-xs font-bold ${
+                form.correct_answer === letter
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              ✓
+            </button>
+          </div>
+        ))}
+      </div>
+      <input
+        value={form.explanation}
+        onChange={(e) => setForm({ ...form, explanation: e.target.value })}
+        placeholder="التوضيح (اختياري)"
+        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
+      />
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1 rounded-lg border text-xs text-gray-600"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "حفظ"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Listening Audio Card
+// ============================================
+function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
+  const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [confirmDeleteQuestion, setConfirmDeleteQuestion] = useState(null);
+  const [deletingQuestion, setDeletingQuestion] = useState(false);
+  const handleDeleteAudio = async () => {
+    setDeleting(true);
+    try {
+      await ieltsQuestionsAPI.deleteListeningAudio(audio.id);
+      onUpdate();
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+  const handleDeleteQuestion = async () => {
+    setDeletingQuestion(true);
+    try {
+      await ieltsQuestionsAPI.deleteListeningQuestion(confirmDeleteQuestion);
+      onUpdate();
+    } finally {
+      setDeletingQuestion(false);
+      setConfirmDeleteQuestion(null);
+    }
+  };
+  if (editing)
+    return (
+      <AudioEditForm
+        audio={audio}
+        onCancel={() => setEditing(false)}
+        onSave={() => {
+          setEditing(false);
+          onUpdate();
+        }}
+      />
+    );
+  return (
+    <>
+      {confirmDelete && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا التسجيل الصوتي وجميع أسئلته؟"
+          onConfirm={handleDeleteAudio}
+          onCancel={() => setConfirmDelete(false)}
+          loading={deleting}
+        />
+      )}
+      {confirmDeleteQuestion && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا السؤال؟"
+          onConfirm={handleDeleteQuestion}
+          onCancel={() => setConfirmDeleteQuestion(null)}
+          loading={deletingQuestion}
+        />
+      )}
+      <div className="border border-cyan-200 rounded-xl overflow-hidden">
+        <div className="w-full flex items-center justify-between px-4 py-3 bg-cyan-50">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-3 flex-1 text-left"
+          >
+            <span className="text-xs font-bold text-cyan-600 bg-cyan-100 px-2 py-1 rounded-full">
+              {index + 1}
+            </span>
+            <Headphones className="w-4 h-4 text-cyan-500" />
+            <p className="font-medium text-gray-800 text-sm">{audio.title}</p>
+          </button>
+          <div className="flex items-center gap-1">
+            {audio.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium mr-1 ${
+                  difficultyBadge[audio.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[audio.difficulty]?.label}
+              </span>
+            )}
+            {audio.duration > 0 && (
+              <span className="text-xs text-cyan-600 mr-1">
+                {audio.duration} ث
+              </span>
+            )}
+            <span className="text-xs text-cyan-600 mr-2">
+              {audio.questions?.length} أسئلة
+            </span>
+            <button
+              onClick={() => setEditing(true)}
+              className="p-1 text-gray-400 hover:text-blue-600"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1 text-gray-400 hover:text-red-600"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="p-1 text-cyan-500"
+            >
+              {expanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
+        {expanded && (
+          <div className="p-4 space-y-4">
+            {audio.audio_file && (
+              <div className="bg-cyan-50 rounded-lg p-3">
+                <p className="text-xs text-cyan-600 font-medium mb-2">
+                  التسجيل الصوتي:
+                </p>
+                <audio controls className="w-full" src={audio.audio_file}>
+                  المتصفح لا يدعم تشغيل الصوت
+                </audio>
+              </div>
+            )}
+            {audio.transcript && (
+              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed max-h-32 overflow-y-auto">
+                <p className="text-xs font-medium text-gray-500 mb-1">النص:</p>
+                {audio.transcript}
+              </div>
+            )}
+            <Link
+              to={`/dashboard/ielts/skills/${skillId}/add/listening/audio/${audio.id}/questions`}
+              className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              إضافة سؤال لهذا التسجيل
+            </Link>
+            {audio.questions?.map((q, qi) => (
+              <div key={q.id}>
+                {editingQuestion === q.id ? (
+                  <ListeningQuestionEditForm
+                    q={q}
+                    onCancel={() => setEditingQuestion(null)}
+                    onSave={() => {
+                      setEditingQuestion(null);
+                      onUpdate();
+                    }}
+                  />
+                ) : (
+                  <div className="border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xs font-bold text-cyan-600 bg-cyan-50 px-2 py-1 rounded-full">
+                          {qi + 1}
+                        </span>
+                        <p className="text-gray-800 text-sm font-medium">
+                          {q.question_text}
+                        </p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          onClick={() => setEditingQuestion(q.id)}
+                          className="p-1 text-gray-400 hover:text-blue-600"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteQuestion(q.id)}
+                          className="p-1 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { key: "A", val: q.choice_a },
+                        { key: "B", val: q.choice_b },
+                        { key: "C", val: q.choice_c },
+                        { key: "D", val: q.choice_d },
+                      ]
+                        .filter((c) => c.val)
+                        .map((c) => (
+                          <div
+                            key={c.key}
+                            className={`text-xs px-3 py-2 rounded-lg border ${
+                              q.correct_answer === c.key
+                                ? "bg-green-50 border-green-400 text-green-700 font-semibold"
+                                : "bg-gray-50 border-gray-200 text-gray-600"
+                            }`}
+                          >
+                            {c.key}. {c.val}
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ============================================
+// Speaking Video Edit Form
+// ============================================
+function VideoEditForm({ video, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    title: video.title,
+    description: video.description || "",
+    duration: video.duration || 0,
+    difficulty: video.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await ieltsQuestionsAPI.updateSpeakingVideo(video.id, form);
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border-2 border-rose-200 rounded-xl p-4 bg-rose-50/30 space-y-3">
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          العنوان
+        </label>
+        <input
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          الوصف (اختياري)
+        </label>
+        <textarea
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          rows={3}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          المدة (ثانية)
+        </label>
+        <input
+          type="number"
+          value={form.duration}
+          onChange={(e) => setForm({ ...form, duration: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+        />
+      </div>
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Check className="w-3 h-3" />
+          )}
+          حفظ
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Speaking Question Edit Form
+// ============================================
+function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    question_text: q.question_text,
+    choice_a: q.choice_a,
+    choice_b: q.choice_b,
+    choice_c: q.choice_c || "",
+    choice_d: q.choice_d || "",
+    correct_answer: q.correct_answer,
+    explanation: q.explanation || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      const options = [
+        form.choice_a,
+        form.choice_b,
+        form.choice_c,
+        form.choice_d,
+      ].filter(Boolean);
+      const correctText = {
+        A: form.choice_a,
+        B: form.choice_b,
+        C: form.choice_c,
+        D: form.choice_d,
+      }[form.correct_answer];
+      await ieltsQuestionsAPI.updateSpeakingQuestion(q.id, {
+        question_text: form.question_text,
+        options,
+        correct_answer: correctText,
+        explanation: form.explanation,
+      });
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border border-rose-200 rounded-xl p-3 bg-rose-50/20 space-y-2 mt-2">
+      <textarea
+        value={form.question_text}
+        onChange={(e) => setForm({ ...form, question_text: e.target.value })}
+        rows={2}
+        placeholder="نص السؤال"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none"
+      />
+      <div className="grid grid-cols-2 gap-2">
+        {["A", "B", "C", "D"].map((letter) => (
+          <div key={letter} className="flex gap-1">
+            <input
+              value={form[`choice_${letter.toLowerCase()}`]}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  [`choice_${letter.toLowerCase()}`]: e.target.value,
+                })
+              }
+              placeholder={`الخيار ${letter}`}
+              className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, correct_answer: letter })}
+              className={`px-2 rounded-lg text-xs font-bold ${
+                form.correct_answer === letter
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              ✓
+            </button>
+          </div>
+        ))}
+      </div>
+      <input
+        value={form.explanation}
+        onChange={(e) => setForm({ ...form, explanation: e.target.value })}
+        placeholder="التوضيح (اختياري)"
+        className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
+      />
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1 rounded-lg border text-xs text-gray-600"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "حفظ"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Speaking Video Card
+// ============================================
+function SpeakingVideoCard({ video, index, skillId, onUpdate }) {
+  const [expanded, setExpanded] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [confirmDeleteQuestion, setConfirmDeleteQuestion] = useState(null);
+  const [deletingQuestion, setDeletingQuestion] = useState(false);
+
+  const handleDeleteVideo = async () => {
+    setDeleting(true);
+    try {
+      await ieltsQuestionsAPI.deleteSpeakingVideo(video.id);
+      onUpdate();
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+  const handleDeleteQuestion = async () => {
+    setDeletingQuestion(true);
+    try {
+      await ieltsQuestionsAPI.deleteSpeakingQuestion(confirmDeleteQuestion);
+      onUpdate();
+    } finally {
+      setDeletingQuestion(false);
+      setConfirmDeleteQuestion(null);
+    }
+  };
+
+  if (editing)
+    return (
+      <VideoEditForm
+        video={video}
+        onCancel={() => setEditing(false)}
+        onSave={() => {
+          setEditing(false);
+          onUpdate();
+        }}
+      />
+    );
+
+  return (
+    <>
+      {confirmDelete && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا الفيديو وجميع أسئلته؟"
+          onConfirm={handleDeleteVideo}
+          onCancel={() => setConfirmDelete(false)}
+          loading={deleting}
+        />
+      )}
+      {confirmDeleteQuestion && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا السؤال؟"
+          onConfirm={handleDeleteQuestion}
+          onCancel={() => setConfirmDeleteQuestion(null)}
+          loading={deletingQuestion}
+        />
+      )}
+      <div className="border border-rose-200 rounded-xl overflow-hidden">
+        <div className="w-full flex items-center justify-between px-4 py-3 bg-rose-50">
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-3 flex-1 text-left"
+          >
+            <span className="text-xs font-bold text-rose-600 bg-rose-100 px-2 py-1 rounded-full">
+              {index + 1}
+            </span>
+            <Video className="w-4 h-4 text-rose-500" />
+            <p className="font-medium text-gray-800 text-sm">{video.title}</p>
+          </button>
+          <div className="flex items-center gap-1">
+            {video.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium mr-1 ${
+                  difficultyBadge[video.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[video.difficulty]?.label}
+              </span>
+            )}
+            {video.duration > 0 && (
+              <span className="text-xs text-rose-600 mr-1">
+                {video.duration} ث
+              </span>
+            )}
+            <span className="text-xs text-rose-600 mr-2">
+              {video.questions?.length} أسئلة
+            </span>
+            <button
+              onClick={() => setEditing(true)}
+              className="p-1 text-gray-400 hover:text-blue-600"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1 text-gray-400 hover:text-red-600"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="p-1 text-rose-500"
+            >
+              {expanded ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronRight className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
+        {expanded && (
+          <div className="p-4 space-y-4">
+            {video.video_file && (
+              <div className="bg-rose-50 rounded-lg p-3">
+                <p className="text-xs text-rose-600 font-medium mb-2">
+                  الفيديو:
+                </p>
+                <video
+                  controls
+                  className="w-full rounded-lg"
+                  src={video.video_file}
+                >
+                  المتصفح لا يدعم تشغيل الفيديو
+                </video>
+              </div>
+            )}
+            {video.description && (
+              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed">
+                <p className="text-xs font-medium text-gray-500 mb-1">الوصف:</p>
+                {video.description}
+              </div>
+            )}
+            <Link
+              to={`/dashboard/ielts/skills/${skillId}/add/speaking/video/${video.id}/questions`}
+              className="flex items-center gap-2 text-rose-600 hover:text-rose-700 text-sm font-medium"
+            >
+              <Plus className="w-4 h-4" />
+              إضافة سؤال لهذا الفيديو
+            </Link>
+            {video.questions?.map((q, qi) => (
+              <div key={q.id}>
+                {editingQuestion === q.id ? (
+                  <SpeakingQuestionEditForm
+                    q={q}
+                    onCancel={() => setEditingQuestion(null)}
+                    onSave={() => {
+                      setEditingQuestion(null);
+                      onUpdate();
+                    }}
+                  />
+                ) : (
+                  <div className="border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-full">
+                          {qi + 1}
+                        </span>
+                        <p className="text-gray-800 text-sm font-medium">
+                          {q.question_text}
+                        </p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          onClick={() => setEditingQuestion(q.id)}
+                          className="p-1 text-gray-400 hover:text-blue-600"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteQuestion(q.id)}
+                          className="p-1 text-gray-400 hover:text-red-600"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { key: "A", val: q.choice_a },
+                        { key: "B", val: q.choice_b },
+                        { key: "C", val: q.choice_c },
+                        { key: "D", val: q.choice_d },
+                      ]
+                        .filter((c) => c.val)
+                        .map((c) => (
+                          <div
+                            key={c.key}
+                            className={`text-xs px-3 py-2 rounded-lg border ${
+                              q.correct_answer === c.key
+                                ? "bg-green-50 border-green-400 text-green-700 font-semibold"
+                                : "bg-gray-50 border-gray-200 text-gray-600"
+                            }`}
+                          >
+                            {c.key}. {c.val}
+                          </div>
+                        ))}
+                    </div>
+                    {q.explanation && (
+                      <p className="mt-2 text-xs text-rose-700 bg-rose-50 rounded-lg px-3 py-2">
+                        💡 {q.explanation}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ============================================
+// Writing Edit Form
+// ============================================
+function WritingEditForm({ q, onSave, onCancel }) {
+  const [form, setForm] = useState({
+    title: q.title,
+    question_text: q.question_text,
+    min_words: q.min_words,
+    max_words: q.max_words,
+    sample_answer: q.sample_answer || "",
+    rubric: q.rubric || "",
+    difficulty: q.difficulty || "MEDIUM",
+  });
+  const [saving, setSaving] = useState(false);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await ieltsQuestionsAPI.updateWriting(q.id, form);
+      onSave();
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="border-2 border-green-200 rounded-xl p-4 bg-green-50/30 space-y-3">
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          العنوان
+        </label>
+        <input
+          value={form.title}
+          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          نص السؤال
+        </label>
+        <textarea
+          value={form.question_text}
+          onChange={(e) => setForm({ ...form, question_text: e.target.value })}
+          rows={3}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-medium text-gray-600 mb-1 block">
+            الحد الأدنى
+          </label>
+          <input
+            type="number"
+            value={form.min_words}
+            onChange={(e) => setForm({ ...form, min_words: e.target.value })}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-600 mb-1 block">
+            الحد الأقصى
+          </label>
+          <input
+            type="number"
+            value={form.max_words}
+            onChange={(e) => setForm({ ...form, max_words: e.target.value })}
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          الإجابة النموذجية
+        </label>
+        <textarea
+          value={form.sample_answer}
+          onChange={(e) => setForm({ ...form, sample_answer: e.target.value })}
+          rows={3}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          معيار التقييم
+        </label>
+        <textarea
+          value={form.rubric}
+          onChange={(e) => setForm({ ...form, rubric: e.target.value })}
+          rows={2}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+        />
+      </div>
+      <select
+        value={form.difficulty}
+        onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
+      >
+        <option value="EASY">سهل</option>
+        <option value="MEDIUM">متوسط</option>
+        <option value="HARD">صعب</option>
+      </select>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onCancel}
+          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+        >
+          إلغاء
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs flex items-center gap-1"
+        >
+          {saving ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+          ) : (
+            <Check className="w-3 h-3" />
+          )}
+          حفظ
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// Writing Card
+// ============================================
+function WritingCard({ q, index, onDelete, onUpdate }) {
+  const [showSample, setShowSample] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await ieltsQuestionsAPI.deleteWriting(q.id);
+      onDelete();
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+  if (editing)
+    return (
+      <WritingEditForm
+        q={q}
+        onCancel={() => setEditing(false)}
+        onSave={() => {
+          setEditing(false);
+          onUpdate();
+        }}
+      />
+    );
+  return (
+    <>
+      {confirmDelete && (
+        <ConfirmDeleteModal
+          message="هل أنت متأكد من حذف هذا السؤال؟"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+          loading={deleting}
+        />
+      )}
+      <div className="border border-gray-200 rounded-xl p-4">
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-start gap-3">
+            <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              {index + 1}
+            </span>
+            <div>
+              <p className="font-semibold text-gray-800 text-sm">{q.title}</p>
+              <p className="text-gray-600 text-xs mt-1">{q.question_text}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            {q.difficulty && (
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  difficultyBadge[q.difficulty]?.color
+                }`}
+              >
+                {difficultyBadge[q.difficulty]?.label}
+              </span>
+            )}
+            <button
+              onClick={() => setShowSample((v) => !v)}
+              className="p-1 text-gray-400 hover:text-gray-600"
+            >
+              {showSample ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              onClick={() => setEditing(true)}
+              className="p-1 text-gray-400 hover:text-blue-600"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1 text-gray-400 hover:text-red-600"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        <div className="flex gap-3 text-xs text-gray-500 mt-2">
+          <span>الحد الأدنى: {q.min_words} كلمة</span>
+          <span>الحد الأقصى: {q.max_words} كلمة</span>
+          <span>النقاط: {q.points}</span>
+        </div>
+        {showSample && q.sample_answer && (
+          <div className="mt-3 bg-green-50 rounded-lg p-3 text-xs text-green-700">
+            <strong>الإجابة النموذجية:</strong>
+            <p className="mt-1 leading-relaxed">{q.sample_answer}</p>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ============================================
+// General Path Section Component
+// ============================================
+function GeneralPathSection({ section, questions, skillId, onUpdate }) {
+  const [expanded, setExpanded] = useState(true);
+  const Icon = section.icon;
+  const sectionQuestions = questions.filter((q) => q.type === section.type);
+
+  return (
+    <div className={`border ${section.border} rounded-xl overflow-hidden`}>
+      <div
+        className={`flex items-center justify-between px-4 py-3 ${section.headerBg}`}
+      >
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-3 flex-1 text-left"
+        >
+          <div className={`p-1.5 rounded-lg ${section.bg}`}>
+            <Icon className={`w-4 h-4 ${section.color}`} />
+          </div>
+          <span className={`font-semibold text-sm ${section.color}`}>
+            {section.label}
+          </span>
+          <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded-full border">
+            {sectionQuestions.length} عنصر
+          </span>
+        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to={section.addRoute(skillId)}
+            className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-white transition-colors ${section.btnColor}`}
+          >
+            <Plus className="w-3.5 h-3.5" />
+            {section.addLabel}
+          </Link>
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className={`p-1 ${section.color}`}
+          >
+            {expanded ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="p-4 space-y-3 bg-white">
+          {sectionQuestions.length === 0 ? (
+            <div className="text-center py-8">
+              <Icon
+                className={`w-8 h-8 ${section.color} mx-auto mb-2 opacity-25`}
+              />
+              <p className="text-gray-400 text-sm">
+                لا توجد أسئلة {section.label} بعد
+              </p>
+              <Link
+                to={section.addRoute(skillId)}
+                className={`inline-flex items-center gap-1.5 mt-3 text-xs font-medium ${section.color} hover:underline`}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                ابدأ بإضافة {section.label}
+              </Link>
+            </div>
+          ) : (
+            <>
+              {section.type === "VOCABULARY" &&
+                sectionQuestions.map((q, i) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    color={section.color}
+                    updateFn={ieltsQuestionsAPI.updateVocabulary}
+                    onDelete={async (id) => {
+                      await ieltsQuestionsAPI.deleteVocabulary(id);
+                      onUpdate();
+                    }}
+                    onUpdate={onUpdate}
+                  />
+                ))}
+              {section.type === "GRAMMAR" &&
+                sectionQuestions.map((q, i) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    color={section.color}
+                    updateFn={ieltsQuestionsAPI.updateGrammar}
+                    onDelete={async (id) => {
+                      await ieltsQuestionsAPI.deleteGrammar(id);
+                      onUpdate();
+                    }}
+                    onUpdate={onUpdate}
+                  />
+                ))}
+              {section.type === "READING" &&
+                sectionQuestions.map((p, i) => (
+                  <ReadingPassageCard
+                    key={p.id}
+                    passage={p}
+                    index={i}
+                    onUpdate={onUpdate}
+                  />
+                ))}
+              {section.type === "LISTENING" &&
+                sectionQuestions.map((a, i) => (
+                  <ListeningAudioCard
+                    key={a.id}
+                    audio={a}
+                    index={i}
+                    skillId={skillId}
+                    onUpdate={onUpdate}
+                  />
+                ))}
+              {section.type === "SPEAKING" &&
+                sectionQuestions.map((v, i) => (
+                  <SpeakingVideoCard
+                    key={v.id}
+                    video={v}
+                    index={i}
+                    skillId={skillId}
+                    onUpdate={onUpdate}
+                  />
+                ))}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================
+// Main Page
+// ============================================
+export default function IELTSSkillDetails() {
+  const { skillId } = useParams();
+  const [skill, setSkill] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({});
+
+  useEffect(() => {
+    fetchData();
+  }, [skillId, page]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const isGeneral = skill?.skill_type === "GENERAL_PATH";
+      const [skillData, questionsData] = await Promise.all([
+        ieltsSkillsAPI.getById(skillId),
+        ieltsQuestionsAPI.getSkillQuestions(skillId, page, isGeneral ? 500 : 20),
+      ]);
+      setSkill(skillData);
+      setQuestions(questionsData.questions || []);
+      setPagination(questionsData.pagination || {});
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (skill?.skill_type === "GENERAL_PATH") fetchData();
+  }, [skill?.skill_type]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!skill) return null;
+
+  const config = skillTypeConfig[skill.skill_type] || {};
+  const Icon = config.icon || BookOpen;
+  const addRoute = addRouteMap(skillId, skill.skill_type);
+  const isGeneralPath = skill.skill_type === "GENERAL_PATH";
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Link
+          to="/dashboard/ielts/skills"
+          className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+        >
+          <ArrowRight className="w-5 h-5" />
+        </Link>
+        <div className={`${config.bg} p-3 rounded-xl`}>
+          <Icon className={`w-6 h-6 ${config.color}`} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{skill.title}</h1>
+          <p className={`text-sm font-medium ${config.color}`}>
+            {config.label}
+          </p>
+        </div>
+      </div>
+
+      {/* Stats + Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="card !py-3 !px-5 text-center">
+          <p className={`text-2xl font-bold ${config.color}`}>
+            {skill.total_questions}
+          </p>
+          <p className="text-xs text-gray-500">إجمالي الأسئلة</p>
+        </div>
+        <div className="flex gap-3">
+          <Link
+            to={`/dashboard/ielts/skills/${skillId}/edit`}
+            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition-colors"
+          >
+            تعديل المهارة
+          </Link>
+          {!isGeneralPath && addRoute && (
+            <Link
+              to={addRoute}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              {config.addLabel}
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* GENERAL PATH — Sections */}
+      {isGeneralPath ? (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <GitBranch className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-bold text-gray-900">
+              محتوى المسار العام
+            </h2>
+            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+              أضف الأسئلة مباشرةً في كل قسم
+            </span>
+          </div>
+          {GENERAL_PATH_SECTIONS.map((section) => (
+            <GeneralPathSection
+              key={section.type}
+              section={section}
+              questions={questions}
+              skillId={skillId}
+              onUpdate={fetchData}
+            />
+          ))}
+        </div>
+      ) : (
+        /* Normal Skills */
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-gray-900">الأسئلة</h2>
+          {questions.length === 0 ? (
+            <div className="card text-center py-12">
+              <Icon
+                className={`w-10 h-10 ${config.color} mx-auto mb-3 opacity-30`}
+              />
+              <p className="text-gray-500 text-sm">
+                لا توجد أسئلة بعد. ابدأ بإضافة أسئلة.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {skill.skill_type === "VOCABULARY" &&
+                questions.map((q, i) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    color={config.color}
+                    updateFn={ieltsQuestionsAPI.updateVocabulary}
+                    onDelete={async (id) => {
+                      await ieltsQuestionsAPI.deleteVocabulary(id);
+                      fetchData();
+                    }}
+                    onUpdate={() => fetchData()}
+                  />
+                ))}
+              {skill.skill_type === "GRAMMAR" &&
+                questions.map((q, i) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    color={config.color}
+                    updateFn={ieltsQuestionsAPI.updateGrammar}
+                    onDelete={async (id) => {
+                      await ieltsQuestionsAPI.deleteGrammar(id);
+                      fetchData();
+                    }}
+                    onUpdate={() => fetchData()}
+                  />
+                ))}
+              {skill.skill_type === "READING" &&
+                questions.map((p, i) => (
+                  <ReadingPassageCard
+                    key={p.id}
+                    passage={p}
+                    index={i}
+                    onUpdate={fetchData}
+                  />
+                ))}
+              {skill.skill_type === "LISTENING" &&
+                questions.map((a, i) => (
+                  <ListeningAudioCard
+                    key={a.id}
+                    audio={a}
+                    index={i}
+                    skillId={skillId}
+                    onUpdate={fetchData}
+                  />
+                ))}
+              {skill.skill_type === "SPEAKING" &&
+                questions.map((v, i) => (
+                  <SpeakingVideoCard
+                    key={v.id}
+                    video={v}
+                    index={i}
+                    skillId={skillId}
+                    onUpdate={fetchData}
+                  />
+                ))}
+              {skill.skill_type === "WRITING" &&
+                questions.map((q, i) => (
+                  <WritingCard
+                    key={q.id}
+                    q={q}
+                    index={i}
+                    onDelete={() => fetchData()}
+                    onUpdate={() => fetchData()}
+                  />
+                ))}
+            </div>
+          )}
+          {pagination.total_pages > 1 && (
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
+              >
+                السابق
+              </button>
+              <span className="text-sm text-gray-600">
+                صفحة {page} من {pagination.total_pages}
+              </span>
+              <button
+                onClick={() =>
+                  setPage((p) => Math.min(pagination.total_pages, p + 1))
+                }
+                disabled={page === pagination.total_pages}
+                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
+              >
+                التالي
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
