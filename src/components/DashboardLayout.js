@@ -1,4 +1,4 @@
-// src/components/DashboardLayout.jsx - WITH IELTS + STEP
+// src/components/DashboardLayout.jsx - WITH IELTS + STEP + GENERAL
 import { useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -13,6 +13,7 @@ import {
   Globe,
   BookMarked,
   Users,
+  BookOpen,
 } from "lucide-react";
 
 import { useAuthStore } from "../store/authstore";
@@ -36,12 +37,7 @@ export default function DashboardLayout() {
       icon: LayoutDashboard,
     },
     {
-      name: "Placement Bank",
-      href: "/dashboard/question-banks",
-      icon: Database,
-    },
-    {
-      name: "Levels System",
+      name: "English for Specific Purposes (ESP)",
       href: "/dashboard/levels",
       icon: Layers,
     },
@@ -54,6 +50,11 @@ export default function DashboardLayout() {
       name: "STEP System",
       href: "/dashboard/step",
       icon: BookMarked,
+    },
+    {
+      name: "General English",
+      href: "/dashboard/general",
+      icon: BookOpen,
     },
     {
       name: "المدرسون",
@@ -147,7 +148,6 @@ export default function DashboardLayout() {
                 />
               </button>
 
-              {/* User Dropdown */}
               {userMenuOpen && (
                 <div className="absolute bottom-full right-0 left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
                   <button
@@ -185,7 +185,6 @@ export default function DashboardLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* User info on mobile */}
             <div className="lg:hidden flex items-center gap-2">
               <span className="text-sm font-medium text-gray-900">
                 {user?.full_name}

@@ -72,7 +72,6 @@ import AddWritingToIELTS from "./pages/ielts/AddWritingToIELTS";
 import IELTSProgress from "./pages/ielts/IELTSProgress";
 import IELTSAIGeneration from "./pages/ielts/IELTSAIGeneration";
 
-
 // STEP Routes
 import STEPMain from "./pages/step/STEPMain";
 import STEPSkillsList from "./pages/step/STEPSkillsList";
@@ -90,6 +89,25 @@ import AddSpeakingQuestionsToSTEP from "./pages/step/AddSpeakingQuestionsToSTEP"
 import AddWritingToSTEP from "./pages/step/AddWritingToSTEP";
 import STEPProgress from "./pages/step/STEPProgress";
 import STEPAIGeneration from "./pages/step/STEPAIGeneration";
+
+// ============================================
+// GENERAL ENGLISH Routes
+// ============================================
+import GeneralMain from "./pages/general/GeneralMain";
+import GeneralCategoriesList from "./pages/general/GeneralCategoriesList";
+import CreateGeneralCategory from "./pages/general/CreateGeneralCategory";
+import GeneralSkillsList from "./pages/general/GeneralSkillsList";
+import CreateGeneralSkill from "./pages/general/CreateGeneralSkill";
+import GeneralSkillDetails from "./pages/general/GeneralSkillDetails";
+import AddMCQToGeneral from "./pages/general/AddMCQToGeneral";
+import AddReadingToGeneral from "./pages/general/AddReadingToGeneral";
+import AddReadingQuestionsToGeneral from "./pages/general/AddReadingQuestionsToGeneral";
+import AddListeningToGeneral from "./pages/general/AddListeningToGeneral";
+import AddListeningQuestionsToGeneral from "./pages/general/AddListeningQuestionsToGeneral";
+import AddSpeakingToGeneral from "./pages/general/AddSpeakingToGeneral";
+import AddSpeakingQuestionsToGeneral from "./pages/general/AddSpeakingQuestionsToGeneral";
+import AddWritingToGeneral from "./pages/general/AddWritingToGeneral";
+import GeneralAIGeneration from "./pages/general/GeneralAIGeneration";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -117,14 +135,10 @@ function App() {
         >
           <Route index element={<Dashboard />} />
 
-          {/* ============================================ */}
           {/* TEACHERS */}
-          {/* ============================================ */}
           <Route path="teachers" element={<TeachersList />} />
 
-          {/* ============================================ */}
-          {/* PLACEMENT TEST ROUTES */}
-          {/* ============================================ */}
+          {/* PLACEMENT TEST */}
           <Route path="question-banks" element={<QuestionBanksList />} />
           <Route
             path="question-banks/create"
@@ -159,25 +173,19 @@ function App() {
             element={<AddWritingQuestion />}
           />
 
-          {/* ============================================ */}
-          {/* LEVELS ROUTES */}
-          {/* ============================================ */}
+          {/* LEVELS */}
           <Route path="levels" element={<LevelsList />} />
           <Route path="levels/create" element={<CreateLevel />} />
           <Route path="levels/:levelId" element={<LevelDetails />} />
           <Route path="levels/:levelId/edit" element={<EditLevel />} />
 
-          {/* ============================================ */}
-          {/* UNITS ROUTES */}
-          {/* ============================================ */}
+          {/* UNITS */}
           <Route path="units" element={<UnitsList />} />
           <Route path="units/create" element={<CreateUnit />} />
           <Route path="units/:unitId" element={<UnitDetails />} />
           <Route path="units/:unitId/edit" element={<EditUnit />} />
 
-          {/* ============================================ */}
-          {/* LESSONS ROUTES */}
-          {/* ============================================ */}
+          {/* LESSONS */}
           <Route path="lessons" element={<LessonsList />} />
           <Route path="lessons/create" element={<CreateLesson />} />
           <Route path="lessons/:lessonId" element={<LessonDetails />} />
@@ -187,9 +195,7 @@ function App() {
             element={<AddLessonContent />}
           />
 
-          {/* ============================================ */}
-          {/* LEVEL QUESTION BANKS ROUTES */}
-          {/* ============================================ */}
+          {/* LEVEL QUESTION BANKS */}
           <Route
             path="level-question-banks"
             element={<LevelQuestionBanksList />}
@@ -223,29 +229,23 @@ function App() {
             element={<AddLevelWritingQuestion />}
           />
 
-          {/* ============================================ */}
-          {/* IELTS ROUTES */}
-          {/* ============================================ */}
-          
+          {/* IELTS */}
           <Route path="ielts" element={<IELTSMain />} />
           <Route path="ielts/skills" element={<IELTSSkillsList />} />
           <Route path="ielts/skills/create" element={<CreateIELTSSkill />} />
           <Route path="ielts/skills/:skillId" element={<IELTSSkillDetails />} />
-          <Route path="ielts/skills/:skillId/edit" element={<EditIELTSSkill />} />
-
-          {/* Vocabulary */}
+          <Route
+            path="ielts/skills/:skillId/edit"
+            element={<EditIELTSSkill />}
+          />
           <Route
             path="ielts/skills/:skillId/add/vocabulary"
             element={<AddVocabularyToIELTS />}
           />
-
-          {/* Grammar */}
           <Route
             path="ielts/skills/:skillId/add/grammar"
             element={<AddGrammarToIELTS />}
           />
-
-          {/* Reading */}
           <Route
             path="ielts/skills/:skillId/add/reading/passage"
             element={<AddReadingPassageToIELTS />}
@@ -254,8 +254,6 @@ function App() {
             path="ielts/skills/:skillId/add/reading/passage/:passageId/questions"
             element={<AddReadingQuestionsToIELTS />}
           />
-
-          {/* Listening */}
           <Route
             path="ielts/skills/:skillId/add/listening/audio"
             element={<AddListeningAudioToIELTS />}
@@ -264,8 +262,6 @@ function App() {
             path="ielts/skills/:skillId/add/listening/audio/:audioId/questions"
             element={<AddListeningQuestionsToIELTS />}
           />
-
-          {/* Speaking ← جديد */}
           <Route
             path="ielts/skills/:skillId/add/speaking/video"
             element={<AddSpeakingVideoToIELTS />}
@@ -274,37 +270,27 @@ function App() {
             path="ielts/skills/:skillId/add/speaking/video/:videoId/questions"
             element={<AddSpeakingQuestionsToIELTS />}
           />
-          <Route path="ielts/ai" element={<IELTSAIGeneration />} />
-          {/* Writing */}
           <Route
             path="ielts/skills/:skillId/add/writing"
             element={<AddWritingToIELTS />}
           />
-
-          {/* Progress */}
           <Route path="ielts/progress" element={<IELTSProgress />} />
-          {/* ============================================ */}
-          {/* STEP ROUTES */}
-          {/* ============================================ */}
+          <Route path="ielts/ai" element={<IELTSAIGeneration />} />
+
+          {/* STEP */}
           <Route path="step" element={<STEPMain />} />
           <Route path="step/skills" element={<STEPSkillsList />} />
           <Route path="step/skills/create" element={<CreateSTEPSkill />} />
           <Route path="step/skills/:skillId" element={<STEPSkillDetails />} />
           <Route path="step/skills/:skillId/edit" element={<EditSTEPSkill />} />
-
-          {/* Vocabulary */}
           <Route
             path="step/skills/:skillId/add/vocabulary"
             element={<AddVocabularyToSTEP />}
           />
-
-          {/* Grammar */}
           <Route
             path="step/skills/:skillId/add/grammar"
             element={<AddGrammarToSTEP />}
           />
-
-          {/* Reading */}
           <Route
             path="step/skills/:skillId/add/reading/passage"
             element={<AddReadingPassageToSTEP />}
@@ -313,8 +299,6 @@ function App() {
             path="step/skills/:skillId/add/reading/passage/:passageId/questions"
             element={<AddReadingQuestionsToSTEP />}
           />
-
-          {/* Listening */}
           <Route
             path="step/skills/:skillId/add/listening/audio"
             element={<AddListeningAudioToSTEP />}
@@ -323,8 +307,6 @@ function App() {
             path="step/skills/:skillId/add/listening/audio/:audioId/questions"
             element={<AddListeningQuestionsToSTEP />}
           />
-
-          {/* Speaking ← جديد */}
           <Route
             path="step/skills/:skillId/add/speaking/video"
             element={<AddSpeakingVideoToSTEP />}
@@ -333,15 +315,102 @@ function App() {
             path="step/skills/:skillId/add/speaking/video/:videoId/questions"
             element={<AddSpeakingQuestionsToSTEP />}
           />
-          <Route path="step/ai" element={<STEPAIGeneration />} />
-          {/* Writing */}
           <Route
             path="step/skills/:skillId/add/writing"
             element={<AddWritingToSTEP />}
           />
-
-          {/* Progress */}
           <Route path="step/progress" element={<STEPProgress />} />
+          <Route path="step/ai" element={<STEPAIGeneration />} />
+
+          {/* ============================================ */}
+          {/* GENERAL ENGLISH ROUTES */}
+          {/* ============================================ */}
+          <Route path="general" element={<GeneralMain />} />
+
+          {/* Categories */}
+          <Route
+            path="general/categories"
+            element={<GeneralCategoriesList />}
+          />
+          <Route
+            path="general/categories/create"
+            element={<CreateGeneralCategory />}
+          />
+          <Route
+            path="general/categories/:categoryId/edit"
+            element={<CreateGeneralCategory />}
+          />
+
+          {/* Skills */}
+          <Route
+            path="general/categories/:categoryId/skills"
+            element={<GeneralSkillsList />}
+          />
+          <Route
+            path="general/categories/:categoryId/skills/create"
+            element={<CreateGeneralSkill />}
+          />
+          <Route
+            path="general/categories/:categoryId/skills/:skillId/edit"
+            element={<CreateGeneralSkill />}
+          />
+
+          {/* Skill Details */}
+          <Route
+            path="general/skills/:skillId"
+            element={<GeneralSkillDetails />}
+          />
+
+          {/* Vocabulary */}
+          <Route
+            path="general/skills/:skillId/add/vocabulary"
+            element={<AddMCQToGeneral questionType="VOCABULARY" />}
+          />
+
+          {/* Grammar */}
+          <Route
+            path="general/skills/:skillId/add/grammar"
+            element={<AddMCQToGeneral questionType="GRAMMAR" />}
+          />
+
+          {/* Reading */}
+          <Route
+            path="general/skills/:skillId/add/reading/passage"
+            element={<AddReadingToGeneral />}
+          />
+          <Route
+            path="general/skills/:skillId/add/reading/passage/:passageId/questions"
+            element={<AddReadingQuestionsToGeneral />}
+          />
+
+          {/* Listening */}
+          <Route
+            path="general/skills/:skillId/add/listening/audio"
+            element={<AddListeningToGeneral />}
+          />
+          <Route
+            path="general/skills/:skillId/add/listening/audio/:audioId/questions"
+            element={<AddListeningQuestionsToGeneral />}
+          />
+
+          {/* Speaking */}
+          <Route
+            path="general/skills/:skillId/add/speaking/video"
+            element={<AddSpeakingToGeneral />}
+          />
+          <Route
+            path="general/skills/:skillId/add/speaking/video/:videoId/questions"
+            element={<AddSpeakingQuestionsToGeneral />}
+          />
+
+          {/* Writing */}
+          <Route
+            path="general/skills/:skillId/add/writing"
+            element={<AddWritingToGeneral />}
+          />
+
+          {/* AI Generation */}
+          <Route path="general/ai" element={<GeneralAIGeneration />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
