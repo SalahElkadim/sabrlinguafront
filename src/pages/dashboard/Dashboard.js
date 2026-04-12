@@ -1,18 +1,6 @@
-// src/pages/Dashboard.jsx - WITH IELTS + STEP MODULE
+// src/pages/Dashboard.jsx
 import { Link } from "react-router-dom";
-import {
-  GraduationCap,
-  Layers,
-  ArrowLeft,
-  Database,
-  FileText,
-  BookOpen,
-  Users,
-  Globe,
-  Award,
-  BookMarked,
-  BarChart2,
-} from "lucide-react";
+import { ArrowLeft, Globe, BookMarked, BookOpen } from "lucide-react";
 
 export default function Dashboard() {
   const modules = [
@@ -20,7 +8,7 @@ export default function Dashboard() {
       id: "general-system",
       name: "GENERAL System",
       description: "أسئلة عامة في اللغة الانجليزية",
-      icon: Globe,
+      icon: BookOpen,
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50",
       iconColor: "text-green-600",
@@ -51,18 +39,16 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
+      {/* Welcome */}
       <div className="card bg-gradient-to-r from-primary-600 to-blue-600 text-white">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
-          <p className="text-blue-100">
-            اختر القسم الذي تريد العمل عليه من الأقسام أدناه
-          </p>
-        </div>
+        <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
+        <p className="text-blue-100">
+          اختر القسم الذي تريد العمل عليه من الأقسام أدناه
+        </p>
       </div>
 
       {/* Modules Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {modules.map((module) => {
           const Icon = module.icon;
           return (
@@ -71,79 +57,41 @@ export default function Dashboard() {
               to={module.link}
               className="group card hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
             >
-              {/* Header with gradient */}
+              {/* Header */}
               <div
                 className={`bg-gradient-to-r ${module.color} p-6 rounded-t-xl -m-6 mb-6`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                      <Icon className="w-8 h-8 text-white" />
+                    <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                      <Icon className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-white mb-1">
+                      <h2 className="text-xl font-bold text-white mb-1">
                         {module.name}
                       </h2>
-                      <p className="text-white/80 text-sm">
+                      <p className="text-white/80 text-sm leading-snug">
                         {module.description}
                       </p>
                     </div>
                   </div>
-                  <ArrowLeft className="w-6 h-6 text-white group-hover:translate-x-[-8px] transition-transform" />
+                  <ArrowLeft className="w-5 h-5 text-white group-hover:translate-x-[-6px] transition-transform flex-shrink-0" />
                 </div>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                {module.stats.map((stat, idx) => {
-                  const StatIcon = stat.icon;
-                  return (
-                    <div
-                      key={idx}
-                      className={`${module.bgColor} p-4 rounded-lg`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <StatIcon className={`w-5 h-5 ${module.iconColor}`} />
-                        <div>
-                          <p className="text-sm text-gray-600">{stat.name}</p>
-                          <p className="text-2xl font-bold text-gray-900">
-                            {stat.value}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
 
               {/* Footer */}
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">اضغط للدخول إلى القسم</span>
-                  <span
-                    className={`${module.iconColor} font-medium group-hover:translate-x-[-4px] transition-transform inline-flex items-center gap-1`}
-                  >
-                    الذهاب
-                    <ArrowLeft className="w-4 h-4" />
-                  </span>
-                </div>
+              <div className="flex items-center justify-between text-sm">
+                <span
+                  className={`${module.iconColor} font-medium inline-flex items-center gap-1 group-hover:translate-x-[-4px] transition-transform`}
+                >
+                  الذهاب
+                  <ArrowLeft className="w-4 h-4" />
+                </span>
+                <span className="text-gray-400">اضغط للدخول</span>
               </div>
             </Link>
           );
         })}
-      </div>
-
-      {/* Info Card */}
-      <div className="card bg-gray-50">
-        <div className="text-center py-8">
-          <Users className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-gray-900 mb-2">
-            المزيد من الأقسام قريباً
-          </h3>
-          <p className="text-gray-600 text-sm">
-            نعمل على إضافة المزيد من الأقسام والميزات لتسهيل عملك
-          </p>
-        </div>
       </div>
     </div>
   );
