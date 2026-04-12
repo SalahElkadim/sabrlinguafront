@@ -35,12 +35,7 @@ export default function DashboardLayout() {
       name: "لوحة التحكم",
       href: "/dashboard",
       icon: LayoutDashboard,
-    },
-    {
-      name: "English for Specific Purposes (ESP)",
-      href: "/dashboard/levels",
-      icon: Layers,
-    },
+    },    
     {
       name: "IELTS System",
       href: "/dashboard/ielts",

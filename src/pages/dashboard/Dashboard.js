@@ -17,32 +17,14 @@ import {
 export default function Dashboard() {
   const modules = [
     {
-      id: "placement-bank",
-      name: "Placement Bank",
-      description: "إدارة بنوك الأسئلة واختبارات تحديد المستوى",
-      icon: GraduationCap,
+      id: "general-system",
+      name: "GENERAL System",
+      description: "أسئلة عامة في اللغة الانجليزية",
+      icon: Globe,
       color: "from-green-500 to-green-600",
-      bgColor: "bg-blue-50",
-      iconColor: "text-blue-600",
-      link: "/dashboard/question-banks",
-      stats: [
-        { name: "البنوك", value: "1", icon: Database },
-        { name: "الأسئلة", value: "52", icon: FileText },
-      ],
-    },
-    {
-      id: "levels-system",
-      name: "Levels System",
-      description: "إدارة المستويات والوحدات والدروس التعليمية",
-      icon: Layers,
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50",
-      iconColor: "text-purple-600",
-      link: "/dashboard/levels",
-      stats: [
-        { name: "المستويات", value: "4", icon: Layers },
-        { name: "الوحدات", value: "12", icon: BookOpen },
-      ],
+      bgColor: "bg-green-50",
+      iconColor: "text-green-600",
+      link: "/dashboard/general",
     },
     {
       id: "ielts-system",
@@ -53,10 +35,6 @@ export default function Dashboard() {
       bgColor: "bg-orange-50",
       iconColor: "text-orange-600",
       link: "/dashboard/ielts",
-      stats: [
-        { name: "المهارات", value: "4", icon: Award },
-        { name: "Lesson Packs", value: "0", icon: BookOpen },
-      ],
     },
     {
       id: "step-system",
@@ -68,10 +46,6 @@ export default function Dashboard() {
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
       link: "/dashboard/step",
-      stats: [
-        { name: "المهارات", value: "4", icon: Award },
-        { name: "التقدم", value: "0%", icon: BarChart2 },
-      ],
     },
   ];
 
