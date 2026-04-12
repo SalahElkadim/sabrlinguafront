@@ -106,7 +106,7 @@ export default function GeneralSkillsList() {
             <h1 className="text-xl font-bold text-gray-900">
               {category?.name}
             </h1>
-            <p className="text-sm text-gray-500">{skills.length} مهارة</p>
+            <p className="text-sm text-gray-500">{skills.length} Skills</p>
           </div>
         </div>
         <button
@@ -118,7 +118,7 @@ export default function GeneralSkillsList() {
           className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium"
         >
           <Plus className="w-4 h-4" />
-          إضافة مهارة
+          Add Skill
         </button>
       </div>
 
@@ -126,7 +126,7 @@ export default function GeneralSkillsList() {
       {skills.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>لا توجد مهارات في هذه الكاتيجوري بعد</p>
+          <p>No skills in this category yet</p>
           <button
             onClick={() =>
               navigate(
@@ -136,7 +136,7 @@ export default function GeneralSkillsList() {
             className="mt-4 inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
           >
             <Plus className="w-4 h-4" />
-            أضف مهارة الآن
+            Add a skill now
           </button>
         </div>
       ) : (
@@ -194,10 +194,10 @@ export default function GeneralSkillsList() {
                     className="flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 text-sm font-medium"
                   >
                     <ChevronRight className="w-4 h-4" />
-                    إدارة الأسئلة
+                    Manage Questions
                   </button>
                   <span className="text-xs text-gray-400">
-                    {skill.total_questions || 0} سؤال
+                    {skill.total_questions || 0} Questions
                   </span>
                 </div>
               </div>
@@ -214,21 +214,21 @@ export default function GeneralSkillsList() {
               <Trash2 className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
-              حذف المهارة
+              Delete Skill
             </h3>
             <p className="text-gray-500 text-center text-sm mb-6">
-              هل أنت متأكد من حذف{" "}
+              Are you sure you want to delete{" "}
               <span className="font-semibold text-gray-700">
                 "{deleteModal.title}"
               </span>
-              ؟
+              ?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteModal(null)}
                 className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
               >
-                إلغاء
+                Cancel
               </button>
               <button
                 onClick={handleDelete}
@@ -236,7 +236,7 @@ export default function GeneralSkillsList() {
                 className="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
-                حذف
+                Delete
               </button>
             </div>
           </div>

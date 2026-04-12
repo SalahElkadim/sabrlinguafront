@@ -212,10 +212,10 @@ export default function GeneralSkillDetails() {
               className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
             >
               <Plus className="w-4 h-4" />
-              إضافة سؤال
+              Add Question
             </button>
             <span className="text-xs text-gray-400">
-              {passage.questions?.length || 0} سؤال
+              {passage.questions?.length || 0} Question
             </span>
           </div>
           {passage.questions?.length > 0 && (
@@ -280,10 +280,10 @@ export default function GeneralSkillDetails() {
               className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
             >
               <Plus className="w-4 h-4" />
-              إضافة سؤال
+              Add Question
             </button>
             <span className="text-xs text-gray-400">
-              {audio.questions?.length || 0} سؤال
+              {audio.questions?.length || 0} Question
             </span>
           </div>
         </div>
@@ -326,10 +326,10 @@ export default function GeneralSkillDetails() {
               className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
             >
               <Plus className="w-4 h-4" />
-              إضافة سؤال
+              Add Question
             </button>
             <span className="text-xs text-gray-400">
-              {video.questions?.length || 0} سؤال
+              {video.questions?.length || 0} Question
             </span>
           </div>
         </div>
@@ -356,7 +356,7 @@ export default function GeneralSkillDetails() {
               </p>
               <div className="flex gap-2 mt-2 justify-end">
                 <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                  {q.min_words} - {q.max_words} كلمة
+                  {q.min_words} - {q.max_words} words
                 </span>
                 <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
                   {q.difficulty}
@@ -392,7 +392,7 @@ export default function GeneralSkillDetails() {
           <div>
             <h1 className="text-xl font-bold text-gray-900">{skill?.title}</h1>
             <p className="text-sm text-gray-500">
-              {SKILL_TYPE_LABELS[skill?.skill_type]} • {questions.length} عنصر
+              {SKILL_TYPE_LABELS[skill?.skill_type]} • {questions.length} Items
             </p>
           </div>
         </div>
@@ -401,14 +401,14 @@ export default function GeneralSkillDetails() {
           className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium"
         >
           <Plus className="w-4 h-4" />
-          إضافة{" "}
+          Add{" "}
           {skill?.skill_type === "READING"
-            ? "قطعة"
+            ? "Passage"
             : skill?.skill_type === "LISTENING"
-            ? "تسجيل صوتي"
+            ? "Audio Recording"
             : skill?.skill_type === "SPEAKING"
-            ? "فيديو"
-            : "سؤال"}
+            ? "Video"
+            : "Question"}
         </button>
       </div>
 
@@ -416,7 +416,7 @@ export default function GeneralSkillDetails() {
       {questions.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
           <SkillIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>لا توجد أسئلة بعد</p>
+          <p>No questions yet</p>
         </div>
       ) : (
         <div className="space-y-3">{renderQuestions()}</div>
@@ -430,17 +430,18 @@ export default function GeneralSkillDetails() {
               <Trash2 className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
-              تأكيد الحذف
+              Confirm Deletion
             </h3>
             <p className="text-gray-500 text-center text-sm mb-6">
-              هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.
+              Are you sure you want to delete this item? This action cannot be
+              undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteModal(null)}
                 className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
               >
-                إلغاء
+                Cancel
               </button>
               <button
                 onClick={handleDeleteQuestion}
@@ -448,7 +449,7 @@ export default function GeneralSkillDetails() {
                 className="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
-                حذف
+                Delete
               </button>
             </div>
           </div>

@@ -13,28 +13,21 @@ export default function GeneralMain() {
 
   const cards = [
     {
-      title: "الكاتيجوريز",
-      description: "إدارة كاتيجوريز General English وإضافة محتوى جديد",
+      title: "Categories",
+      description: "Manage General English categories and add new content",
       icon: FolderOpen,
       href: "/dashboard/general/categories",
       color: "bg-emerald-50 text-emerald-700 border-emerald-200",
       iconBg: "bg-emerald-100",
     },
     {
-      title: "التوليد بالذكاء الاصطناعي",
-      description: "رفع كتب وميديا وتوليد أسئلة تلقائياً باستخدام AI",
+      title: "AI Generation",
+      description:
+        "Upload books and media, and generate questions automatically using AI",
       icon: Sparkles,
       href: "/dashboard/general/ai",
       color: "bg-violet-50 text-violet-700 border-violet-200",
       iconBg: "bg-violet-100",
-    },
-    {
-      title: "تقارير التقدم",
-      description: "متابعة تقدم الطلاب في كل كاتيجوري ومهارة",
-      icon: BarChart2,
-      href: "/dashboard/general/progress",
-      color: "bg-blue-50 text-blue-700 border-blue-200",
-      iconBg: "bg-blue-100",
     },
   ];
 
@@ -48,7 +41,7 @@ export default function GeneralMain() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">General English</h1>
           <p className="text-gray-500 text-sm mt-0.5">
-            إدارة محتوى General English الديناميكي
+            Manage dynamic General English content
           </p>
         </div>
       </div>
