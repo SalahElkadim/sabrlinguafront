@@ -57,13 +57,11 @@ const STATUS_COLORS = {
 export default function GeneralAIGeneration() {
   const navigate = useNavigate();
 
-  // Books & Media
   const [books, setBooks] = useState([]);
   const [media, setMedia] = useState([]);
   const [categories, setCategories] = useState([]);
   const [jobs, setJobs] = useState([]);
 
-  // Upload states
   const [uploadingBook, setUploadingBook] = useState(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const [bookName, setBookName] = useState("");
@@ -71,7 +69,6 @@ export default function GeneralAIGeneration() {
   const bookFileRef = useRef(null);
   const mediaFileRef = useRef(null);
 
-  // Generation form
   const [genForm, setGenForm] = useState({
     category_id: "",
     skill_type: "VOCABULARY",
@@ -88,11 +85,8 @@ export default function GeneralAIGeneration() {
   const [genError, setGenError] = useState("");
   const [genSuccess, setGenSuccess] = useState("");
 
-  // Polling
   const pollingRef = useRef(null);
-
-  // UI tabs
-  const [activeTab, setActiveTab] = useState("generate"); // generate | books | media | jobs
+  const [activeTab, setActiveTab] = useState("generate");
 
   useEffect(() => {
     fetchAll();
@@ -116,7 +110,6 @@ export default function GeneralAIGeneration() {
     }
   };
 
-  // Poll jobs that are still processing
   const startPolling = () => {
     clearInterval(pollingRef.current);
     pollingRef.current = setInterval(async () => {
@@ -130,7 +123,6 @@ export default function GeneralAIGeneration() {
     }, 4000);
   };
 
-  // Upload Book
   const handleUploadBook = async () => {
     const file = bookFileRef.current?.files[0];
     if (!bookName.trim() || !file) return;
@@ -150,7 +142,6 @@ export default function GeneralAIGeneration() {
     }
   };
 
-  // Upload Media
   const handleUploadMedia = async () => {
     const file = mediaFileRef.current?.files[0];
     if (!mediaName.trim() || !file) return;
@@ -170,7 +161,6 @@ export default function GeneralAIGeneration() {
     }
   };
 
-  // Toggle selection
   const toggleBook = (id) => {
     setGenForm((prev) => ({
       ...prev,
@@ -179,6 +169,7 @@ export default function GeneralAIGeneration() {
         : [...prev.book_ids, id],
     }));
   };
+
   const toggleMedia = (id) => {
     setGenForm((prev) => ({
       ...prev,
@@ -188,23 +179,22 @@ export default function GeneralAIGeneration() {
     }));
   };
 
-  // Generate
   const handleGenerate = async (e) => {
     e.preventDefault();
     if (!genForm.category_id) {
-      setGenError("اختر الكاتيجوري");
+      setGenError("Please select a category");
       return;
     }
     if (!genForm.skill_title.trim()) {
-      setGenError("عنوان المهارة مطلوب");
+      setGenError("Skill title is required");
       return;
     }
     if (genForm.book_ids.length === 0 && genForm.media_ids.length === 0) {
-      setGenError("اختر كتاباً أو ميديا واحدة على الأقل");
+      setGenError("Please select at least one book or media file");
       return;
     }
     if (genForm.no_easy + genForm.no_medium + genForm.no_hard === 0) {
-      setGenError("حدد عدد الأسئلة");
+      setGenError("Please specify the number of questions");
       return;
     }
     try {
@@ -218,7 +208,7 @@ export default function GeneralAIGeneration() {
         no_hard: parseInt(genForm.no_hard),
       });
       setGenSuccess(
-        "بدأ توليد المهارة والأسئلة! ستجد النتيجة في قائمة الـ Jobs."
+        "Skill and questions generation has started! You can find the result in the Jobs list."
       );
       setGenForm((prev) => ({
         ...prev,
@@ -235,7 +225,7 @@ export default function GeneralAIGeneration() {
       startPolling();
       setActiveTab("jobs");
     } catch (err) {
-      setGenError(err.response?.data?.error || "حدث خطأ");
+      setGenError(err.response?.data?.error || "An error occurred");
     } finally {
       setGenerating(false);
     }
@@ -258,11 +248,9 @@ export default function GeneralAIGeneration() {
           <Sparkles className="w-5 h-5 text-violet-700" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">
-            التوليد بالذكاء الاصطناعي
-          </h1>
+          <h1 className="text-xl font-bold text-gray-900">AI Generation</h1>
           <p className="text-sm text-gray-500">
-            رفع محتوى وتوليد أسئلة تلقائياً
+            Upload content and generate questions automatically
           </p>
         </div>
       </div>
@@ -270,10 +258,10 @@ export default function GeneralAIGeneration() {
       {/* Tabs */}
       <div className="flex gap-2 border-b border-gray-200">
         {[
-          { id: "generate", label: "توليد مهارة", icon: Sparkles },
-          { id: "books", label: `الكتب (${books.length})`, icon: FileText },
-          { id: "media", label: `الميديا (${media.length})`, icon: Headphones },
-          { id: "jobs", label: `الـ Jobs (${jobs.length})`, icon: RefreshCw },
+          { id: "generate", label: "Generate Skill", icon: Sparkles },
+          { id: "books", label: `Books (${books.length})`, icon: FileText },
+          { id: "media", label: `Media (${media.length})`, icon: Headphones },
+          { id: "jobs", label: `Jobs (${jobs.length})`, icon: RefreshCw },
         ].map((tab) => {
           const Icon = tab.icon;
           return (
@@ -311,12 +299,12 @@ export default function GeneralAIGeneration() {
             {/* Left: Skill Info */}
             <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
               <h3 className="font-bold text-gray-900 text-right">
-                بيانات المهارة
+                Skill Details
               </h3>
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700 text-right">
-                  الكاتيجوري <span className="text-red-500">*</span>
+                  Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={genForm.category_id}
@@ -325,7 +313,7 @@ export default function GeneralAIGeneration() {
                   }
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 text-right bg-white"
                 >
-                  <option value="">اختر الكاتيجوري</option>
+                  <option value="">Select a category</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -336,7 +324,7 @@ export default function GeneralAIGeneration() {
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700 text-right">
-                  نوع المهارة <span className="text-red-500">*</span>
+                  Skill Type <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {SKILL_TYPES.map((t) => (
@@ -360,7 +348,7 @@ export default function GeneralAIGeneration() {
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700 text-right">
-                  عنوان المهارة <span className="text-red-500">*</span>
+                  Skill Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -368,14 +356,14 @@ export default function GeneralAIGeneration() {
                   onChange={(e) =>
                     setGenForm({ ...genForm, skill_title: e.target.value })
                   }
-                  placeholder="مثال: Advanced Business Vocabulary"
+                  placeholder="e.g. Advanced Business Vocabulary"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 text-right"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700 text-right">
-                  الوصف (اختياري)
+                  Description (optional)
                 </label>
                 <textarea
                   value={genForm.skill_description}
@@ -393,17 +381,21 @@ export default function GeneralAIGeneration() {
               {/* Question counts */}
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700 text-right">
-                  عدد الأسئلة
+                  Number of Questions
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { key: "no_easy", label: "سهل", color: "text-emerald-600" },
+                    {
+                      key: "no_easy",
+                      label: "Easy",
+                      color: "text-emerald-600",
+                    },
                     {
                       key: "no_medium",
-                      label: "متوسط",
+                      label: "Medium",
                       color: "text-amber-600",
                     },
-                    { key: "no_hard", label: "صعب", color: "text-red-600" },
+                    { key: "no_hard", label: "Hard", color: "text-red-600" },
                   ].map(({ key, label, color }) => (
                     <div key={key} className="text-center">
                       <label className={`text-xs font-semibold ${color}`}>
@@ -425,14 +417,14 @@ export default function GeneralAIGeneration() {
                   ))}
                 </div>
                 <p className="text-xs text-gray-400 text-right">
-                  الإجمالي:{" "}
-                  {genForm.no_easy + genForm.no_medium + genForm.no_hard} سؤال
+                  Total: {genForm.no_easy + genForm.no_medium + genForm.no_hard}{" "}
+                  Questions
                 </p>
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700 text-right">
-                  ملاحظات إضافية للـ AI
+                  Additional Notes for AI
                 </label>
                 <textarea
                   value={genForm.additional_notes}
@@ -440,7 +432,7 @@ export default function GeneralAIGeneration() {
                     setGenForm({ ...genForm, additional_notes: e.target.value })
                   }
                   rows={2}
-                  placeholder="مثال: ركّز على المفردات المتعلقة بالتجارة..."
+                  placeholder="e.g. Focus on vocabulary related to business..."
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 text-right resize-none"
                 />
               </div>
@@ -451,18 +443,18 @@ export default function GeneralAIGeneration() {
               {/* Books */}
               <div className="bg-white rounded-2xl border border-gray-200 p-5">
                 <h3 className="font-bold text-gray-900 text-right mb-3 flex items-center justify-end gap-2">
-                  <span>الكتب ({readyBooks.length})</span>
+                  <span>Books ({readyBooks.length})</span>
                   <FileText className="w-4 h-4 text-gray-400" />
                 </h3>
                 {readyBooks.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">
-                    لا توجد كتب جاهزة.{" "}
+                    No books available.{" "}
                     <button
                       type="button"
                       onClick={() => setActiveTab("books")}
                       className="text-violet-600 underline"
                     >
-                      ارفع كتاب
+                      Upload a book
                     </button>
                   </p>
                 ) : (
@@ -487,7 +479,7 @@ export default function GeneralAIGeneration() {
                             {b.name}
                           </p>
                           <p className="text-xs text-gray-400">
-                            {b.page_count} صفحة
+                            {b.page_count} pages
                           </p>
                         </div>
                       </label>
@@ -499,18 +491,18 @@ export default function GeneralAIGeneration() {
               {/* Media */}
               <div className="bg-white rounded-2xl border border-gray-200 p-5">
                 <h3 className="font-bold text-gray-900 text-right mb-3 flex items-center justify-end gap-2">
-                  <span>الميديا ({readyMedia.length})</span>
+                  <span>Media ({readyMedia.length})</span>
                   <Headphones className="w-4 h-4 text-gray-400" />
                 </h3>
                 {readyMedia.length === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">
-                    لا توجد ميديا جاهزة.{" "}
+                    No media available.{" "}
                     <button
                       type="button"
                       onClick={() => setActiveTab("media")}
                       className="text-violet-600 underline"
                     >
-                      ارفع ميديا
+                      Upload media
                     </button>
                   </p>
                 ) : (
@@ -556,7 +548,9 @@ export default function GeneralAIGeneration() {
             ) : (
               <Sparkles className="w-5 h-5" />
             )}
-            {generating ? "جاري التوليد..." : "توليد المهارة والأسئلة بالـ AI"}
+            {generating
+              ? "Generating..."
+              : "Generate Skill & Questions with AI"}
           </button>
         </form>
       )}
@@ -564,17 +558,16 @@ export default function GeneralAIGeneration() {
       {/* =============== TAB: BOOKS =============== */}
       {activeTab === "books" && (
         <div className="space-y-5">
-          {/* Upload */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
             <h3 className="font-bold text-gray-900 text-right">
-              رفع كتاب PDF جديد
+              Upload New PDF Book
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <input
                 type="text"
                 value={bookName}
                 onChange={(e) => setBookName(e.target.value)}
-                placeholder="اسم الكتاب"
+                placeholder="Book name"
                 className="px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 text-right"
               />
               <input
@@ -593,17 +586,16 @@ export default function GeneralAIGeneration() {
                 ) : (
                   <Upload className="w-4 h-4" />
                 )}
-                رفع الكتاب
+                Upload Book
               </button>
             </div>
           </div>
 
-          {/* List */}
           <div className="space-y-3">
             {books.length === 0 ? (
               <div className="text-center py-12 text-gray-400">
                 <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>لا توجد كتب مرفوعة بعد</p>
+                <p>No books uploaded yet</p>
               </div>
             ) : (
               books.map((b) => (
@@ -620,7 +612,9 @@ export default function GeneralAIGeneration() {
                   </span>
                   <div className="text-right">
                     <p className="font-medium text-gray-900">{b.name}</p>
-                    <p className="text-xs text-gray-400">{b.page_count} صفحة</p>
+                    <p className="text-xs text-gray-400">
+                      {b.page_count} pages
+                    </p>
                   </div>
                   <FileText className="w-8 h-8 text-gray-300" />
                 </div>
@@ -635,17 +629,17 @@ export default function GeneralAIGeneration() {
         <div className="space-y-5">
           <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
             <h3 className="font-bold text-gray-900 text-right">
-              رفع ميديا جديدة
+              Upload New Media
             </h3>
             <p className="text-xs text-gray-400 text-right">
-              يدعم: mp4, mov, avi (فيديو) • mp3, wav, m4a (صوت)
+              Supported: mp4, mov, avi (video) • mp3, wav, m4a (audio)
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <input
                 type="text"
                 value={mediaName}
                 onChange={(e) => setMediaName(e.target.value)}
-                placeholder="اسم الميديا"
+                placeholder="Media name"
                 className="px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 text-right"
               />
               <input
@@ -664,7 +658,7 @@ export default function GeneralAIGeneration() {
                 ) : (
                   <Upload className="w-4 h-4" />
                 )}
-                رفع الميديا
+                Upload Media
               </button>
             </div>
           </div>
@@ -672,7 +666,7 @@ export default function GeneralAIGeneration() {
             {media.length === 0 ? (
               <div className="text-center py-12 text-gray-400">
                 <Headphones className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p>لا توجد ميديا مرفوعة بعد</p>
+                <p>No media uploaded yet</p>
               </div>
             ) : (
               media.map((m) => (
@@ -709,14 +703,14 @@ export default function GeneralAIGeneration() {
               onClick={fetchAll}
               className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"
             >
-              <RefreshCw className="w-4 h-4" /> تحديث
+              <RefreshCw className="w-4 h-4" /> Refresh
             </button>
-            <h3 className="font-bold text-gray-900 text-right">سجل الـ Jobs</h3>
+            <h3 className="font-bold text-gray-900 text-right">Jobs Log</h3>
           </div>
           {jobs.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <Clock className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>لا توجد jobs بعد</p>
+              <p>No jobs yet</p>
             </div>
           ) : (
             jobs.map((job) => (
@@ -743,7 +737,7 @@ export default function GeneralAIGeneration() {
                         }
                         className="text-xs text-emerald-600 hover:underline"
                       >
-                        عرض المهارة
+                        View Skill
                       </button>
                     )}
                   </div>
@@ -754,7 +748,7 @@ export default function GeneralAIGeneration() {
                     <p className="text-xs text-gray-400">
                       {job.category_name} • {job.skill_type} •{" "}
                       {job.questions_created}/{job.total_questions_requested}{" "}
-                      سؤال
+                      Questions
                     </p>
                   </div>
                   <FolderOpen className="w-8 h-8 text-gray-200" />
