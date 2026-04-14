@@ -1,4 +1,4 @@
-// src/pages/esp/CreateEspSkill.jsx
+// src/pages/esp/CreateespSkill.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BookOpen, Save, ArrowRight, Loader2 } from "lucide-react";
@@ -12,8 +12,27 @@ const SKILL_TYPES = [
   { value: "SPEAKING", label: "Speaking" },
   { value: "WRITING", label: "Writing" },
 ];
-
-export default function CreateEspSkill() {
+const ORDER_TYPES = [
+  {
+    value: "SEQUENTIAL",
+    label: "تسلسلي",
+    desc: "سهل ← متوسط ← صعب",
+    icon: "→",
+  },
+  {
+    value: "CYCLIC",
+    label: "دوري",
+    desc: "3 سهل، 3 متوسط، 3 صعب، تكرار",
+    icon: "↻",
+  },
+  {
+    value: "RANDOM",
+    label: "عشوائي",
+    desc: "يتغير مع كل جلسة",
+    icon: "⁂",
+  },
+];
+export default function CreateespSkill() {
   const navigate = useNavigate();
   const { categoryId, skillId } = useParams();
   const isEdit = Boolean(skillId);
@@ -21,6 +40,7 @@ export default function CreateEspSkill() {
   const [form, setForm] = useState({
     title: "",
     skill_type: "VOCABULARY",
+    question_order_type: "SEQUENTIAL",
     description: "",
     order: 0,
     is_active: true,
@@ -173,7 +193,31 @@ export default function CreateEspSkill() {
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-right"
           />
         </div>
-
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 text-right">
+            طريقة ترتيب الأسئلة
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {ORDER_TYPES.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() =>
+                  setForm({ ...form, question_order_type: t.value })
+                }
+                className={`p-3 rounded-xl border text-center transition-all ${
+                  form.question_order_type === t.value
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-800"
+                    : "border-gray-200 hover:border-gray-300 text-gray-600"
+                }`}
+              >
+                <div className="text-xl mb-1">{t.icon}</div>
+                <div className="text-xs font-medium">{t.label}</div>
+                <div className="text-xs text-gray-400 mt-0.5">{t.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
         {/* is_active toggle */}
         <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
           <div className="text-right">
