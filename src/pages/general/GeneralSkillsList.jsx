@@ -41,12 +41,9 @@ export default function GeneralSkillsList() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [catData, skillsData] = await Promise.all([
-        generalCategoriesAPI.getById(categoryId),
-        generalSkillsAPI.getByCategory(categoryId),
-      ]);
-      setCategory(catData);
-      setSkills(skillsData.skills || []);
+      const data = await generalSkillsAPI.getByCategory(categoryId);
+      setCategory(data.category); // ← { id: 1, name: "Medical Test" }
+      setSkills(data.skills || []); // ← [...]
     } catch (err) {
       console.error(err);
     } finally {

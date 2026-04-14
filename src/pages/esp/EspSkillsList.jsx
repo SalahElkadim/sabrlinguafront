@@ -41,12 +41,9 @@ export default function EspSkillsList() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [catData, skillsData] = await Promise.all([
-        espCategoriesAPI.getById(categoryId),
-        espSkillsAPI.getByCategory(categoryId),
-      ]);
-      setCategory(catData);
-      setSkills(skillsData.skills || []);
+      const data = await espSkillsAPI.getByCategory(categoryId);
+      setCategory(data.category); // ← { id: 1, name: "Medical Test" }
+      setSkills(data.skills || []); // ← [...]
     } catch (err) {
       console.error(err);
     } finally {
