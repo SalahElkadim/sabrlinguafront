@@ -10,6 +10,11 @@ const SKILL_TYPES = [
   { value: "READING", label: "Reading" },
   { value: "WRITING", label: "Writing" },
 ];
+const ORDER_TYPES = [
+  { value: "SEQUENTIAL", label: "تسلسلي (سهل → متوسط → صعب)" },
+  { value: "CYCLIC", label: "دوري (3 سهل، 3 متوسط، 3 صعب، تكرار)" },
+  { value: "RANDOM", label: "عشوائي" },
+];
 
 export default function EditSTEPSkill() {
   const { skillId } = useParams();
@@ -24,6 +29,7 @@ export default function EditSTEPSkill() {
     description: "",
     order: 0,
     is_active: true,
+    question_order_type: "SEQUENTIAL",
   });
 
   useEffect(() => {
@@ -36,6 +42,7 @@ export default function EditSTEPSkill() {
           description: data.description || "",
           order: data.order || 0,
           is_active: data.is_active ?? true,
+          question_order_type: data.question_order_type || "SEQUENTIAL",
         });
       } catch (e) {
         console.error(e);
@@ -178,7 +185,37 @@ export default function EditSTEPSkill() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
+            الترتيب
+          </label>
+          <input
+            type="number"
+            value={form.order}
+            onChange={(e) =>
+              setForm({ ...form, order: parseInt(e.target.value) || 0 })
+            }
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
+            طريقة ترتيب الأسئلة
+          </label>
+          <select
+            value={form.question_order_type}
+            onChange={(e) =>
+              setForm({ ...form, question_order_type: e.target.value })
+            }
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right bg-white"
+          >
+            {ORDER_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
         {/* Active */}
         <div className="flex items-center gap-3">
           <input
