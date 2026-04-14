@@ -24,6 +24,7 @@ export default function CreateEspSkill() {
     description: "",
     order: 0,
     is_active: true,
+    category: categoryId,
   });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
@@ -42,6 +43,7 @@ export default function CreateEspSkill() {
         description: data.description || "",
         order: data.order || 0,
         is_active: data.is_active ?? true,
+        category: data.category || categoryId,
       });
     } catch (err) {
       console.error(err);
