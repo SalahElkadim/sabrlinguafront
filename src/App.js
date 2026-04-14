@@ -109,6 +109,25 @@ import AddSpeakingQuestionsToGeneral from "./pages/general/AddSpeakingQuestionsT
 import AddWritingToGeneral from "./pages/general/AddWritingToGeneral";
 import GeneralAIGeneration from "./pages/general/GeneralAIGeneration";
 
+// ============================================
+// ESP ENGLISH Routes
+// ============================================
+import EspMain from "./pages/esp/EspMain";
+import EspCategoriesList from "./pages/esp/EspCategoriesList";
+import CreateEspCategory from "./pages/esp/CreateEspCategory";
+import EspSkillsList from "./pages/esp/EspSkillsList";
+import CreateEspSkill from "./pages/esp/CreateEspSkill";
+import EspSkillDetails from "./pages/esp/EspSkillDetails";
+import AddMCQToEsp from "./pages/esp/AddMCQToEsp";
+import AddReadingToEsp from "./pages/esp/AddReadingToEsp";
+import AddReadingQuestionsToEsp from "./pages/esp/AddReadingQuestionsToEsp";
+import AddListeningToEsp from "./pages/esp/AddListeningToEsp";
+import AddListeningQuestionsToEsp from "./pages/esp/AddListeningQuestionsToEsp";
+import AddSpeakingToEsp from "./pages/esp/AddSpeakingToEsp";
+import AddSpeakingQuestionsToEsp from "./pages/esp/AddSpeakingQuestionsToEsp";
+import AddWritingToEsp from "./pages/esp/AddWritingToEsp";
+import EspAIGeneration from "./pages/esp/EspAIGeneration";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -411,6 +430,87 @@ function App() {
 
           {/* AI Generation */}
           <Route path="general/ai" element={<GeneralAIGeneration />} />
+
+          {/* ============================================ */}
+          {/* ESP ENGLISH ROUTES */}
+          {/* ============================================ */}
+          <Route path="esp" element={<EspMain />} />
+
+          {/* Categories */}
+          <Route path="esp/categories" element={<EspCategoriesList />} />
+          <Route path="esp/categories/create" element={<CreateEspCategory />} />
+          <Route
+            path="esp/categories/:categoryId/edit"
+            element={<CreateEspCategory />}
+          />
+
+          {/* Skills */}
+          <Route
+            path="esp/categories/:categoryId/skills"
+            element={<EspSkillsList />}
+          />
+          <Route
+            path="esp/categories/:categoryId/skills/create"
+            element={<CreateEspSkill />}
+          />
+          <Route
+            path="esp/categories/:categoryId/skills/:skillId/edit"
+            element={<CreateEspSkill />}
+          />
+
+          {/* Skill Details */}
+          <Route path="esp/skills/:skillId" element={<EspSkillDetails />} />
+
+          {/* Vocabulary */}
+          <Route
+            path="esp/skills/:skillId/add/vocabulary"
+            element={<AddMCQToEsp questionType="VOCABULARY" />}
+          />
+
+          {/* Grammar */}
+          <Route
+            path="esp/skills/:skillId/add/grammar"
+            element={<AddMCQToEsp questionType="GRAMMAR" />}
+          />
+
+          {/* Reading */}
+          <Route
+            path="esp/skills/:skillId/add/reading/passage"
+            element={<AddReadingToEsp />}
+          />
+          <Route
+            path="esp/skills/:skillId/add/reading/passage/:passageId/questions"
+            element={<AddReadingQuestionsToEsp />}
+          />
+
+          {/* Listening */}
+          <Route
+            path="esp/skills/:skillId/add/listening/audio"
+            element={<AddListeningToEsp />}
+          />
+          <Route
+            path="esp/skills/:skillId/add/listening/audio/:audioId/questions"
+            element={<AddListeningQuestionsToEsp />}
+          />
+
+          {/* Speaking */}
+          <Route
+            path="esp/skills/:skillId/add/speaking/video"
+            element={<AddSpeakingToEsp />}
+          />
+          <Route
+            path="esp/skills/:skillId/add/speaking/video/:videoId/questions"
+            element={<AddSpeakingQuestionsToEsp />}
+          />
+
+          {/* Writing */}
+          <Route
+            path="esp/skills/:skillId/add/writing"
+            element={<AddWritingToEsp />}
+          />
+
+          {/* AI Generation */}
+          <Route path="esp/ai" element={<EspAIGeneration />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
