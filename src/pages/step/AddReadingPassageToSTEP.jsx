@@ -38,7 +38,9 @@ export default function AddReadingPassageToSTEP() {
         `/dashboard/step/skills/${skillId}/add/reading/passage/${res.passage.id}/questions`
       );
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
+      setErrors(
+        err.response?.data || { general: "An error occurred, please try again" }
+      );
     } finally {
       setLoading(false);
     }
@@ -54,9 +56,11 @@ export default function AddReadingPassageToSTEP() {
           <ArrowRight className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">إضافة قطعة قراءة</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Add Reading Passage
+          </h1>
           <p className="text-gray-500 text-sm">
-            أضف قطعة ثم ستنتقل لإضافة أسئلتها
+            Add a passage, then you'll be taken to add its questions
           </p>
         </div>
       </div>
@@ -65,7 +69,7 @@ export default function AddReadingPassageToSTEP() {
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            عنوان القطعة <span className="text-red-500">*</span>
+            Passage Title <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -73,7 +77,7 @@ export default function AddReadingPassageToSTEP() {
             value={form.title}
             onChange={handleChange}
             required
-            placeholder="مثال: Climate Change and Its Effects"
+            placeholder="Example: Climate Change and Its Effects"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
           {errors.title && (
@@ -84,7 +88,7 @@ export default function AddReadingPassageToSTEP() {
         {/* Passage Text */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            نص القطعة <span className="text-red-500">*</span>
+            Passage Text <span className="text-red-500">*</span>
           </label>
           <textarea
             name="passage_text"
@@ -92,7 +96,7 @@ export default function AddReadingPassageToSTEP() {
             onChange={handleChange}
             required
             rows={8}
-            placeholder="أدخل نص القطعة الكاملة هنا..."
+            placeholder="Enter the full passage text here..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none leading-relaxed"
           />
           {errors.passage_text && (
@@ -103,14 +107,14 @@ export default function AddReadingPassageToSTEP() {
         {/* Source */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            المصدر (اختياري)
+            Source (Optional)
           </label>
           <input
             type="text"
             name="source"
             value={form.source}
             onChange={handleChange}
-            placeholder="مثال: National Geographic, 2023"
+            placeholder="Example: National Geographic, 2023"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           />
         </div>
@@ -118,7 +122,7 @@ export default function AddReadingPassageToSTEP() {
         {/* Difficulty */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            مستوى الصعوبة
+            Difficulty Level
           </label>
           <select
             name="difficulty"
@@ -126,9 +130,9 @@ export default function AddReadingPassageToSTEP() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
-            <option value="EASY">سهل</option>
-            <option value="MEDIUM">متوسط</option>
-            <option value="HARD">صعب</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
           </select>
         </div>
 
@@ -146,7 +150,7 @@ export default function AddReadingPassageToSTEP() {
             htmlFor="is_active"
             className="text-sm font-medium text-gray-700"
           >
-            نشط
+            Active
           </label>
         </div>
 
@@ -157,7 +161,8 @@ export default function AddReadingPassageToSTEP() {
         )}
 
         <div className="bg-orange-50 rounded-lg p-3 text-sm text-orange-700">
-          💡 بعد حفظ القطعة ستنتقل تلقائياً لإضافة أسئلة عليها
+          💡 After saving the passage, you'll be automatically redirected to add
+          questions for it
         </div>
 
         <button
@@ -166,7 +171,7 @@ export default function AddReadingPassageToSTEP() {
           className="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white py-3 rounded-lg font-medium transition-colors"
         >
           <Save className="w-5 h-5" />
-          {loading ? "جاري الحفظ..." : "حفظ القطعة والمتابعة"}
+          {loading ? "Saving..." : "Save Passage & Continue"}
         </button>
       </form>
     </div>

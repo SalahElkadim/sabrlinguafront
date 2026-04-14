@@ -40,12 +40,12 @@ export default function AddSpeakingVideoToSTEP() {
     if (!file) return;
 
     if (!file.type.startsWith("video/")) {
-      setError("الرجاء اختيار ملف فيديو فقط");
+      setError("please choose video file only");
       return;
     }
 
     if (file.size > 200 * 1024 * 1024) {
-      setError("حجم الملف يجب أن يكون أقل من 200 ميجابايت");
+      setError("video file must be less than 200MB");
       return;
     }
 
@@ -78,10 +78,10 @@ export default function AddSpeakingVideoToSTEP() {
             : prev.duration,
         }));
       } else {
-        throw new Error("لم يتم الحصول على رابط الملف");
+        throw new Error("file link can't be reach");
       }
     } catch (err) {
-      setError(`حدث خطأ في رفع الملف: ${err.message}`);
+      setError(`error occured: ${err.message}`);
     } finally {
       setUploadingVideo(false);
     }
@@ -89,8 +89,8 @@ export default function AddSpeakingVideoToSTEP() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim()) return setError("عنوان الفيديو مطلوب");
-    if (!form.video_file.trim()) return setError("يرجى رفع ملف فيديو أولاً");
+    if (!form.title.trim()) return setError("video title is required");
+    if (!form.video_file.trim()) return setError("please upload video file at first");
 
     setLoading(true);
     try {
@@ -105,7 +105,7 @@ export default function AddSpeakingVideoToSTEP() {
         `/dashboard/step/skills/${skillId}/add/speaking/video/${videoId}/questions`
       );
     } catch (err) {
-      setError(err?.response?.data?.error || "حدث خطأ، يرجى المحاولة مرة أخرى");
+      setError(err?.response?.data?.error || "error occured please try again");
     } finally {
       setLoading(false);
     }
@@ -145,7 +145,7 @@ export default function AddSpeakingVideoToSTEP() {
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              عنوان الفيديو <span className="text-red-500">*</span>
+            video title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -160,7 +160,7 @@ export default function AddSpeakingVideoToSTEP() {
           {/* Video File Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              ملف الفيديو <span className="text-red-500">*</span>
+            video file<span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-3">
               <label
@@ -176,7 +176,7 @@ export default function AddSpeakingVideoToSTEP() {
                 ) : (
                   <Upload className="w-4 h-4" />
                 )}
-                {uploadingVideo ? "جاري الرفع..." : "رفع ملف فيديو"}
+                {uploadingVideo ? "uploading..." : "uploading video file"}
                 <input
                   type="file"
                   accept="video/*"
@@ -188,7 +188,7 @@ export default function AddSpeakingVideoToSTEP() {
               {videoUrl && (
                 <span className="text-sm text-green-600 flex items-center gap-1">
                   <CheckCircle className="w-4 h-4" />
-                  تم رفع الملف بنجاح
+                  video file uploaded successfully
                 </span>
               )}
             </div>
@@ -200,7 +200,7 @@ export default function AddSpeakingVideoToSTEP() {
                   className="w-full rounded-lg"
                   src={videoPreview}
                 >
-                  المتصفح لا يدعم تشغيل الفيديو
+                  Browser doesn't support video file
                 </video>
               </div>
             )}
@@ -209,7 +209,7 @@ export default function AddSpeakingVideoToSTEP() {
           {/* Duration */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              مدة الفيديو (بالثواني)
+              video duration (By seconds)
             </label>
             <input
               type="number"
@@ -225,13 +225,13 @@ export default function AddSpeakingVideoToSTEP() {
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              وصف الفيديو (اختياري)
+              video description (optional)
             </label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
-              placeholder="اكتب وصفاً مختصراً للفيديو..."
+              placeholder="write description here..."
               rows={3}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none"
             />
@@ -240,7 +240,7 @@ export default function AddSpeakingVideoToSTEP() {
           {/* Difficulty */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              مستوى الصعوبة
+              difficulty
             </label>
             <select
               name="difficulty"
@@ -248,9 +248,9 @@ export default function AddSpeakingVideoToSTEP() {
               onChange={handleChange}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
             >
-              <option value="EASY">سهل</option>
-              <option value="MEDIUM">متوسط</option>
-              <option value="HARD">صعب</option>
+              <option value="EASY">Easy</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HARD">Hard</option>
             </select>
           </div>
 
@@ -262,13 +262,13 @@ export default function AddSpeakingVideoToSTEP() {
               className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white py-3 rounded-lg font-medium transition-colors"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              حفظ والانتقال لإضافة الأسئلة
+              save and move to another question
             </button>
             <Link
               to={`/dashboard/step/skills/${skillId}`}
               className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
             >
-              إلغاء
+              Cancel
             </Link>
           </div>
         </form>

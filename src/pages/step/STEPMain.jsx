@@ -17,7 +17,7 @@ export default function STEPMain() {
       id: "skills",
       name: "STEP Skills",
       description:
-        "إدارة مهارات STEP (Vocabulary, Grammar, Reading, Listening, Speaking, Writing)",
+        "Manage STEP skills (Vocabulary, Grammar, Reading, Listening, Speaking, Writing)",
       icon: BookOpen,
       color: "from-blue-500 to-blue-600",
       bgColor: "bg-blue-50",
@@ -26,15 +26,15 @@ export default function STEPMain() {
     },
     {
       id: "ai",
-      name: "توليد بالذكاء الاصطناعي",
+      name: "AI Generation",
       description:
-        "ارفع كتباً أو ملفات صوت/فيديو وولّد أسئلة STEP تلقائياً بالـ AI",
+        "Upload books or audio/video files and automatically generate STEP questions using AI",
       icon: Sparkles,
       color: "from-violet-500 to-indigo-600",
       bgColor: "bg-violet-50",
       iconColor: "text-violet-600",
       link: "/dashboard/step/ai",
-      badge: "جديد ✨",
+      badge: "New ✨",
     },
   ];
 
@@ -84,7 +84,7 @@ export default function STEPMain() {
         <div>
           <h1 className="text-3xl font-bold mb-2">STEP System</h1>
           <p className="text-blue-100">
-            إدارة منظومة اختبار STEP - المهارات والأسئلة
+            Manage the STEP test system — skills and questions
           </p>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function STEPMain() {
       {/* Skill Types Overview */}
       <div className="card">
         <h2 className="text-lg font-bold text-gray-900 mb-4">
-          المهارات المتاحة
+          Available Skills
         </h2>
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
           {skillCards.map((skill) => {
@@ -150,10 +150,8 @@ export default function STEPMain() {
                 </div>
               </div>
               <div className="flex items-center justify-between text-sm pt-2">
-                <span className="text-gray-600">اضغط للدخول</span>
-                <span className={`${section.iconColor} font-medium`}>
-                  الذهاب →
-                </span>
+                <span className="text-gray-600">Click to enter</span>
+                <span className={`${section.iconColor} font-medium`}>Go →</span>
               </div>
             </Link>
           );

@@ -40,12 +40,12 @@ export default function AddListeningAudioToSTEP() {
     if (!file) return;
 
     if (!file.type.startsWith("audio/")) {
-      setError("الرجاء اختيار ملف صوتي فقط");
+      setError("Please select an audio file only");
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      setError("حجم الملف يجب أن يكون أقل من 50 ميجابايت");
+      setError("File size must be less than 50 MB");
       return;
     }
 
@@ -78,10 +78,10 @@ export default function AddListeningAudioToSTEP() {
             : prev.duration,
         }));
       } else {
-        throw new Error("لم يتم الحصول على رابط الملف");
+        throw new Error("Failed to retrieve file URL");
       }
     } catch (err) {
-      setError(`حدث خطأ في رفع الملف: ${err.message}`);
+      setError(`An error occurred while uploading the file: ${err.message}`);
     } finally {
       setUploadingAudio(false);
     }
@@ -89,8 +89,9 @@ export default function AddListeningAudioToSTEP() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim()) return setError("عنوان التسجيل مطلوب");
-    if (!form.audio_file.trim()) return setError("يرجى رفع ملف صوتي أولاً");
+    if (!form.title.trim()) return setError("Recording title is required");
+    if (!form.audio_file.trim())
+      return setError("Please upload an audio file first");
 
     setLoading(true);
     try {
@@ -105,7 +106,9 @@ export default function AddListeningAudioToSTEP() {
         `/dashboard/step/skills/${skillId}/add/listening/audio/${audioId}/questions`
       );
     } catch (err) {
-      setError(err?.response?.data?.error || "حدث خطأ، يرجى المحاولة مرة أخرى");
+      setError(
+        err?.response?.data?.error || "An error occurred, please try again"
+      );
     } finally {
       setLoading(false);
     }
@@ -125,13 +128,15 @@ export default function AddListeningAudioToSTEP() {
           <Headphones className="w-6 h-6 text-cyan-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">إضافة تسجيل صوتي</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Add Audio Recording
+          </h1>
           <p className="text-sm text-cyan-600 font-medium">STEP — Listening</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="card" dir="rtl">
+      <div className="card">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -143,14 +148,14 @@ export default function AddListeningAudioToSTEP() {
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              عنوان التسجيل <span className="text-red-500">*</span>
+              Recording Title <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               name="title"
               value={form.title}
               onChange={handleChange}
-              placeholder="مثال: Conversation at the airport"
+              placeholder="Example: Conversation at the airport"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
@@ -158,7 +163,7 @@ export default function AddListeningAudioToSTEP() {
           {/* Audio File Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              ملف الصوت <span className="text-red-500">*</span>
+              Audio File <span className="text-red-500">*</span>
             </label>
             <div className="flex items-center gap-3">
               <label
@@ -174,7 +179,7 @@ export default function AddListeningAudioToSTEP() {
                 ) : (
                   <Upload className="w-4 h-4" />
                 )}
-                {uploadingAudio ? "جاري الرفع..." : "رفع ملف صوتي"}
+                {uploadingAudio ? "Uploading..." : "Upload Audio File"}
                 <input
                   type="file"
                   accept="audio/*"
@@ -186,7 +191,7 @@ export default function AddListeningAudioToSTEP() {
               {audioUrl && (
                 <span className="text-sm text-green-600 flex items-center gap-1">
                   <CheckCircle className="w-4 h-4" />
-                  تم رفع الملف بنجاح
+                  File uploaded successfully
                 </span>
               )}
             </div>
@@ -194,7 +199,7 @@ export default function AddListeningAudioToSTEP() {
             {audioPreview && (
               <div className="mt-3">
                 <audio controls className="w-full" src={audioPreview}>
-                  المتصفح لا يدعم تشغيل الملفات الصوتية
+                  Your browser does not support audio playback
                 </audio>
               </div>
             )}
@@ -203,7 +208,7 @@ export default function AddListeningAudioToSTEP() {
           {/* Duration */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              مدة التسجيل (بالثواني)
+              Recording Duration (in seconds)
             </label>
             <input
               type="number"
@@ -219,13 +224,13 @@ export default function AddListeningAudioToSTEP() {
           {/* Transcript */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              نص التسجيل (Transcript)
+              Transcript
             </label>
             <textarea
               name="transcript"
               value={form.transcript}
               onChange={handleChange}
-              placeholder="اكتب نص التسجيل الصوتي هنا..."
+              placeholder="Write the audio transcript here..."
               rows={5}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
             />
@@ -234,7 +239,7 @@ export default function AddListeningAudioToSTEP() {
           {/* Difficulty */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              مستوى الصعوبة
+              Difficulty Level
             </label>
             <select
               name="difficulty"
@@ -242,9 +247,9 @@ export default function AddListeningAudioToSTEP() {
               onChange={handleChange}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
             >
-              <option value="EASY">سهل</option>
-              <option value="MEDIUM">متوسط</option>
-              <option value="HARD">صعب</option>
+              <option value="EASY">Easy</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HARD">Hard</option>
             </select>
           </div>
 
@@ -256,13 +261,13 @@ export default function AddListeningAudioToSTEP() {
               className="flex-1 flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 text-white py-3 rounded-lg font-medium transition-colors"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              حفظ والانتقال لإضافة الأسئلة
+              Save & Proceed to Add Questions
             </button>
             <Link
               to={`/dashboard/step/skills/${skillId}`}
               className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-lg font-medium transition-colors"
             >
-              إلغاء
+              Cancel
             </Link>
           </div>
         </form>

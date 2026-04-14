@@ -31,45 +31,45 @@ const skillTypeConfig = {
     icon: Volume2,
     color: "text-blue-600",
     bg: "bg-blue-50",
-    addLabel: "إضافة سؤال",
+    addLabel: "Add Question",
   },
   GRAMMAR: {
     label: "Grammar",
     icon: PenTool,
     color: "text-purple-600",
     bg: "bg-purple-50",
-    addLabel: "إضافة سؤال",
+    addLabel: "Add Question",
   },
   READING: {
     label: "Reading",
     icon: BookOpen,
     color: "text-orange-600",
     bg: "bg-orange-50",
-    addLabel: "إضافة قطعة قراءة",
+    addLabel: "Add Reading Passage",
   },
   LISTENING: {
     label: "Listening",
     icon: Headphones,
     color: "text-cyan-600",
     bg: "bg-cyan-50",
-    addLabel: "إضافة تسجيل صوتي",
+    addLabel: "Add Audio Recording",
   },
   SPEAKING: {
     label: "Speaking",
     icon: Video,
     color: "text-rose-600",
     bg: "bg-rose-50",
-    addLabel: "إضافة فيديو",
+    addLabel: "Add Video",
   },
   WRITING: {
     label: "Writing",
     icon: FileText,
     color: "text-green-600",
     bg: "bg-green-50",
-    addLabel: "إضافة سؤال",
+    addLabel: "Add Question",
   },
   GENERAL_PATH: {
-    label: "المسار العام",
+    label: "General Path",
     icon: GitBranch,
     color: "text-indigo-600",
     bg: "bg-indigo-50",
@@ -77,7 +77,7 @@ const skillTypeConfig = {
   },
 };
 
-// الـ sections جوّا المسار العام
+// Sections inside the General Path
 const GENERAL_PATH_SECTIONS = [
   {
     type: "VOCABULARY",
@@ -88,7 +88,7 @@ const GENERAL_PATH_SECTIONS = [
     border: "border-blue-200",
     headerBg: "bg-blue-50",
     btnColor: "bg-blue-500 hover:bg-blue-600",
-    addLabel: "إضافة سؤال Vocabulary",
+    addLabel: "Add Vocabulary Question",
     addRoute: (skillId) => `/dashboard/step/skills/${skillId}/add/vocabulary`,
   },
   {
@@ -100,7 +100,7 @@ const GENERAL_PATH_SECTIONS = [
     border: "border-purple-200",
     headerBg: "bg-purple-50",
     btnColor: "bg-purple-500 hover:bg-purple-600",
-    addLabel: "إضافة سؤال Grammar",
+    addLabel: "Add Grammar Question",
     addRoute: (skillId) => `/dashboard/step/skills/${skillId}/add/grammar`,
   },
   {
@@ -112,7 +112,7 @@ const GENERAL_PATH_SECTIONS = [
     border: "border-orange-200",
     headerBg: "bg-orange-50",
     btnColor: "bg-orange-500 hover:bg-orange-600",
-    addLabel: "إضافة قطعة Reading",
+    addLabel: "Add Reading Passage",
     addRoute: (skillId) =>
       `/dashboard/step/skills/${skillId}/add/reading/passage`,
   },
@@ -125,7 +125,7 @@ const GENERAL_PATH_SECTIONS = [
     border: "border-cyan-200",
     headerBg: "bg-cyan-50",
     btnColor: "bg-cyan-500 hover:bg-cyan-600",
-    addLabel: "إضافة تسجيل Listening",
+    addLabel: "Add Listening Recording",
     addRoute: (skillId) =>
       `/dashboard/step/skills/${skillId}/add/listening/audio`,
   },
@@ -138,7 +138,7 @@ const GENERAL_PATH_SECTIONS = [
     border: "border-rose-200",
     headerBg: "bg-rose-50",
     btnColor: "bg-rose-500 hover:bg-rose-600",
-    addLabel: "إضافة فيديو Speaking",
+    addLabel: "Add Speaking Video",
     addRoute: (skillId) =>
       `/dashboard/step/skills/${skillId}/add/speaking/video`,
   },
@@ -155,9 +155,9 @@ const addRouteMap = (skillId, skillType) =>
   }[skillType]);
 
 const difficultyBadge = {
-  EASY: { label: "سهل", color: "bg-green-100 text-green-700" },
-  MEDIUM: { label: "متوسط", color: "bg-yellow-100 text-yellow-700" },
-  HARD: { label: "صعب", color: "bg-red-100 text-red-700" },
+  EASY: { label: "Easy", color: "bg-green-100 text-green-700" },
+  MEDIUM: { label: "Medium", color: "bg-yellow-100 text-yellow-700" },
+  HARD: { label: "Hard", color: "bg-red-100 text-red-700" },
 };
 
 // ============================================
@@ -171,7 +171,7 @@ function ConfirmDeleteModal({ message, onConfirm, onCancel, loading }) {
           <div className="bg-red-100 p-2 rounded-xl">
             <Trash2 className="w-5 h-5 text-red-600" />
           </div>
-          <h3 className="font-bold text-gray-900">تأكيد الحذف</h3>
+          <h3 className="font-bold text-gray-900">Confirm Delete</h3>
         </div>
         <p className="text-gray-600 text-sm mb-6">{message}</p>
         <div className="flex gap-3">
@@ -180,7 +180,7 @@ function ConfirmDeleteModal({ message, onConfirm, onCancel, loading }) {
             disabled={loading}
             className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm"
           >
-            إلغاء
+            Cancel
           </button>
           <button
             onClick={onConfirm}
@@ -192,7 +192,7 @@ function ConfirmDeleteModal({ message, onConfirm, onCancel, loading }) {
             ) : (
               <Trash2 className="w-4 h-4" />
             )}
-            حذف
+            Delete
           </button>
         </div>
       </div>
@@ -219,7 +219,8 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
   const [error, setError] = useState("");
 
   const handleSubmit = async () => {
-    if (!form.question_text.trim()) return setError("نص السؤال مطلوب");
+    if (!form.question_text.trim())
+      return setError("Question text is required");
     setSaving(true);
     try {
       const options = [
@@ -244,7 +245,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
       });
       onSave();
     } catch {
-      setError("حدث خطأ أثناء الحفظ");
+      setError("An error occurred while saving");
     } finally {
       setSaving(false);
     }
@@ -254,7 +255,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
     <div className="border-2 border-blue-200 rounded-xl p-4 bg-blue-50/30 space-y-3">
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          نص السؤال
+          Question Text
         </label>
         <textarea
           value={form.question_text}
@@ -267,7 +268,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
         {["A", "B", "C", "D"].map((letter) => (
           <div key={letter}>
             <label className="text-xs text-gray-500 mb-1 block">
-              الخيار {letter}
+              Option {letter}
             </label>
             <div className="flex gap-1">
               <input
@@ -298,7 +299,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
       <input
         value={form.explanation}
         onChange={(e) => setForm({ ...form, explanation: e.target.value })}
-        placeholder="التوضيح (اختياري)"
+        placeholder="Explanation (optional)"
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
       />
       <select
@@ -306,9 +307,9 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       {error && <p className="text-red-500 text-xs">{error}</p>}
       <div className="flex gap-2 justify-end">
@@ -316,7 +317,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
           onClick={onCancel}
           className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
@@ -328,7 +329,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
           ) : (
             <Check className="w-3 h-3" />
           )}
-          حفظ
+          Save
         </button>
       </div>
     </div>
@@ -374,7 +375,7 @@ function MCQCard({ q, index, color, onDelete, onUpdate, updateFn }) {
     <>
       {confirmDelete && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا السؤال؟"
+          message="Are you sure you want to delete this question?"
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(false)}
           loading={deleting}
@@ -474,7 +475,7 @@ function PassageEditForm({ passage, onSave, onCancel }) {
     <div className="border-2 border-orange-200 rounded-xl p-4 bg-orange-50/30 space-y-3">
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          العنوان
+          Title
         </label>
         <input
           value={form.title}
@@ -484,7 +485,7 @@ function PassageEditForm({ passage, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          نص القطعة
+          Passage Text
         </label>
         <textarea
           value={form.passage_text}
@@ -495,7 +496,7 @@ function PassageEditForm({ passage, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          المصدر (اختياري)
+          Source (optional)
         </label>
         <input
           value={form.source}
@@ -508,16 +509,16 @@ function PassageEditForm({ passage, onSave, onCancel }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
           className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 text-xs"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
@@ -529,7 +530,7 @@ function PassageEditForm({ passage, onSave, onCancel }) {
           ) : (
             <Check className="w-3 h-3" />
           )}
-          حفظ
+          Save
         </button>
       </div>
     </div>
@@ -584,7 +585,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
         value={form.question_text}
         onChange={(e) => setForm({ ...form, question_text: e.target.value })}
         rows={2}
-        placeholder="نص السؤال"
+        placeholder="Question text"
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300"
       />
       <div className="grid grid-cols-2 gap-2">
@@ -598,7 +599,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
                   [`choice_${letter.toLowerCase()}`]: e.target.value,
                 })
               }
-              placeholder={`الخيار ${letter}`}
+              placeholder={`Option ${letter}`}
               className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none"
             />
             <button
@@ -618,7 +619,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
       <input
         value={form.explanation}
         onChange={(e) => setForm({ ...form, explanation: e.target.value })}
-        placeholder="التوضيح (اختياري)"
+        placeholder="Explanation (optional)"
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
       <select
@@ -626,23 +627,23 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
           className="px-3 py-1 rounded-lg border text-xs text-gray-600"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving}
           className="px-3 py-1 rounded-lg bg-orange-500 text-white text-xs flex items-center gap-1"
         >
-          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "حفظ"}
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
         </button>
       </div>
     </div>
@@ -695,7 +696,7 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
     <>
       {confirmDelete && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذه القطعة وجميع أسئلتها؟"
+          message="Are you sure you want to delete this passage and all its questions?"
           onConfirm={handleDeletePassage}
           onCancel={() => setConfirmDelete(false)}
           loading={deleting}
@@ -703,7 +704,7 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
       )}
       {confirmDeleteQuestion && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا السؤال؟"
+          message="Are you sure you want to delete this question?"
           onConfirm={handleDeleteQuestion}
           onCancel={() => setConfirmDeleteQuestion(null)}
           loading={deletingQuestion}
@@ -731,7 +732,7 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
               </span>
             )}
             <span className="text-xs text-orange-600 mr-2">
-              {passage.questions?.length} أسئلة
+              {passage.questions?.length} questions
             </span>
             <button
               onClick={() => setEditing(true)}
@@ -856,7 +857,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
     <div className="border-2 border-cyan-200 rounded-xl p-4 bg-cyan-50/30 space-y-3">
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          العنوان
+          Title
         </label>
         <input
           value={form.title}
@@ -866,7 +867,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          رابط الصوت
+          Audio URL
         </label>
         <input
           value={form.audio_file}
@@ -876,7 +877,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          النص (اختياري)
+          Transcript (optional)
         </label>
         <textarea
           value={form.transcript}
@@ -887,7 +888,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          المدة (ثانية)
+          Duration (seconds)
         </label>
         <input
           type="number"
@@ -901,16 +902,16 @@ function AudioEditForm({ audio, onSave, onCancel }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
           className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
@@ -922,7 +923,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
           ) : (
             <Check className="w-3 h-3" />
           )}
-          حفظ
+          Save
         </button>
       </div>
     </div>
@@ -977,7 +978,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
         value={form.question_text}
         onChange={(e) => setForm({ ...form, question_text: e.target.value })}
         rows={2}
-        placeholder="نص السؤال"
+        placeholder="Question text"
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none"
       />
       <div className="grid grid-cols-2 gap-2">
@@ -991,7 +992,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
                   [`choice_${letter.toLowerCase()}`]: e.target.value,
                 })
               }
-              placeholder={`الخيار ${letter}`}
+              placeholder={`Option ${letter}`}
               className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none"
             />
             <button
@@ -1011,7 +1012,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
       <input
         value={form.explanation}
         onChange={(e) => setForm({ ...form, explanation: e.target.value })}
-        placeholder="التوضيح (اختياري)"
+        placeholder="Explanation (optional)"
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
       <select
@@ -1019,23 +1020,23 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-cyan-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
           className="px-3 py-1 rounded-lg border text-xs text-gray-600"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving}
           className="px-3 py-1 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1"
         >
-          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "حفظ"}
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
         </button>
       </div>
     </div>
@@ -1088,7 +1089,7 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
     <>
       {confirmDelete && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا التسجيل الصوتي وجميع أسئلته؟"
+          message="Are you sure you want to delete this audio recording and all its questions?"
           onConfirm={handleDeleteAudio}
           onCancel={() => setConfirmDelete(false)}
           loading={deleting}
@@ -1096,7 +1097,7 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
       )}
       {confirmDeleteQuestion && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا السؤال؟"
+          message="Are you sure you want to delete this question?"
           onConfirm={handleDeleteQuestion}
           onCancel={() => setConfirmDeleteQuestion(null)}
           loading={deletingQuestion}
@@ -1126,11 +1127,11 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
             )}
             {audio.duration > 0 && (
               <span className="text-xs text-cyan-600 mr-1">
-                {audio.duration} ث
+                {audio.duration}s
               </span>
             )}
             <span className="text-xs text-cyan-600 mr-2">
-              {audio.questions?.length} أسئلة
+              {audio.questions?.length} questions
             </span>
             <button
               onClick={() => setEditing(true)}
@@ -1161,16 +1162,18 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
             {audio.audio_file && (
               <div className="bg-cyan-50 rounded-lg p-3">
                 <p className="text-xs text-cyan-600 font-medium mb-2">
-                  التسجيل الصوتي:
+                  Audio Recording:
                 </p>
                 <audio controls className="w-full" src={audio.audio_file}>
-                  المتصفح لا يدعم تشغيل الصوت
+                  Your browser does not support audio playback
                 </audio>
               </div>
             )}
             {audio.transcript && (
               <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed max-h-32 overflow-y-auto">
-                <p className="text-xs font-medium text-gray-500 mb-1">النص:</p>
+                <p className="text-xs font-medium text-gray-500 mb-1">
+                  Transcript:
+                </p>
                 {audio.transcript}
               </div>
             )}
@@ -1179,7 +1182,7 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
               className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 text-sm font-medium"
             >
               <Plus className="w-4 h-4" />
-              إضافة سؤال لهذا التسجيل
+              Add question to this recording
             </Link>
             {audio.questions?.map((q, qi) => (
               <div key={q.id}>
@@ -1274,7 +1277,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
     <div className="border-2 border-rose-200 rounded-xl p-4 bg-rose-50/30 space-y-3">
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          العنوان
+          Title
         </label>
         <input
           value={form.title}
@@ -1284,7 +1287,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          الوصف (اختياري)
+          Description (optional)
         </label>
         <textarea
           value={form.description}
@@ -1295,7 +1298,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          المدة (ثانية)
+          Duration (seconds)
         </label>
         <input
           type="number"
@@ -1309,16 +1312,16 @@ function VideoEditForm({ video, onSave, onCancel }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
           className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
@@ -1330,7 +1333,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
           ) : (
             <Check className="w-3 h-3" />
           )}
-          حفظ
+          Save
         </button>
       </div>
     </div>
@@ -1383,7 +1386,7 @@ function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
         value={form.question_text}
         onChange={(e) => setForm({ ...form, question_text: e.target.value })}
         rows={2}
-        placeholder="نص السؤال"
+        placeholder="Question text"
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none"
       />
       <div className="grid grid-cols-2 gap-2">
@@ -1397,7 +1400,7 @@ function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
                   [`choice_${letter.toLowerCase()}`]: e.target.value,
                 })
               }
-              placeholder={`الخيار ${letter}`}
+              placeholder={`Option ${letter}`}
               className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none"
             />
             <button
@@ -1417,7 +1420,7 @@ function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
       <input
         value={form.explanation}
         onChange={(e) => setForm({ ...form, explanation: e.target.value })}
-        placeholder="التوضيح (اختياري)"
+        placeholder="Explanation (optional)"
         className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none"
       />
       <div className="flex gap-2 justify-end">
@@ -1425,14 +1428,14 @@ function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
           onClick={onCancel}
           className="px-3 py-1 rounded-lg border text-xs text-gray-600"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving}
           className="px-3 py-1 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1"
         >
-          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "حفظ"}
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : "Save"}
         </button>
       </div>
     </div>
@@ -1488,7 +1491,7 @@ function SpeakingVideoCard({ video, index, skillId, onUpdate }) {
     <>
       {confirmDelete && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا الفيديو وجميع أسئلته؟"
+          message="Are you sure you want to delete this video and all its questions?"
           onConfirm={handleDeleteVideo}
           onCancel={() => setConfirmDelete(false)}
           loading={deleting}
@@ -1496,7 +1499,7 @@ function SpeakingVideoCard({ video, index, skillId, onUpdate }) {
       )}
       {confirmDeleteQuestion && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا السؤال؟"
+          message="Are you sure you want to delete this question?"
           onConfirm={handleDeleteQuestion}
           onCancel={() => setConfirmDeleteQuestion(null)}
           loading={deletingQuestion}
@@ -1526,11 +1529,11 @@ function SpeakingVideoCard({ video, index, skillId, onUpdate }) {
             )}
             {video.duration > 0 && (
               <span className="text-xs text-rose-600 mr-1">
-                {video.duration} ث
+                {video.duration}s
               </span>
             )}
             <span className="text-xs text-rose-600 mr-2">
-              {video.questions?.length} أسئلة
+              {video.questions?.length} questions
             </span>
             <button
               onClick={() => setEditing(true)}
@@ -1560,21 +1563,21 @@ function SpeakingVideoCard({ video, index, skillId, onUpdate }) {
           <div className="p-4 space-y-4">
             {video.video_file && (
               <div className="bg-rose-50 rounded-lg p-3">
-                <p className="text-xs text-rose-600 font-medium mb-2">
-                  الفيديو:
-                </p>
+                <p className="text-xs text-rose-600 font-medium mb-2">Video:</p>
                 <video
                   controls
                   className="w-full rounded-lg"
                   src={video.video_file}
                 >
-                  المتصفح لا يدعم تشغيل الفيديو
+                  Your browser does not support video playback
                 </video>
               </div>
             )}
             {video.description && (
               <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 leading-relaxed">
-                <p className="text-xs font-medium text-gray-500 mb-1">الوصف:</p>
+                <p className="text-xs font-medium text-gray-500 mb-1">
+                  Description:
+                </p>
                 {video.description}
               </div>
             )}
@@ -1583,7 +1586,7 @@ function SpeakingVideoCard({ video, index, skillId, onUpdate }) {
               className="flex items-center gap-2 text-rose-600 hover:text-rose-700 text-sm font-medium"
             >
               <Plus className="w-4 h-4" />
-              إضافة سؤال لهذا الفيديو
+              Add question to this video
             </Link>
             {video.questions?.map((q, qi) => (
               <div key={q.id}>
@@ -1686,7 +1689,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
     <div className="border-2 border-green-200 rounded-xl p-4 bg-green-50/30 space-y-3">
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          العنوان
+          Title
         </label>
         <input
           value={form.title}
@@ -1696,7 +1699,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          نص السؤال
+          Question Text
         </label>
         <textarea
           value={form.question_text}
@@ -1708,7 +1711,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs font-medium text-gray-600 mb-1 block">
-            الحد الأدنى
+            Minimum Words
           </label>
           <input
             type="number"
@@ -1719,7 +1722,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
         </div>
         <div>
           <label className="text-xs font-medium text-gray-600 mb-1 block">
-            الحد الأقصى
+            Maximum Words
           </label>
           <input
             type="number"
@@ -1731,7 +1734,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          الإجابة النموذجية
+          Sample Answer
         </label>
         <textarea
           value={form.sample_answer}
@@ -1742,7 +1745,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          معيار التقييم
+          Grading Rubric
         </label>
         <textarea
           value={form.rubric}
@@ -1756,16 +1759,16 @@ function WritingEditForm({ q, onSave, onCancel }) {
         onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300"
       >
-        <option value="EASY">سهل</option>
-        <option value="MEDIUM">متوسط</option>
-        <option value="HARD">صعب</option>
+        <option value="EASY">Easy</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HARD">Hard</option>
       </select>
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
           className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
         >
-          إلغاء
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
@@ -1777,7 +1780,7 @@ function WritingEditForm({ q, onSave, onCancel }) {
           ) : (
             <Check className="w-3 h-3" />
           )}
-          حفظ
+          Save
         </button>
       </div>
     </div>
@@ -1817,7 +1820,7 @@ function WritingCard({ q, index, onDelete, onUpdate }) {
     <>
       {confirmDelete && (
         <ConfirmDeleteModal
-          message="هل أنت متأكد من حذف هذا السؤال؟"
+          message="Are you sure you want to delete this question?"
           onConfirm={handleDelete}
           onCancel={() => setConfirmDelete(false)}
           loading={deleting}
@@ -1869,13 +1872,13 @@ function WritingCard({ q, index, onDelete, onUpdate }) {
           </div>
         </div>
         <div className="flex gap-3 text-xs text-gray-500 mt-2">
-          <span>الحد الأدنى: {q.min_words} كلمة</span>
-          <span>الحد الأقصى: {q.max_words} كلمة</span>
-          <span>النقاط: {q.points}</span>
+          <span>Min words: {q.min_words}</span>
+          <span>Max words: {q.max_words}</span>
+          <span>Points: {q.points}</span>
         </div>
         {showSample && q.sample_answer && (
           <div className="mt-3 bg-green-50 rounded-lg p-3 text-xs text-green-700">
-            <strong>الإجابة النموذجية:</strong>
+            <strong>Sample Answer:</strong>
             <p className="mt-1 leading-relaxed">{q.sample_answer}</p>
           </div>
         )}
@@ -1908,7 +1911,7 @@ function GeneralPathSection({ section, questions, skillId, onUpdate }) {
             {section.label}
           </span>
           <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded-full border">
-            {sectionQuestions.length} عنصر
+            {sectionQuestions.length} items
           </span>
         </button>
         <div className="flex items-center gap-2">
@@ -1940,14 +1943,14 @@ function GeneralPathSection({ section, questions, skillId, onUpdate }) {
                 className={`w-8 h-8 ${section.color} mx-auto mb-2 opacity-25`}
               />
               <p className="text-gray-400 text-sm">
-                لا توجد أسئلة {section.label} بعد
+                No {section.label} questions yet
               </p>
               <Link
                 to={section.addRoute(skillId)}
                 className={`inline-flex items-center gap-1.5 mt-3 text-xs font-medium ${section.color} hover:underline`}
               >
                 <Plus className="w-3.5 h-3.5" />
-                ابدأ بإضافة {section.label}
+                Start adding {section.label}
               </Link>
             </div>
           ) : (
@@ -2098,14 +2101,14 @@ export default function STEPSkillDetails() {
           <p className={`text-2xl font-bold ${config.color}`}>
             {skill.total_questions}
           </p>
-          <p className="text-xs text-gray-500">إجمالي الأسئلة</p>
+          <p className="text-xs text-gray-500">Total Questions</p>
         </div>
         <div className="flex gap-3">
           <Link
             to={`/dashboard/step/skills/${skillId}/edit`}
             className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm transition-colors"
           >
-            تعديل المهارة
+            Edit Skill
           </Link>
           {!isGeneralPath && addRoute && (
             <Link
@@ -2125,10 +2128,10 @@ export default function STEPSkillDetails() {
           <div className="flex items-center gap-2 mb-2">
             <GitBranch className="w-5 h-5 text-indigo-600" />
             <h2 className="text-lg font-bold text-gray-900">
-              محتوى المسار العام
+              General Path Content
             </h2>
             <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-              أضف الأسئلة مباشرةً في كل قسم
+              Add questions directly in each section
             </span>
           </div>
           {GENERAL_PATH_SECTIONS.map((section) => (
@@ -2144,14 +2147,14 @@ export default function STEPSkillDetails() {
       ) : (
         /* Normal Skills */
         <div className="space-y-3">
-          <h2 className="text-lg font-bold text-gray-900">الأسئلة</h2>
+          <h2 className="text-lg font-bold text-gray-900">Questions</h2>
           {questions.length === 0 ? (
             <div className="card text-center py-12">
               <Icon
                 className={`w-10 h-10 ${config.color} mx-auto mb-3 opacity-30`}
               />
               <p className="text-gray-500 text-sm">
-                لا توجد أسئلة بعد. ابدأ بإضافة أسئلة.
+                No questions yet. Start by adding questions.
               </p>
             </div>
           ) : (
@@ -2234,10 +2237,10 @@ export default function STEPSkillDetails() {
                 disabled={page === 1}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
               >
-                السابق
+                Previous
               </button>
               <span className="text-sm text-gray-600">
-                صفحة {page} من {pagination.total_pages}
+                Page {page} of {pagination.total_pages}
               </span>
               <button
                 onClick={() =>
@@ -2246,7 +2249,7 @@ export default function STEPSkillDetails() {
                 disabled={page === pagination.total_pages}
                 className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-40 text-sm"
               >
-                التالي
+                Next
               </button>
             </div>
           )}

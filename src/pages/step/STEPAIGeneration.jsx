@@ -28,17 +28,20 @@ import api from "../../api/axios";
 const fmt = (s) =>
   s === "PENDING"
     ? {
-        label: "انتظار",
+        label: "Pending",
         color: "text-yellow-600 bg-yellow-50 border-yellow-200",
       }
     : s === "PROCESSING"
     ? {
-        label: "جاري المعالجة",
+        label: "Processing",
         color: "text-blue-600 bg-blue-50 border-blue-200",
       }
     : s === "DONE"
-    ? { label: "مكتمل", color: "text-green-600 bg-green-50 border-green-200" }
-    : { label: "فشل", color: "text-red-600 bg-red-50 border-red-200" };
+    ? {
+        label: "Completed",
+        color: "text-green-600 bg-green-50 border-green-200",
+      }
+    : { label: "Failed", color: "text-red-600 bg-red-50 border-red-200" };
 
 const StatusBadge = ({ status }) => {
   const { label, color } = fmt(status);
@@ -168,7 +171,9 @@ function MultiSelectDropdown({
             selected.length > 0 ? "text-gray-700 font-medium" : "text-gray-400"
           }
         >
-          {selected.length > 0 ? `${selected.length} عنصر محدد` : placeholder}
+          {selected.length > 0
+            ? `${selected.length} item(s) selected`
+            : placeholder}
         </span>
         {open ? (
           <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -183,7 +188,7 @@ function MultiSelectDropdown({
           <div className="max-h-52 overflow-y-auto divide-y divide-gray-100">
             {items.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-4">
-                لا توجد عناصر جاهزة
+                No items available
               </p>
             ) : (
               items.map((item) => (
@@ -270,7 +275,7 @@ function BooksSection({ books, onRefresh }) {
   }, [books]);
 
   const handleUpload = async () => {
-    if (!name.trim() || !file) return setError("الاسم والملف مطلوبان");
+    if (!name.trim() || !file) return setError("Name and file are required");
     setError("");
     setUploading(true);
     try {
@@ -285,20 +290,20 @@ function BooksSection({ books, onRefresh }) {
       fileRef.current.value = "";
       onRefresh();
     } catch (e) {
-      setError(e.response?.data?.error || "حدث خطأ");
+      setError(e.response?.data?.error || "An error occurred");
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <Section icon={BookOpen} title="رفع الكتب (PDF)" color="text-indigo-600">
+    <Section icon={BookOpen} title="Upload Books (PDF)" color="text-indigo-600">
       <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-5 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="اسم الكتاب"
+            placeholder="Book name"
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
           />
           <div
@@ -307,7 +312,7 @@ function BooksSection({ books, onRefresh }) {
           >
             <Upload className="w-4 h-4 text-indigo-500 shrink-0" />
             <span className="text-sm text-gray-500 truncate">
-              {file ? file.name : "اختر ملف PDF"}
+              {file ? file.name : "Choose a PDF file"}
             </span>
             <input
               ref={fileRef}
@@ -329,13 +334,15 @@ function BooksSection({ books, onRefresh }) {
           ) : (
             <Upload className="w-4 h-4" />
           )}
-          {uploading ? "جاري الرفع والمعالجة..." : "رفع الكتاب واستخراج النص"}
+          {uploading
+            ? "Uploading and processing..."
+            : "Upload Book & Extract Text"}
         </button>
       </div>
 
       {books.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-4">
-          لا توجد كتب مرفوعة بعد
+          No books uploaded yet
         </p>
       ) : (
         <div className="space-y-2">
@@ -351,7 +358,9 @@ function BooksSection({ books, onRefresh }) {
                     {b.name}
                   </p>
                   {b.page_count > 0 && (
-                    <p className="text-xs text-gray-400">{b.page_count} صفحة</p>
+                    <p className="text-xs text-gray-400">
+                      {b.page_count} pages
+                    </p>
                   )}
                 </div>
               </div>
@@ -397,7 +406,7 @@ function MediaSection({ media, onRefresh }) {
   }, [media]);
 
   const handleUpload = async () => {
-    if (!name.trim() || !file) return setError("الاسم والملف مطلوبان");
+    if (!name.trim() || !file) return setError("Name and file are required");
     setError("");
     setUploading(true);
     try {
@@ -412,7 +421,7 @@ function MediaSection({ media, onRefresh }) {
       fileRef.current.value = "";
       onRefresh();
     } catch (e) {
-      setError(e.response?.data?.error || "حدث خطأ");
+      setError(e.response?.data?.error || "An error occurred");
     } finally {
       setUploading(false);
     }
@@ -425,7 +434,7 @@ function MediaSection({ media, onRefresh }) {
   return (
     <Section
       icon={Headphones}
-      title="رفع الفيديو / الصوت (Transcription)"
+      title="Upload Video / Audio (Transcription)"
       color="text-cyan-600"
     >
       <div className="bg-cyan-50 border border-cyan-100 rounded-xl p-4 mb-5 space-y-3">
@@ -433,7 +442,7 @@ function MediaSection({ media, onRefresh }) {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="اسم الملف"
+            placeholder="File name"
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-white"
           />
           <div
@@ -465,17 +474,17 @@ function MediaSection({ media, onRefresh }) {
             <Upload className="w-4 h-4" />
           )}
           {uploading
-            ? "جاري الرفع والتحويل لنص..."
-            : "رفع الملف واستخراج النص (Whisper)"}
+            ? "Uploading and converting to text..."
+            : "Upload File & Extract Text (Whisper)"}
         </button>
         <p className="text-xs text-cyan-600 text-center">
-          يدعم: mp4 · mov · avi · mp3 · wav · m4a · ogg · flac
+          Supports: mp4 · mov · avi · mp3 · wav · m4a · ogg · flac
         </p>
       </div>
 
       {media.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-4">
-          لا توجد ملفات وسائط بعد
+          No media files uploaded yet
         </p>
       ) : (
         <div className="space-y-2">
@@ -495,8 +504,9 @@ function MediaSection({ media, onRefresh }) {
                     {m.name}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {m.media_type === "VIDEO" ? "فيديو" : "صوت"}
-                    {m.duration_seconds > 0 && ` · ${m.duration_seconds} ثانية`}
+                    {m.media_type === "VIDEO" ? "Video" : "Audio"}
+                    {m.duration_seconds > 0 &&
+                      ` · ${m.duration_seconds} seconds`}
                   </p>
                 </div>
               </div>
@@ -533,7 +543,7 @@ function GenerateSection({ onRefresh, jobs }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
 
-  // جيب الكتب والميديا الجاهزة مستقل
+  // Fetch ready books and media independently
   const fetchSources = async () => {
     setLoadingSources(true);
     try {
@@ -584,12 +594,12 @@ function GenerateSection({ onRefresh, jobs }) {
     );
 
   const handleGenerate = async () => {
-    if (!form.skill_type) return setError("اختر نوع المهارة");
-    if (!form.skill_title.trim()) return setError("العنوان مطلوب");
+    if (!form.skill_type) return setError("Please select a skill type");
+    if (!form.skill_title.trim()) return setError("Title is required");
     if (selectedBooks.length === 0 && selectedMedia.length === 0)
-      return setError("اختر كتاباً أو ملف وسائط واحداً على الأقل");
+      return setError("Please select at least one book or media file");
     if (form.no_easy + form.no_medium + form.no_hard === 0)
-      return setError("يجب تحديد عدد أسئلة أكثر من صفر");
+      return setError("Total number of questions must be greater than zero");
     setError("");
     setGenerating(true);
     try {
@@ -600,7 +610,9 @@ function GenerateSection({ onRefresh, jobs }) {
       });
       onRefresh();
     } catch (e) {
-      setError(e.response?.data?.error || "حدث خطأ أثناء التوليد");
+      setError(
+        e.response?.data?.error || "An error occurred during generation"
+      );
     } finally {
       setGenerating(false);
     }
@@ -611,7 +623,7 @@ function GenerateSection({ onRefresh, jobs }) {
   return (
     <Section
       icon={Brain}
-      title="توليد مهارة جديدة بالذكاء الاصطناعي"
+      title="Generate a New Skill with AI"
       color="text-violet-600"
     >
       <div className="space-y-5">
@@ -619,14 +631,14 @@ function GenerateSection({ onRefresh, jobs }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-              نوع المهارة <span className="text-red-500">*</span>
+              Skill Type <span className="text-red-500">*</span>
             </label>
             <select
               value={form.skill_type}
               onChange={(e) => setForm({ ...form, skill_type: e.target.value })}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
             >
-              <option value="">-- اختر --</option>
+              <option value="">-- Select --</option>
               {SKILL_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
                   {t.label}
@@ -636,14 +648,14 @@ function GenerateSection({ onRefresh, jobs }) {
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-              عنوان المهارة <span className="text-red-500">*</span>
+              Skill Title <span className="text-red-500">*</span>
             </label>
             <input
               value={form.skill_title}
               onChange={(e) =>
                 setForm({ ...form, skill_title: e.target.value })
               }
-              placeholder="مثال: Advanced Vocabulary"
+              placeholder="e.g. Advanced Vocabulary"
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
             />
           </div>
@@ -652,14 +664,14 @@ function GenerateSection({ onRefresh, jobs }) {
         {/* Description */}
         <div>
           <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-            الوصف (اختياري)
+            Description (optional)
           </label>
           <input
             value={form.skill_description}
             onChange={(e) =>
               setForm({ ...form, skill_description: e.target.value })
             }
-            placeholder="وصف مختصر للمهارة..."
+            placeholder="Brief description of the skill..."
             className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
@@ -667,26 +679,24 @@ function GenerateSection({ onRefresh, jobs }) {
         {/* Questions count */}
         <div>
           <label className="text-xs font-semibold text-gray-600 mb-2 block">
-            توزيع الأسئلة{" "}
-            <span className="text-violet-600 font-bold">
-              (المجموع: {total})
-            </span>
+            Question Distribution{" "}
+            <span className="text-violet-600 font-bold">(Total: {total})</span>
           </label>
           <div className="grid grid-cols-3 gap-3">
             {[
               {
                 key: "no_easy",
-                label: "سهل",
+                label: "Easy",
                 color: "border-green-300 focus:ring-green-400",
               },
               {
                 key: "no_medium",
-                label: "متوسط",
+                label: "Medium",
                 color: "border-yellow-300 focus:ring-yellow-400",
               },
               {
                 key: "no_hard",
-                label: "صعب",
+                label: "Hard",
                 color: "border-red-300 focus:ring-red-400",
               },
             ].map(({ key, label, color }) => (
@@ -713,19 +723,19 @@ function GenerateSection({ onRefresh, jobs }) {
           {/* Books */}
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
-              <BookOpen className="w-3.5 h-3.5" /> الكتب المصدر
+              <BookOpen className="w-3.5 h-3.5" /> Source Books
             </label>
             {loadingSources ? (
               <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                جاري التحميل...
+                Loading...
               </div>
             ) : (
               <MultiSelectDropdown
                 items={doneBooks}
                 selected={selectedBooks}
                 onToggle={toggleBook}
-                placeholder="اختر كتاباً أو أكثر..."
+                placeholder="Select one or more books..."
                 color="indigo"
                 renderTag={(item) => (
                   <span className="flex items-center gap-1">
@@ -740,7 +750,7 @@ function GenerateSection({ onRefresh, jobs }) {
                       {item.name}
                     </span>
                     <span className="text-xs text-gray-400 shrink-0">
-                      {item.page_count} ص
+                      {item.page_count} pg
                     </span>
                   </>
                 )}
@@ -751,19 +761,19 @@ function GenerateSection({ onRefresh, jobs }) {
           {/* Media */}
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
-              <Headphones className="w-3.5 h-3.5" /> ملفات الوسائط المصدر
+              <Headphones className="w-3.5 h-3.5" /> Source Media Files
             </label>
             {loadingSources ? (
               <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                جاري التحميل...
+                Loading...
               </div>
             ) : (
               <MultiSelectDropdown
                 items={doneMedia}
                 selected={selectedMedia}
                 onToggle={toggleMedia}
-                placeholder="اختر ملف صوت أو فيديو..."
+                placeholder="Select an audio or video file..."
                 color="cyan"
                 renderTag={(item) => (
                   <span className="flex items-center gap-1">
@@ -786,7 +796,7 @@ function GenerateSection({ onRefresh, jobs }) {
                       {item.name}
                     </span>
                     <span className="text-xs text-gray-400 shrink-0">
-                      {item.media_type === "VIDEO" ? "فيديو" : "صوت"}
+                      {item.media_type === "VIDEO" ? "Video" : "Audio"}
                     </span>
                   </>
                 )}
@@ -805,13 +815,13 @@ function GenerateSection({ onRefresh, jobs }) {
           <RefreshCw
             className={`w-3.5 h-3.5 ${loadingSources ? "animate-spin" : ""}`}
           />
-          تحديث قائمة المصادر
+          Refresh sources list
         </button>
 
         {/* Additional notes */}
         <div>
           <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-            ملاحظات إضافية للـ AI (اختياري)
+            Additional Notes for AI (optional)
           </label>
           <textarea
             value={form.additional_notes}
@@ -819,7 +829,7 @@ function GenerateSection({ onRefresh, jobs }) {
               setForm({ ...form, additional_notes: e.target.value })
             }
             rows={2}
-            placeholder="مثال: ركز على المفردات الأكاديمية، تجنب الأسئلة المتعلقة بالأسماء..."
+            placeholder="e.g. Focus on academic vocabulary, avoid questions about proper nouns..."
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none"
           />
         </div>
@@ -842,15 +852,15 @@ function GenerateSection({ onRefresh, jobs }) {
             <Sparkles className="w-5 h-5" />
           )}
           {generating
-            ? "جاري الإرسال للـ AI..."
-            : `توليد مهارة بـ ${total} سؤال`}
+            ? "Sending to AI..."
+            : `Generate Skill with ${total} Questions`}
         </button>
 
         {/* Jobs history */}
         {jobs.length > 0 && (
           <div className="mt-2">
             <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-              سجل الجلسة
+              Session History
             </h3>
             <div className="space-y-2">
               {jobs.map((j) => (
@@ -865,10 +875,10 @@ function GenerateSection({ onRefresh, jobs }) {
                     <p className="text-xs text-gray-400">
                       {j.skill_type} ·{" "}
                       {j.status === "DONE"
-                        ? `${j.questions_created} سؤال تم إنشاؤه`
+                        ? `${j.questions_created} questions created`
                         : j.status === "FAILED"
                         ? j.error_message?.slice(0, 60)
-                        : "جاري المعالجة..."}
+                        : "Processing..."}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -878,7 +888,7 @@ function GenerateSection({ onRefresh, jobs }) {
                         to={`/dashboard/step/skills/${j.skill_id}`}
                         className="text-xs text-indigo-600 hover:underline font-medium"
                       >
-                        عرض
+                        View
                       </Link>
                     )}
                   </div>
@@ -965,17 +975,18 @@ export default function STEPAIGeneration() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-violet-600" />
-            توليد المحتوى بالذكاء الاصطناعي
+            AI Content Generation
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">
-            ارفع كتباً أو ملفات صوتية/فيديو ثم ولّد أسئلة STEP تلقائياً
+            Upload books or audio/video files, then automatically generate STEP
+            questions
           </p>
         </div>
         <button
           onClick={handleRefresh}
           disabled={refreshing}
           className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-          title="تحديث"
+          title="Refresh"
         >
           <RefreshCw
             className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
@@ -988,14 +999,16 @@ export default function STEPAIGeneration() {
         <div className="flex items-start gap-3">
           <Zap className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-bold text-violet-800 mb-1">كيف يعمل؟</p>
+            <p className="text-sm font-bold text-violet-800 mb-1">
+              How does it work?
+            </p>
             <p className="text-xs text-violet-600 leading-relaxed">
-              <span className="font-semibold">١.</span> ارفع ملفات PDF أو
-              صوت/فيديو → <span className="font-semibold">٢.</span> انتظر اكتمال
-              المعالجة (استخراج النص) →{" "}
-              <span className="font-semibold">٣.</span> اختر المصادر وحدد عدد
-              الأسئلة → <span className="font-semibold">٤.</span> اضغط توليد
-              ويتكفل الـ AI بالباقي ✨
+              <span className="font-semibold">1.</span> Upload PDF or
+              audio/video files → <span className="font-semibold">2.</span> Wait
+              for processing to complete (text extraction) →{" "}
+              <span className="font-semibold">3.</span> Select sources and set
+              number of questions → <span className="font-semibold">4.</span>{" "}
+              Click Generate and let the AI handle the rest ✨
             </p>
           </div>
         </div>

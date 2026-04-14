@@ -29,11 +29,11 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
 
   const handleSave = async () => {
     if (correctIndex === null) {
-      setErrors({ correct_answer: "يجب تحديد الإجابة الصحيحة" });
+      setErrors({ correct_answer: "The correct answer must be selected." });
       return;
     }
     if (!form.question_text.trim()) {
-      setErrors({ question_text: "نص السؤال مطلوب" });
+      setErrors({ question_text: "Question text is required." });
       return;
     }
     setLoading(true);
@@ -46,7 +46,7 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
       });
       onSave();
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ" });
+      setErrors(err.response?.data || { general: "error occurred" });
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
       <div className="border border-green-200 bg-green-50 rounded-xl p-4 flex items-center gap-3">
         <CheckCircle className="w-5 h-5 text-green-600" />
         <p className="text-green-700 font-medium text-sm">
-          السؤال {index + 1} تم حفظه بنجاح
+          Question {index + 1} has been saved successfully.
         </p>
       </div>
     );
@@ -65,7 +65,9 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
 
   return (
     <div className="border border-gray-200 rounded-xl p-4 space-y-4">
-      <p className="font-semibold text-gray-700 text-sm">السؤال {index + 1}</p>
+      <p className="font-semibold text-gray-700 text-sm">
+        question {index + 1}
+      </p>
 
       <div>
         <textarea
@@ -74,7 +76,7 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
             setForm((f) => ({ ...f, question_text: e.target.value }))
           }
           rows={2}
-          placeholder="نص السؤال..."
+          placeholder="question text ..."
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
         />
         {errors.question_text && (
@@ -98,7 +100,7 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
               type="text"
               value={opt}
               onChange={(e) => handleOptionChange(idx, e.target.value)}
-              placeholder={`الخيار ${String.fromCharCode(65 + idx)}`}
+              placeholder={`choice ${String.fromCharCode(65 + idx)}`}
               className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
             />
             <button
@@ -121,7 +123,7 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
         onChange={(e) =>
           setForm((f) => ({ ...f, explanation: e.target.value }))
         }
-        placeholder="الشرح (اختياري)"
+        placeholder="explanation (Optional)"
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
       />
 
@@ -137,14 +139,14 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
           className="flex items-center gap-1 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 text-white px-4 py-2 rounded-lg text-sm"
         >
           <Save className="w-3.5 h-3.5" />
-          {loading ? "جاري الحفظ..." : "حفظ"}
+          {loading ? "saving.." : "save"}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm"
         >
-          إلغاء
+          Cancel
         </button>
       </div>
     </div>
@@ -185,15 +187,17 @@ export default function AddReadingQuestionsToSTEP() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            إضافة أسئلة القطعة
+            Add reading passage questions
           </h1>
-          <p className="text-gray-500 text-sm">أضف أسئلة للقطعة التي أنشأتها</p>
+          <p className="text-gray-500 text-sm">
+            Add questions to the passage you created
+          </p>
         </div>
       </div>
 
       {savedCount > 0 && (
         <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-green-700 text-sm">
-          ✅ تم حفظ {savedCount} سؤال حتى الآن
+          ✅ {savedCount} questions have been saved so far{" "}
         </div>
       )}
 
@@ -216,13 +220,13 @@ export default function AddReadingQuestionsToSTEP() {
           className="flex items-center gap-2 bg-orange-50 hover:bg-orange-100 text-orange-600 px-4 py-2 rounded-lg text-sm border border-orange-200 transition-colors"
         >
           <Plus className="w-4 h-4" />
-          إضافة سؤال آخر
+          Add Another question
         </button>
         <button
           onClick={() => navigate(`/dashboard/step/skills/${skillId}`)}
           className="flex-1 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg text-sm transition-colors"
         >
-          انتهيت - العودة للمهارة
+          Finished Back to Skill
         </button>
       </div>
     </div>

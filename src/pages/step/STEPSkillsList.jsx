@@ -68,12 +68,12 @@ export default function STEPSkillsList() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذه المهارة؟")) return;
+    if (!window.confirm("Are you sure you want to delete this skill?")) return;
     try {
       await stepSkillsAPI.delete(id);
       setSkills((prev) => prev.filter((s) => s.id !== id));
     } catch {
-      alert("حدث خطأ أثناء الحذف");
+      alert("An error occurred while deleting");
     }
   };
 

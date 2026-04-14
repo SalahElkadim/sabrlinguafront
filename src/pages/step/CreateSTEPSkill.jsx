@@ -11,7 +11,7 @@ const SKILL_TYPES = [
   { value: "WRITING", label: "Writing" },
   { value: "LISTENING", label: "Listening" },
   { value: "SPEAKING", label: "Speaking" },
-  { value: "GENERAL_PATH", label: "General path" },
+  { value: "GENERAL_PATH", label: "General Path" },
 ];
 
 export default function CreateSTEPSkill() {
@@ -47,7 +47,9 @@ export default function CreateSTEPSkill() {
       await stepSkillsAPI.create(formData);
       navigate("/dashboard/step/skills");
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
+      setErrors(
+        err.response?.data || { general: "An error occurred, please try again" }
+      );
     } finally {
       setLoading(false);
     }
@@ -66,8 +68,10 @@ export default function CreateSTEPSkill() {
           <ArrowRight className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">إضافة مهارة STEP</h1>
-          <p className="text-gray-500 text-sm">أضف مهارة جديدة للنظام</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Create STEP Skill
+          </h1>
+          <p className="text-gray-500 text-sm">Add a new skill to the system</p>
         </div>
       </div>
 
@@ -75,7 +79,7 @@ export default function CreateSTEPSkill() {
         {/* Skill Type */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            نوع المهارة <span className="text-red-500">*</span>
+            Skill Type <span className="text-red-500">*</span>
           </label>
           <select
             name="skill_type"
@@ -84,7 +88,7 @@ export default function CreateSTEPSkill() {
             required
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">-- اختر نوع المهارة --</option>
+            <option value="">-- Select skill type --</option>
             {SKILL_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
@@ -102,12 +106,12 @@ export default function CreateSTEPSkill() {
             <GitBranch className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-indigo-800">
-                المسار العام
+                General Path
               </p>
               <p className="text-xs text-indigo-600 mt-1 leading-relaxed">
-                المسار العام يجمع أسئلة من مهارات فرعية متعددة (Vocabulary,
-                Grammar, Reading, Listening). بعد إنشاء المسار، يمكنك ربط
-                المهارات الفرعية به من صفحة تفاصيل المسار.
+                The general path combines questions from multiple sub-skills
+                (Vocabulary, Grammar, Reading, Listening). After creating the
+                path, you can link sub-skills to it from the path details page.
               </p>
             </div>
           </div>
@@ -116,7 +120,7 @@ export default function CreateSTEPSkill() {
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            العنوان <span className="text-red-500">*</span>
+            Title <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -126,8 +130,8 @@ export default function CreateSTEPSkill() {
             required
             placeholder={
               isGeneralPath
-                ? "مثال: المسار العام - STEP"
-                : "مثال: Vocabulary Skills"
+                ? "Example: General Path - STEP"
+                : "Example: Vocabulary Skills"
             }
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -139,7 +143,7 @@ export default function CreateSTEPSkill() {
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الوصف
+            Description
           </label>
           <textarea
             name="description"
@@ -148,8 +152,8 @@ export default function CreateSTEPSkill() {
             rows={3}
             placeholder={
               isGeneralPath
-                ? "مثال: مسار شامل يضم أسئلة Vocabulary و Grammar و Reading و Listening..."
-                : "وصف اختياري للمهارة..."
+                ? "Example: A comprehensive path including Vocabulary, Grammar, Reading, and Listening questions..."
+                : "Optional description for the skill..."
             }
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
@@ -158,7 +162,7 @@ export default function CreateSTEPSkill() {
         {/* Icon */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الأيقونة (اختياري)
+            Icon (optional)
           </label>
           <input
             type="file"
@@ -171,7 +175,7 @@ export default function CreateSTEPSkill() {
         {/* Order */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الترتيب
+            Order
           </label>
           <input
             type="number"
@@ -197,7 +201,7 @@ export default function CreateSTEPSkill() {
             htmlFor="is_active"
             className="text-sm font-medium text-gray-700"
           >
-            نشط
+            Active
           </label>
         </div>
 
@@ -213,7 +217,7 @@ export default function CreateSTEPSkill() {
           className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-medium transition-colors"
         >
           <Save className="w-5 h-5" />
-          {loading ? "جاري الحفظ..." : "حفظ المهارة"}
+          {loading ? "Saving..." : "Save Skill"}
         </button>
       </form>
     </div>

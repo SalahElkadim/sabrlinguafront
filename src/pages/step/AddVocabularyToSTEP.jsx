@@ -45,12 +45,12 @@ export default function AddVocabularyToSTEP() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (correctIndex === null) {
-      setErrors({ correct_answer: "يجب تحديد الإجابة الصحيحة" });
+      setErrors({ correct_answer: "The correct answer must be selected" });
       return;
     }
     const filledOptions = options.filter((o) => o.trim());
     if (filledOptions.length < 2) {
-      setErrors({ options: "يجب إضافة خيارين على الأقل" });
+      setErrors({ options: "At least two options must be added" });
       return;
     }
     setLoading(true);
@@ -64,7 +64,9 @@ export default function AddVocabularyToSTEP() {
       });
       navigate(`/dashboard/step/skills/${skillId}`);
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
+      setErrors(
+        err.response?.data || { general: "An error occurred, please try again" }
+      );
     } finally {
       setLoading(false);
     }
@@ -81,9 +83,9 @@ export default function AddVocabularyToSTEP() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            إضافة سؤال Vocabulary
+            Add Vocabulary Question
           </h1>
-          <p className="text-gray-500 text-sm">سؤال اختيار من متعدد</p>
+          <p className="text-gray-500 text-sm">Multiple-choice question</p>
         </div>
       </div>
 
@@ -91,7 +93,7 @@ export default function AddVocabularyToSTEP() {
         {/* Question Text */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            نص السؤال <span className="text-red-500">*</span>
+            Question Text <span className="text-red-500">*</span>
           </label>
           <textarea
             name="question_text"
@@ -99,7 +101,7 @@ export default function AddVocabularyToSTEP() {
             onChange={handleChange}
             required
             rows={3}
-            placeholder="أدخل نص السؤال هنا..."
+            placeholder="Enter the question text here..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
         </div>
@@ -107,9 +109,9 @@ export default function AddVocabularyToSTEP() {
         {/* Options */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            الخيارات <span className="text-red-500">*</span>{" "}
+            Options <span className="text-red-500">*</span>{" "}
             <span className="text-xs text-gray-400">
-              (اختر الإجابة الصحيحة بالضغط على الدائرة)
+              (Select the correct answer by clicking the circle)
             </span>
           </label>
           <div className="space-y-2">
@@ -128,7 +130,7 @@ export default function AddVocabularyToSTEP() {
                   type="text"
                   value={opt}
                   onChange={(e) => handleOptionChange(idx, e.target.value)}
-                  placeholder={`الخيار ${String.fromCharCode(65 + idx)}`}
+                  placeholder={`Option ${String.fromCharCode(65 + idx)}`}
                   className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
@@ -147,7 +149,7 @@ export default function AddVocabularyToSTEP() {
               onClick={addOption}
               className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
             >
-              <Plus className="w-3 h-3" /> إضافة خيار
+              <Plus className="w-3 h-3" /> Add Option
             </button>
           )}
           {errors.options && (
@@ -161,14 +163,14 @@ export default function AddVocabularyToSTEP() {
         {/* Explanation */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الشرح (اختياري)
+            Explanation (Optional)
           </label>
           <textarea
             name="explanation"
             value={form.explanation}
             onChange={handleChange}
             rows={2}
-            placeholder="شرح الإجابة الصحيحة..."
+            placeholder="Explain the correct answer..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
           />
         </div>
@@ -176,7 +178,7 @@ export default function AddVocabularyToSTEP() {
         {/* Points */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            النقاط
+            Points
           </label>
           <input
             type="number"
@@ -191,7 +193,7 @@ export default function AddVocabularyToSTEP() {
         {/* Difficulty */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            مستوى الصعوبة
+            Difficulty Level
           </label>
           <select
             name="difficulty"
@@ -199,9 +201,9 @@ export default function AddVocabularyToSTEP() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="EASY">سهل</option>
-            <option value="MEDIUM">متوسط</option>
-            <option value="HARD">صعب</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
           </select>
         </div>
 
@@ -217,7 +219,7 @@ export default function AddVocabularyToSTEP() {
           className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-medium transition-colors"
         >
           <Save className="w-5 h-5" />
-          {loading ? "جاري الحفظ..." : "حفظ السؤال"}
+          {loading ? "Saving..." : "Save Question"}
         </button>
       </form>
     </div>

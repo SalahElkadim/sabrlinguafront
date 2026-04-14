@@ -66,7 +66,11 @@ export default function EditSTEPSkill() {
       await stepSkillsAPI.update(skillId, formData);
       navigate("/dashboard/step/skills");
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
+      setErrors(
+        err.response?.data || {
+          general: "Something went wrong, please try again",
+        }
+      );
     } finally {
       setSaving(false);
     }
@@ -90,8 +94,8 @@ export default function EditSTEPSkill() {
           <ArrowRight className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">تعديل مهارة STEP</h1>
-          <p className="text-gray-500 text-sm">تحديث بيانات المهارة</p>
+          <h1 className="text-2xl font-bold text-gray-900">Edit STEP Skill</h1>
+          <p className="text-gray-500 text-sm">Update skill information</p>
         </div>
       </div>
 
@@ -99,7 +103,7 @@ export default function EditSTEPSkill() {
         {/* Skill Type */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            نوع المهارة
+            Skill Type
           </label>
           <select
             name="skill_type"
@@ -118,7 +122,7 @@ export default function EditSTEPSkill() {
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            العنوان <span className="text-red-500">*</span>
+            Title <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -136,7 +140,7 @@ export default function EditSTEPSkill() {
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الوصف
+            Description
           </label>
           <textarea
             name="description"
@@ -150,7 +154,7 @@ export default function EditSTEPSkill() {
         {/* Icon */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            تغيير الأيقونة (اختياري)
+            Change Icon (Optional)
           </label>
           <input
             type="file"
@@ -163,7 +167,7 @@ export default function EditSTEPSkill() {
         {/* Order */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الترتيب
+            Order
           </label>
           <input
             type="number"
@@ -189,7 +193,7 @@ export default function EditSTEPSkill() {
             htmlFor="is_active"
             className="text-sm font-medium text-gray-700"
           >
-            نشط
+            Active
           </label>
         </div>
 
@@ -205,7 +209,7 @@ export default function EditSTEPSkill() {
           className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-medium transition-colors"
         >
           <Save className="w-5 h-5" />
-          {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
     </div>

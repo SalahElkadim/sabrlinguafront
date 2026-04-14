@@ -38,7 +38,11 @@ export default function AddWritingToSTEP() {
       await stepQuestionsAPI.createWriting({ ...form, step_skill: skillId });
       navigate(`/dashboard/step/skills/${skillId}`);
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
+      setErrors(
+        err.response?.data || {
+          general: "Something went wrong, please try again",
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -55,9 +59,11 @@ export default function AddWritingToSTEP() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            إضافة سؤال Writing
+            Add Writing Question
           </h1>
-          <p className="text-gray-500 text-sm">سؤال كتابة مقالة أو فقرة</p>
+          <p className="text-gray-500 text-sm">
+            Essay or paragraph writing question
+          </p>
         </div>
       </div>
 
@@ -65,7 +71,7 @@ export default function AddWritingToSTEP() {
         {/* Title */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            عنوان السؤال <span className="text-red-500">*</span>
+            Question Title <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -73,7 +79,7 @@ export default function AddWritingToSTEP() {
             value={form.title}
             onChange={handleChange}
             required
-            placeholder="مثال: Essay on Technology"
+            placeholder="Example: Essay on Technology"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           {errors.title && (
@@ -84,7 +90,7 @@ export default function AddWritingToSTEP() {
         {/* Question Text */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            نص السؤال <span className="text-red-500">*</span>
+            Question Text <span className="text-red-500">*</span>
           </label>
           <textarea
             name="question_text"
@@ -92,7 +98,7 @@ export default function AddWritingToSTEP() {
             onChange={handleChange}
             required
             rows={4}
-            placeholder="أدخل تعليمات السؤال هنا..."
+            placeholder="Enter the question instructions here..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           />
           {errors.question_text && (
@@ -104,7 +110,7 @@ export default function AddWritingToSTEP() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              الحد الأدنى للكلمات <span className="text-red-500">*</span>
+              Minimum Words <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -118,7 +124,7 @@ export default function AddWritingToSTEP() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              الحد الأقصى للكلمات <span className="text-red-500">*</span>
+              Maximum Words <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -135,7 +141,7 @@ export default function AddWritingToSTEP() {
         {/* Sample Answer */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            الإجابة النموذجية <span className="text-red-500">*</span>
+            Sample Answer <span className="text-red-500">*</span>
           </label>
           <textarea
             name="sample_answer"
@@ -143,7 +149,7 @@ export default function AddWritingToSTEP() {
             onChange={handleChange}
             required
             rows={6}
-            placeholder="أدخل إجابة نموذجية..."
+            placeholder="Enter a sample answer..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           />
         </div>
@@ -151,7 +157,7 @@ export default function AddWritingToSTEP() {
         {/* Rubric */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            معايير التقييم (Rubric) <span className="text-red-500">*</span>
+            Evaluation Criteria (Rubric) <span className="text-red-500">*</span>
           </label>
           <textarea
             name="rubric"
@@ -159,7 +165,7 @@ export default function AddWritingToSTEP() {
             onChange={handleChange}
             required
             rows={4}
-            placeholder="أدخل معايير التقييم..."
+            placeholder="Enter grading criteria..."
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           />
         </div>
@@ -168,7 +174,7 @@ export default function AddWritingToSTEP() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              النقاط
+              Points
             </label>
             <input
               type="number"
@@ -181,7 +187,7 @@ export default function AddWritingToSTEP() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              نسبة النجاح (%)
+              Pass Threshold (%)
             </label>
             <input
               type="number"
@@ -198,7 +204,7 @@ export default function AddWritingToSTEP() {
         {/* Difficulty */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            مستوى الصعوبة
+            Difficulty Level
           </label>
           <select
             name="difficulty"
@@ -206,9 +212,9 @@ export default function AddWritingToSTEP() {
             onChange={handleChange}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
           >
-            <option value="EASY">سهل</option>
-            <option value="MEDIUM">متوسط</option>
-            <option value="HARD">صعب</option>
+            <option value="EASY">Easy</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="HARD">Hard</option>
           </select>
         </div>
 
@@ -226,7 +232,7 @@ export default function AddWritingToSTEP() {
             htmlFor="is_active"
             className="text-sm font-medium text-gray-700"
           >
-            نشط
+            Active
           </label>
         </div>
 
@@ -242,7 +248,7 @@ export default function AddWritingToSTEP() {
           className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-3 rounded-lg font-medium transition-colors"
         >
           <Save className="w-5 h-5" />
-          {loading ? "جاري الحفظ..." : "حفظ السؤال"}
+          {loading ? "Saving..." : "Save Question"}
         </button>
       </form>
     </div>
