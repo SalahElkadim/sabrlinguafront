@@ -13,6 +13,11 @@ const SKILL_TYPES = [
   { value: "WRITING", label: "Writing" },
   { value: "GENERAL_PATH", label: "General Path" },
 ];
+const ORDER_TYPES = [
+  { value: "SEQUENTIAL", label: "تسلسلي (سهل → متوسط → صعب)" },
+  { value: "CYCLIC", label: "دوري (3 سهل، 3 متوسط، 3 صعب، تكرار)" },
+  { value: "RANDOM", label: "عشوائي" },
+];
 
 export default function CreateIELTSSkill() {
   const navigate = useNavigate();
@@ -25,6 +30,7 @@ export default function CreateIELTSSkill() {
     description: "",
     order: 0,
     is_active: true,
+    question_order_type: "SEQUENTIAL",
   });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
@@ -43,6 +49,7 @@ export default function CreateIELTSSkill() {
         description: data.description || "",
         order: data.order || 0,
         is_active: data.is_active ?? true,
+        question_order_type: data.question_order_type || "SEQUENTIAL",
       });
     } catch (err) {
       console.error(err);
@@ -170,7 +177,24 @@ export default function CreateIELTSSkill() {
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
           />
         </div>
-
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
+            طريقة ترتيب الأسئلة
+          </label>
+          <select
+            value={form.question_order_type}
+            onChange={(e) =>
+              setForm({ ...form, question_order_type: e.target.value })
+            }
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right bg-white"
+          >
+            {ORDER_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
         {/* is_active toggle */}
         <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
           <div className="text-right">
