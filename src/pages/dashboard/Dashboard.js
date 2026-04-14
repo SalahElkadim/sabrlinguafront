@@ -7,7 +7,7 @@ export default function Dashboard() {
     {
       id: "general-system",
       name: "GENERAL System",
-      description: "أسئلة عامة في اللغة الانجليزية",
+      description: "General Questions in English",
       icon: BookOpen,
       color: "from-green-500 to-green-600",
       bgColor: "bg-green-50",
@@ -15,9 +15,19 @@ export default function Dashboard() {
       link: "/dashboard/general",
     },
     {
+      id: "ALL TESTS-system",
+      name: "ALL TESTS System",
+      description: "Special Tests in English",
+      icon: BookMarked,
+      color: "from-yellow-500 to-indigo-600",
+      bgColor: "bg-yellow-50",
+      iconColor: "text-yellow-600",
+      link: "/dashboard/esp",
+    },
+    {
       id: "ielts-system",
       name: "IELTS System",
-      description: "إدارة مهارات IELTS والدروس والامتحانات التدريبية",
+      description: "Manage Ielts System ",
       icon: Globe,
       color: "from-orange-500 to-orange-600",
       bgColor: "bg-orange-50",
@@ -27,8 +37,7 @@ export default function Dashboard() {
     {
       id: "step-system",
       name: "STEP System",
-      description:
-        "إدارة مهارات STEP وأسئلة Vocabulary وGrammar وReading وWriting",
+      description: "Manage Ielts System",
       icon: BookMarked,
       color: "from-blue-500 to-indigo-600",
       bgColor: "bg-blue-50",
@@ -41,9 +50,9 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Welcome */}
       <div className="card bg-gradient-to-r from-primary-600 to-blue-600 text-white">
-        <h1 className="text-3xl font-bold mb-2">مرحباً بك في لوحة التحكم</h1>
+        <h1 className="text-3xl font-bold mb-2">Welcome To Dashboard</h1>
         <p className="text-blue-100">
-          اختر القسم الذي تريد العمل عليه من الأقسام أدناه
+          Choose The Section You Want. 
         </p>
       </div>
 
@@ -84,10 +93,10 @@ export default function Dashboard() {
                 <span
                   className={`${module.iconColor} font-medium inline-flex items-center gap-1 group-hover:translate-x-[-4px] transition-transform`}
                 >
-                  الذهاب
+                  Go
                   <ArrowLeft className="w-4 h-4" />
                 </span>
-                <span className="text-gray-400">اضغط للدخول</span>
+                <span className="text-gray-400">Press here</span>
               </div>
             </Link>
           );
