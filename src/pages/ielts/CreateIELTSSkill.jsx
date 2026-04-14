@@ -1,220 +1,222 @@
 // src/pages/ielts/CreateIELTSSkill.jsx
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { ArrowRight, Save, GitBranch } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { BookOpen, Save, ArrowRight, Loader2 } from "lucide-react";
 import { ieltsSkillsAPI } from "../../services/ieltsService";
 
 const SKILL_TYPES = [
   { value: "VOCABULARY", label: "Vocabulary" },
   { value: "GRAMMAR", label: "Grammar" },
   { value: "READING", label: "Reading" },
-  { value: "WRITING", label: "Writing" },
   { value: "LISTENING", label: "Listening" },
   { value: "SPEAKING", label: "Speaking" },
-  { value: "GENERAL_PATH", label: "General path" },
+  { value: "WRITING", label: "Writing" },
+  { value: "GENERAL_PATH", label: "General Path" },
 ];
 
 export default function CreateIELTSSkill() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [iconFile, setIconFile] = useState(null);
+  const { skillId } = useParams();
+  const isEdit = Boolean(skillId);
+
   const [form, setForm] = useState({
-    skill_type: "",
     title: "",
+    skill_type: "VOCABULARY",
     description: "",
     order: 0,
     is_active: true,
   });
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(isEdit);
+  const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
+  useEffect(() => {
+    if (isEdit) fetchSkill();
+  }, [skillId]);
+
+  const fetchSkill = async () => {
+    try {
+      const data = await ieltsSkillsAPI.getById(skillId);
+      setForm({
+        title: data.title || "",
+        skill_type: data.skill_type || "VOCABULARY",
+        description: data.description || "",
+        order: data.order || 0,
+        is_active: data.is_active ?? true,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFetching(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErrors({});
+    if (!form.title.trim()) {
+      setError("عنوان المهارة مطلوب");
+      return;
+    }
     try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([k, v]) => formData.append(k, v));
-      if (iconFile) formData.append("icon", iconFile);
-      await ieltsSkillsAPI.create(formData);
+      setLoading(true);
+      setError("");
+      if (isEdit) {
+        await ieltsSkillsAPI.update(skillId, form);
+      } else {
+        await ieltsSkillsAPI.create(form);
+      }
       navigate("/dashboard/ielts/skills");
     } catch (err) {
-      setErrors(err.response?.data || { general: "حدث خطأ، حاول مرة أخرى" });
+      setError(err.response?.data?.message || "حدث خطأ، حاول مرة أخرى");
     } finally {
       setLoading(false);
     }
   };
 
-  const isGeneralPath = form.skill_type === "GENERAL_PATH";
+  if (fetching) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
-        <Link
-          to="/dashboard/ielts/skills"
-          className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+        <button
+          onClick={() => navigate("/dashboard/ielts/skills")}
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
-          <ArrowRight className="w-5 h-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">إضافة مهارة IELTS</h1>
-          <p className="text-gray-500 text-sm">أضف مهارة جديدة للنظام</p>
+          <ArrowRight className="w-5 h-5 text-gray-600" />
+        </button>
+        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+          <BookOpen className="w-5 h-5 text-blue-700" />
         </div>
+        <h1 className="text-xl font-bold text-gray-900">
+          {isEdit ? "تعديل المهارة" : "إضافة مهارة جديدة"}
+        </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="card space-y-5">
-        {/* Skill Type */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5"
+      >
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
             نوع المهارة <span className="text-red-500">*</span>
           </label>
           <select
-            name="skill_type"
             value={form.skill_type}
-            onChange={handleChange}
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setForm({ ...form, skill_type: e.target.value })}
+            disabled={isEdit}
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right bg-white disabled:bg-gray-50 disabled:text-gray-400"
           >
-            <option value="">-- اختر نوع المهارة --</option>
             {SKILL_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>
             ))}
           </select>
-          {errors.skill_type && (
-            <p className="text-red-500 text-xs mt-1">{errors.skill_type}</p>
+          {isEdit && (
+            <p className="text-xs text-gray-400 text-right">
+              لا يمكن تغيير نوع المهارة بعد الإنشاء
+            </p>
           )}
         </div>
 
-        {/* GENERAL_PATH info banner */}
-        {isGeneralPath && (
-          <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-            <GitBranch className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-indigo-800">
-                المسار العام
-              </p>
-              <p className="text-xs text-indigo-600 mt-1 leading-relaxed">
-                المسار العام يجمع أسئلة من مهارات فرعية متعددة (Vocabulary,
-                Grammar, Reading, Listening). بعد إنشاء المسار، يمكنك ربط
-                المهارات الفرعية به من صفحة تفاصيل المسار.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Title */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
             العنوان <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            name="title"
             value={form.title}
-            onChange={handleChange}
-            required
-            placeholder={
-              isGeneralPath
-                ? "مثال: المسار العام - IELTS"
-                : "مثال: Vocabulary Skills"
-            }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="مثال: Advanced Vocabulary"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
           />
-          {errors.title && (
-            <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-          )}
         </div>
 
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
             الوصف
           </label>
           <textarea
-            name="description"
             value={form.description}
-            onChange={handleChange}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="وصف مختصر للمهارة..."
             rows={3}
-            placeholder={
-              isGeneralPath
-                ? "مثال: مسار شامل يضم أسئلة Vocabulary و Grammar و Reading و Listening..."
-                : "وصف اختياري للمهارة..."
-            }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right resize-none"
           />
         </div>
 
-        {/* Icon */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            الأيقونة (اختياري)
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setIconFile(e.target.files[0])}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-        </div>
-
-        {/* Order */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
             الترتيب
           </label>
           <input
             type="number"
-            name="order"
             value={form.order}
-            onChange={handleChange}
-            min={0}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) =>
+              setForm({ ...form, order: parseInt(e.target.value) || 0 })
+            }
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
           />
         </div>
 
-        {/* Active */}
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="is_active"
-            id="is_active"
-            checked={form.is_active}
-            onChange={handleChange}
-            className="w-4 h-4 text-blue-600"
-          />
-          <label
-            htmlFor="is_active"
-            className="text-sm font-medium text-gray-700"
+        {/* is_active toggle */}
+        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-700">حالة المهارة</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {form.is_active
+                ? "المهارة نشطة وظاهرة للطلاب"
+                : "المهارة معطلة وغير ظاهرة"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, is_active: !form.is_active })}
+            className={`relative w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
+              form.is_active ? "bg-blue-500" : "bg-gray-300"
+            }`}
           >
-            نشط
-          </label>
+            <span
+              className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                form.is_active ? "translate-x-7" : "translate-x-1"
+              }`}
+            />
+          </button>
         </div>
 
-        {errors.general && (
-          <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
-            {errors.general}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg font-medium transition-colors"
-        >
-          <Save className="w-5 h-5" />
-          {loading ? "جاري الحفظ..." : "حفظ المهارة"}
-        </button>
+        <div className="flex gap-3 pt-2">
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard/ielts/skills")}
+            className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+          >
+            إلغاء
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {isEdit ? "حفظ التعديلات" : "إنشاء المهارة"}
+          </button>
+        </div>
       </form>
     </div>
   );
