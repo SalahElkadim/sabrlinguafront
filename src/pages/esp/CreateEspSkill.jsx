@@ -23,6 +23,7 @@ export default function CreateEspSkill() {
     skill_type: "VOCABULARY",
     description: "",
     order: 0,
+    is_active: true,
   });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
@@ -40,6 +41,7 @@ export default function CreateEspSkill() {
         skill_type: data.skill_type || "VOCABULARY",
         description: data.description || "",
         order: data.order || 0,
+        is_active: data.is_active ?? true,
       });
     } catch (err) {
       console.error(err);
@@ -168,6 +170,31 @@ export default function CreateEspSkill() {
             }
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-right"
           />
+        </div>
+
+        {/* is_active toggle */}
+        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+          <div className="text-right">
+            <p className="text-sm font-medium text-gray-700">حالة المهارة</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {form.is_active
+                ? "المهارة نشطة وظاهرة للطلاب"
+                : "المهارة معطلة وغير ظاهرة"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, is_active: !form.is_active })}
+            className={`relative w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0 ${
+              form.is_active ? "bg-emerald-500" : "bg-gray-300"
+            }`}
+          >
+            <span
+              className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                form.is_active ? "translate-x-7" : "translate-x-1"
+              }`}
+            />
+          </button>
         </div>
 
         <div className="flex gap-3 pt-2">
