@@ -769,9 +769,7 @@ export default function EspSkillDetails() {
         <div className="flex items-center gap-3">
           <button
             onClick={() =>
-              navigate(
-                `/dashboard/esp/categories/${skill?.category?.id}/skills`
-              )
+              navigate(`/dashboard/esp/categories/${skill?.category}/skills`)
             }
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >

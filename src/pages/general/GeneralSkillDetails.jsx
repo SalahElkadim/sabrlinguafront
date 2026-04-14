@@ -549,7 +549,7 @@ export default function GeneralSkillDetails() {
               <button
                 onClick={() =>
                   navigate(
-                    `/dashboard/general/skills/${skillId}/add/reading/passage/${passage.id}/questions`
+                    `/dashboard/general/categories/${skill?.category}/skills`
                   )
                 }
                 className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
