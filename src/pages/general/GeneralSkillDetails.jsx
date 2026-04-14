@@ -549,7 +549,7 @@ export default function GeneralSkillDetails() {
               <button
                 onClick={() =>
                   navigate(
-                    `/dashboard/general/categories/${skill?.category}/skills`
+                    `/dashboard/general/skills/${skillId}/add/reading/passage/${passage.id}/questions`
                   )
                 }
                 className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
@@ -770,7 +770,7 @@ export default function GeneralSkillDetails() {
           <button
             onClick={() =>
               navigate(
-                `/dashboard/general/categories/${skill?.category?.id}/skills`
+                `/dashboard/general/categories/${skill?.category}/skills`
               )
             }
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
