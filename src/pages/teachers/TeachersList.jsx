@@ -177,6 +177,36 @@ function TeacherModal({ teacher, onClose, onSaved }) {
             )}
           </div>
 
+          {/* بعد سطر الـ subject مباشرة */}
+          <div className="flex items-center gap-1.5 mt-1">
+            {teacher.reviews_count > 0 ? (
+              <>
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={`text-sm ${
+                        star <= Math.round(teacher.average_rating)
+                          ? "text-amber-400"
+                          : "text-gray-200"
+                      }`}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+                <span className="text-xs text-gray-500">
+                  {teacher.average_rating?.toFixed(1)} ({teacher.reviews_count}{" "}
+                  تقييم)
+                </span>
+              </>
+            ) : (
+              <span className="text-xs text-gray-400 italic">
+                لا يوجد تقييم بعد
+              </span>
+            )}
+          </div>
+
           {/* Experience + Price */}
           <div className="grid grid-cols-2 gap-4">
             <div>
