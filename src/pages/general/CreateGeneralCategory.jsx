@@ -1,14 +1,14 @@
 // src/pages/general/CreateGeneralCategory.jsx
-// يُستخدم لإنشاء كاتيجوري جديدة أو تعديل موجودة (حسب وجود categoryId في params)
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FolderOpen, Save, ArrowRight, Loader2 } from "lucide-react";
+import { FolderOpen, Save, ArrowRight, Loader2, Upload, X } from "lucide-react";
 import { generalCategoriesAPI } from "../../services/generalService";
 
 export default function CreateGeneralCategory() {
   const navigate = useNavigate();
-  const { categoryId } = useParams(); // موجود لو edit
+  const { categoryId } = useParams();
   const isEdit = Boolean(categoryId);
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -16,14 +16,14 @@ export default function CreateGeneralCategory() {
     order: 0,
     is_active: true,
   });
+  const [iconFile, setIconFile] = useState(null); // الملف الفعلي
+  const [iconPreview, setIconPreview] = useState(null); // preview للعرض
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEdit);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (isEdit) {
-      fetchCategory();
-    }
+    if (isEdit) fetchCategory();
   }, [categoryId]);
 
   const fetchCategory = async () => {
@@ -35,11 +35,25 @@ export default function CreateGeneralCategory() {
         order: data.order || 0,
         is_active: data.is_active ?? true,
       });
+      if (data.icon) setIconPreview(data.icon); // عرض الأيقونة الحالية
     } catch (err) {
       console.error(err);
     } finally {
       setFetching(false);
     }
+  };
+
+  const handleIconChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIconFile(file);
+    setIconPreview(URL.createObjectURL(file)); // preview فوري
+  };
+
+  const handleRemoveIcon = () => {
+    setIconFile(null);
+    setIconPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (e) => {
@@ -51,10 +65,21 @@ export default function CreateGeneralCategory() {
     try {
       setLoading(true);
       setError("");
+
+      // ✅ لازم FormData عشان ترفع ملف
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("description", form.description || "");
+      formData.append("order", form.order);
+      formData.append("is_active", form.is_active);
+      if (iconFile) {
+        formData.append("icon", iconFile);
+      }
+
       if (isEdit) {
-        await generalCategoriesAPI.update(categoryId, form);
+        await generalCategoriesAPI.update(categoryId, formData);
       } else {
-        await generalCategoriesAPI.create(form);
+        await generalCategoriesAPI.create(formData);
       }
       navigate("/dashboard/general/categories");
     } catch (err) {
@@ -103,6 +128,54 @@ export default function CreateGeneralCategory() {
           </div>
         )}
 
+        {/* ✅ حقل الأيقونة */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
+            الأيقونة
+          </label>
+          <div className="flex items-center gap-4">
+            {/* Preview */}
+            {iconPreview ? (
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0">
+                <img
+                  src={iconPreview}
+                  alt="icon preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveIcon}
+                  className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center flex-shrink-0">
+                <FolderOpen className="w-6 h-6 text-gray-400" />
+              </div>
+            )}
+
+            {/* Upload Button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-700 hover:bg-gray-50"
+            >
+              <Upload className="w-4 h-4" />
+              {iconPreview ? "تغيير الأيقونة" : "رفع أيقونة"}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleIconChange}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        {/* باقي الحقول زي ما هي */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 text-right">
             اسم الكاتيجوري <span className="text-red-500">*</span>
