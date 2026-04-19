@@ -75,7 +75,9 @@ export const ieltsQuestionsAPI = {
     return response.data;
   },
   deleteVocabulary: async (questionId) => {
-    const response = await api.delete(`/ielts/vocabulary/${questionId}/delete/`);
+    const response = await api.delete(
+      `/ielts/vocabulary/${questionId}/delete/`
+    );
     return response.data;
   },
 
@@ -85,7 +87,10 @@ export const ieltsQuestionsAPI = {
     return response.data;
   },
   updateGrammar: async (questionId, data) => {
-    const response = await api.put(`/ielts/grammar/${questionId}/update/`, data);
+    const response = await api.put(
+      `/ielts/grammar/${questionId}/update/`,
+      data
+    );
     return response.data;
   },
   deleteGrammar: async (questionId) => {
@@ -145,9 +150,11 @@ export const ieltsQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف ده
     const response = await api.put(
       `/ielts/listening/audio/${audioId}/update/`,
-      data
+      data,
+      config // ← أضف ده
     );
     return response.data;
   },
@@ -186,9 +193,11 @@ export const ieltsQuestionsAPI = {
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف ده
     const response = await api.put(
       `/ielts/speaking/videos/${videoId}/update/`,
-      data
+      data,
+      config // ← أضف ده
     );
     return response.data;
   },

@@ -834,6 +834,9 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
 // ============================================
 // Listening Audio Edit Form
 // ============================================
+// ============================================
+// Listening Audio Edit Form
+// ============================================
 function AudioEditForm({ audio, onSave, onCancel }) {
   const [form, setForm] = useState({
     title: audio.title,
@@ -842,42 +845,74 @@ function AudioEditForm({ audio, onSave, onCancel }) {
     duration: audio.duration || 0,
     difficulty: audio.difficulty || "MEDIUM",
   });
+  const [audioFile, setAudioFile] = useState(null);      // ← جديد
+  const [audioPreview, setAudioPreview] = useState(audio.audio_file || ""); // ← جديد
   const [saving, setSaving] = useState(false);
+
+  const handleAudioChange = (e) => {                      // ← جديد
+    const file = e.target.files[0];
+    if (!file) return;
+    setAudioFile(file);
+    setAudioPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      await ieltsQuestionsAPI.updateListeningAudio(audio.id, form);
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("transcript", form.transcript);
+      formData.append("duration", form.duration);
+      formData.append("difficulty", form.difficulty);
+      if (audioFile) {
+        formData.append("audio_file", audioFile); // الملف الجديد فقط لو اتغير
+      }
+      await ieltsQuestionsAPI.updateListeningAudio(audio.id, formData);
       onSave();
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <div className="border-2 border-cyan-200 rounded-xl p-4 bg-cyan-50/30 space-y-3">
       <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          العنوان
-        </label>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">العنوان</label>
         <input
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
         />
       </div>
+
+      {/* ← جديد: رفع الصوت */}
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          رابط الصوت
+          الملف الصوتي
         </label>
-        <input
-          value={form.audio_file}
-          onChange={(e) => setForm({ ...form, audio_file: e.target.value })}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
-        />
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-cyan-300 rounded-lg px-3 py-3 bg-cyan-50 hover:bg-cyan-100 transition-colors">
+            <Headphones className="w-4 h-4 text-cyan-500 shrink-0" />
+            <span className="text-xs text-cyan-600 font-medium">
+              {audioFile ? audioFile.name : "اضغط لرفع ملف صوتي"}
+            </span>
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
+              onChange={handleAudioChange}
+            />
+          </label>
+          {audioPreview && (
+            <audio controls className="w-full" src={audioPreview}>
+              المتصفح لا يدعم تشغيل الصوت
+            </audio>
+          )}
+        </div>
       </div>
+
       <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          النص (اختياري)
-        </label>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">النص (اختياري)</label>
         <textarea
           value={form.transcript}
           onChange={(e) => setForm({ ...form, transcript: e.target.value })}
@@ -886,9 +921,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
         />
       </div>
       <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          المدة (ثانية)
-        </label>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">المدة (ثانية)</label>
         <input
           type="number"
           value={form.duration}
@@ -906,22 +939,13 @@ function AudioEditForm({ audio, onSave, onCancel }) {
         <option value="HARD">صعب</option>
       </select>
       <div className="flex gap-2 justify-end">
-        <button
-          onClick={onCancel}
-          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
-        >
-          إلغاء
-        </button>
+        <button onClick={onCancel} className="px-3 py-1.5 rounded-lg border text-xs text-gray-600">إلغاء</button>
         <button
           onClick={handleSubmit}
           disabled={saving}
           className="px-3 py-1.5 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1"
         >
-          {saving ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Check className="w-3 h-3" />
-          )}
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
           حفظ
         </button>
       </div>
@@ -1253,6 +1277,9 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
 // ============================================
 // Speaking Video Edit Form
 // ============================================
+// ============================================
+// Speaking Video Edit Form
+// ============================================
 function VideoEditForm({ video, onSave, onCancel }) {
   const [form, setForm] = useState({
     title: video.title,
@@ -1260,32 +1287,74 @@ function VideoEditForm({ video, onSave, onCancel }) {
     duration: video.duration || 0,
     difficulty: video.difficulty || "MEDIUM",
   });
+  const [videoFile, setVideoFile] = useState(null);           // ← جديد
+  const [videoPreview, setVideoPreview] = useState(video.video_file || ""); // ← جديد
   const [saving, setSaving] = useState(false);
+
+  const handleVideoChange = (e) => {                           // ← جديد
+    const file = e.target.files[0];
+    if (!file) return;
+    setVideoFile(file);
+    setVideoPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      await ieltsQuestionsAPI.updateSpeakingVideo(video.id, form);
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("duration", form.duration);
+      formData.append("difficulty", form.difficulty);
+      if (videoFile) {
+        formData.append("video_file", videoFile); // الملف الجديد فقط لو اتغير
+      }
+      await ieltsQuestionsAPI.updateSpeakingVideo(video.id, formData);
       onSave();
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <div className="border-2 border-rose-200 rounded-xl p-4 bg-rose-50/30 space-y-3">
       <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          العنوان
-        </label>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">العنوان</label>
         <input
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
         />
       </div>
+
+      {/* ← جديد: رفع الفيديو */}
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          الوصف (اختياري)
+          ملف الفيديو
         </label>
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-rose-300 rounded-lg px-3 py-3 bg-rose-50 hover:bg-rose-100 transition-colors">
+            <Video className="w-4 h-4 text-rose-500 shrink-0" />
+            <span className="text-xs text-rose-600 font-medium">
+              {videoFile ? videoFile.name : "اضغط لرفع فيديو"}
+            </span>
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoChange}
+            />
+          </label>
+          {videoPreview && (
+            <video controls className="w-full rounded-lg" src={videoPreview}>
+              المتصفح لا يدعم تشغيل الفيديو
+            </video>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">الوصف (اختياري)</label>
         <textarea
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -1294,9 +1363,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
         />
       </div>
       <div>
-        <label className="text-xs font-medium text-gray-600 mb-1 block">
-          المدة (ثانية)
-        </label>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">المدة (ثانية)</label>
         <input
           type="number"
           value={form.duration}
@@ -1314,22 +1381,13 @@ function VideoEditForm({ video, onSave, onCancel }) {
         <option value="HARD">صعب</option>
       </select>
       <div className="flex gap-2 justify-end">
-        <button
-          onClick={onCancel}
-          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
-        >
-          إلغاء
-        </button>
+        <button onClick={onCancel} className="px-3 py-1.5 rounded-lg border text-xs text-gray-600">إلغاء</button>
         <button
           onClick={handleSubmit}
           disabled={saving}
           className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1"
         >
-          {saving ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <Check className="w-3 h-3" />
-          )}
+          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
           حفظ
         </button>
       </div>
