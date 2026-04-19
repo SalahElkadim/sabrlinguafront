@@ -46,8 +46,8 @@ export default function JobMediaUploader({ job, onUploaded }) {
 
     try {
       // 1. ارفع على Cloudinary مباشرة من الفرونت
-      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-      const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+      const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+      const uploadPreset = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
 
       const fd = new FormData();
       fd.append("file", file);
