@@ -23,6 +23,7 @@ import {
   Check,
 } from "lucide-react";
 import api from "../../api/axios";
+import JobMediaUploader from "./JobMediaUploader";
 
 // ─── helpers ───────────────────────────────────────────────────────────────
 const fmt = (s) =>
@@ -881,6 +882,7 @@ function GenerateSection({ onRefresh, jobs }) {
                         عرض
                       </Link>
                     )}
+                    <JobMediaUploader job={j} onUploaded={onRefresh} />
                   </div>
                 </div>
               ))}
