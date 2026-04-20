@@ -72,7 +72,7 @@ export default function AddListeningAudioToIELTS() {
         setAudioPreview(data.secure_url);
         setForm((prev) => ({
           ...prev,
-          audio_file: data.public_id,
+          audio_file: data.secure_url,
           duration: data.duration
             ? Math.round(data.duration).toString()
             : prev.duration,
