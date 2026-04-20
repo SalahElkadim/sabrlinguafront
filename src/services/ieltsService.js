@@ -176,7 +176,7 @@ export const ieltsQuestionsAPI = {
   updateListeningQuestion: async (questionId, data) => {
     const response = await api.put(
       `/ielts/listening/questions/${questionId}/update/`,
-      data
+      data,
     );
     return response.data;
   },
