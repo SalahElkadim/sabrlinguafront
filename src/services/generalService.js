@@ -197,7 +197,12 @@ export const generalQuestionsAPI = {
 
   // ---------- Listening Audio ----------
   createListeningAudio: async (data) => {
-    const response = await api.post("/general/listening/audio/create/", data);
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/general/listening/audio/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
