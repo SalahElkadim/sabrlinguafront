@@ -146,7 +146,27 @@ export const ieltsQuestionsAPI = {
 
   // ---------- Listening Audio ----------
   createListeningAudio: async (data) => {
-    const response = await api.post("/ielts/listening/audio/create/", data);
+    // لو في ملف → بعته كـ FormData
+    const isFile =
+      data instanceof FormData ||
+      (data.audio_file && data.audio_file instanceof File);
+
+    if (isFile && !(data instanceof FormData)) {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
+      data = formData;
+    }
+
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/ielts/listening/audio/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
@@ -176,7 +196,7 @@ export const ieltsQuestionsAPI = {
   updateListeningQuestion: async (questionId, data) => {
     const response = await api.put(
       `/ielts/listening/questions/${questionId}/update/`,
-      data,
+      data
     );
     return response.data;
   },
@@ -189,7 +209,26 @@ export const ieltsQuestionsAPI = {
 
   // ---------- Speaking Video ----------
   createSpeakingVideo: async (data) => {
-    const response = await api.post("/ielts/speaking/videos/create/", data);
+    const isFile =
+      data instanceof FormData ||
+      (data.video_file && data.video_file instanceof File);
+
+    if (isFile && !(data instanceof FormData)) {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
+      data = formData;
+    }
+
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/ielts/speaking/videos/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
