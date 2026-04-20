@@ -72,7 +72,7 @@ export default function AddSpeakingVideoToIELTS() {
         setVideoPreview(data.secure_url);
         setForm((prev) => ({
           ...prev,
-          video_file: data.public_id,
+          video_file: data.secure_url,
           duration: data.duration
             ? Math.round(data.duration).toString()
             : prev.duration,
