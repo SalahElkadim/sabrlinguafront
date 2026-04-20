@@ -1,37 +1,70 @@
-// src/pages/esp/AddSpeakingToEsp.jsx  (Video)
-import { useState } from "react";
+// ✅ الكود الكامل المعدّل
+import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Mic, Save, ArrowRight, Loader2 } from "lucide-react";
+import {
+  Mic,
+  Save,
+  ArrowRight,
+  Loader2,
+  UploadCloud,
+  X,
+  Video,
+} from "lucide-react";
 import { espQuestionsAPI } from "../../services/espService";
 
 export default function AddSpeakingVideoToEsp() {
   const navigate = useNavigate();
   const { skillId } = useParams();
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
     title: "",
-    video_file: "",
     description: "",
     duration: 0,
     difficulty: "MEDIUM",
   });
+  const [videoFile, setVideoFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setVideoFile(file);
+    if (!form.title.trim()) {
+      setForm((f) => ({ ...f, title: file.name.replace(/\.[^/.]+$/, "") }));
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setVideoFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.video_file.trim()) {
-      setError("العنوان ورابط الفيديو مطلوبان");
+    if (!form.title.trim()) {
+      setError("العنوان مطلوب");
       return;
     }
+    if (!videoFile) {
+      setError("يرجى رفع ملف الفيديو");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
-      const res = await espQuestionsAPI.createSpeakingVideo({
-        ...form,
-        duration: parseInt(form.duration) || 0,
-        esp_skill: parseInt(skillId),
-      });
+
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("video_file", videoFile);
+      formData.append("description", form.description);
+      formData.append("duration", parseInt(form.duration) || 0);
+      formData.append("difficulty", form.difficulty);
+      formData.append("esp_skill", parseInt(skillId));
+
+      const res = await espQuestionsAPI.createSpeakingVideo(formData);
       navigate(
         `/dashboard/esp/skills/${skillId}/add/speaking/video/${res.video.id}/questions`
       );
@@ -58,15 +91,74 @@ export default function AddSpeakingVideoToEsp() {
           إضافة فيديو Speaking
         </h1>
       </div>
+
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5"
       >
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm text-right">
             {error}
           </div>
         )}
+
+        {/* Video Upload */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-gray-700 text-right">
+            ملف الفيديو <span className="text-red-500">*</span>
+          </label>
+          {!videoFile ? (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full border-2 border-dashed border-gray-200 rounded-xl p-8 flex flex-col items-center gap-3 hover:border-orange-400 hover:bg-orange-50 transition-colors group"
+            >
+              <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                <UploadCloud className="w-6 h-6 text-orange-600" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-700">
+                  اضغط لرفع ملف الفيديو
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  MP4 · MOV · AVI · WEBM
+                </p>
+              </div>
+            </button>
+          ) : (
+            <div className="border border-orange-200 bg-orange-50 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleRemoveFile}
+                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <div className="flex-1 min-w-0 text-right">
+                  <p className="text-sm font-semibold text-gray-800 truncate">
+                    {videoFile.name}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {(videoFile.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+                <div className="w-9 h-9 bg-orange-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Video className="w-4 h-4 text-orange-700" />
+                </div>
+              </div>
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        {/* Title */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 text-right">
             العنوان <span className="text-red-500">*</span>
@@ -78,18 +170,8 @@ export default function AddSpeakingVideoToEsp() {
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-right"
           />
         </div>
-        <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-gray-700 text-right">
-            رابط الفيديو <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={form.video_file}
-            onChange={(e) => setForm({ ...form, video_file: e.target.value })}
-            placeholder="https://..."
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-right"
-          />
-        </div>
+
+        {/* Description */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 text-right">
             الوصف
@@ -101,6 +183,8 @@ export default function AddSpeakingVideoToEsp() {
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-right resize-none"
           />
         </div>
+
+        {/* Duration + Difficulty */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700 text-right">
@@ -128,6 +212,8 @@ export default function AddSpeakingVideoToEsp() {
             </select>
           </div>
         </div>
+
+        {/* Actions */}
         <div className="flex gap-3 pt-2">
           <button
             type="button"

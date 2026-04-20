@@ -192,7 +192,12 @@ export const espQuestionsAPI = {
 
   // ---------- Listening Audio ----------
   createListeningAudio: async (data) => {
-    const response = await api.post("/esp/listening/audio/create/", data);
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/esp/listening/audio/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
@@ -235,15 +240,20 @@ export const espQuestionsAPI = {
 
   // ---------- Speaking Video ----------
   createSpeakingVideo: async (data) => {
-    const response = await api.post("/esp/speaking/videos/create/", data);
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/esp/speaking/videos/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
-      `/general/speaking/videos/${videoId}/update/`,
+      `/esp/speaking/videos/${videoId}/update/`, // ✅ esp
       data,
-      config // ← أضف
+      config
     );
     return response.data;
   },
