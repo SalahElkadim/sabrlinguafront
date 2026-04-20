@@ -68,8 +68,8 @@ export default function AddSpeakingVideoToIELTS() {
       if (data.error) throw new Error(data.error.message);
 
       if (data.public_id) {
-        setVideoUrl(data.public_id);
-        setVideoPreview(data.public_id);
+        setVideoUrl(data.secure_url);
+        setVideoPreview(data.secure_url);
         setForm((prev) => ({
           ...prev,
           video_file: data.public_id,

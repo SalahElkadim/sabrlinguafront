@@ -68,8 +68,8 @@ export default function AddListeningAudioToIELTS() {
       if (data.error) throw new Error(data.error.message);
 
       if (data.public_id) {
-        setAudioUrl(data.public_id);
-        setAudioPreview(data.public_id);
+        setAudioUrl(data.secure_url);
+        setAudioPreview(data.secure_url);
         setForm((prev) => ({
           ...prev,
           audio_file: data.public_id,
