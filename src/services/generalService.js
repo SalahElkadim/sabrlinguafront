@@ -244,8 +244,14 @@ export const generalQuestionsAPI = {
   },
 
   // ---------- Speaking Video ----------
+  // ✅ بعد
   createSpeakingVideo: async (data) => {
-    const response = await api.post("/general/speaking/videos/create/", data);
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/general/speaking/videos/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
