@@ -1,7 +1,7 @@
 // src/pages/general/AddSpeakingToGeneral.jsx  (Video)
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Mic, Save, ArrowRight, Loader2 } from "lucide-react";
+import { Mic, Save, ArrowRight, Loader2, UploadCloud } from "lucide-react";
 import { generalQuestionsAPI } from "../../services/generalService";
 
 export default function AddSpeakingVideoToGeneral() {
@@ -10,28 +10,42 @@ export default function AddSpeakingVideoToGeneral() {
 
   const [form, setForm] = useState({
     title: "",
-    video_file: "",
+    video_file: null, // ← File object بدل string
     description: "",
     duration: 0,
     difficulty: "MEDIUM",
   });
+  const [preview, setPreview] = useState(""); // اسم الملف للعرض
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setForm({ ...form, video_file: file });
+    setPreview(file.name);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.video_file.trim()) {
-      setError("العنوان ورابط الفيديو مطلوبان");
+    if (!form.title.trim() || !form.video_file) {
+      setError("العنوان وملف الفيديو مطلوبان");
       return;
     }
     try {
       setLoading(true);
       setError("");
-      const res = await generalQuestionsAPI.createSpeakingVideo({
-        ...form,
-        duration: parseInt(form.duration) || 0,
-        general_skill: parseInt(skillId),
-      });
+
+      // استخدام FormData لرفع الملف
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("video_file", form.video_file);
+      formData.append("description", form.description);
+      formData.append("duration", parseInt(form.duration) || 0);
+      formData.append("difficulty", form.difficulty);
+      formData.append("general_skill", parseInt(skillId));
+
+      const res = await generalQuestionsAPI.createSpeakingVideo(formData);
       navigate(
         `/dashboard/general/skills/${skillId}/add/speaking/video/${res.video.id}/questions`
       );
@@ -58,6 +72,7 @@ export default function AddSpeakingVideoToGeneral() {
           إضافة فيديو Speaking
         </h1>
       </div>
+
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5"
@@ -67,6 +82,8 @@ export default function AddSpeakingVideoToGeneral() {
             {error}
           </div>
         )}
+
+        {/* العنوان */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 text-right">
             العنوان <span className="text-red-500">*</span>
@@ -78,18 +95,40 @@ export default function AddSpeakingVideoToGeneral() {
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-right"
           />
         </div>
+
+        {/* رفع الفيديو */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 text-right">
-            رابط الفيديو <span className="text-red-500">*</span>
+            ملف الفيديو <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            value={form.video_file}
-            onChange={(e) => setForm({ ...form, video_file: e.target.value })}
-            placeholder="https://..."
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-right"
-          />
+          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
+            <div className="flex flex-col items-center gap-2 text-gray-500">
+              <UploadCloud className="w-8 h-8 text-orange-400" />
+              {preview ? (
+                <span className="text-sm font-medium text-orange-600">
+                  {preview}
+                </span>
+              ) : (
+                <>
+                  <span className="text-sm font-medium">
+                    اضغط لاختيار الفيديو
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    MP4, MOV, AVI...
+                  </span>
+                </>
+              )}
+            </div>
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
         </div>
+
+        {/* الوصف */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 text-right">
             الوصف
@@ -101,6 +140,8 @@ export default function AddSpeakingVideoToGeneral() {
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 text-right resize-none"
           />
         </div>
+
+        {/* المدة والصعوبة */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700 text-right">
@@ -128,6 +169,8 @@ export default function AddSpeakingVideoToGeneral() {
             </select>
           </div>
         </div>
+
+        {/* الأزرار */}
         <div className="flex gap-3 pt-2">
           <button
             type="button"
