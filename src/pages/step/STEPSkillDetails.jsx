@@ -838,21 +838,37 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
 function AudioEditForm({ audio, onSave, onCancel }) {
   const [form, setForm] = useState({
     title: audio.title,
-    audio_file: audio.audio_file || "",
     transcript: audio.transcript || "",
     duration: audio.duration || 0,
     difficulty: audio.difficulty || "MEDIUM",
   });
+  const [audioFile, setAudioFile] = useState(null);
+  const [audioPreview, setAudioPreview] = useState(audio.audio_file || "");
   const [saving, setSaving] = useState(false);
+
+  const handleAudioChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAudioFile(file);
+    setAudioPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      await stepQuestionsAPI.updateListeningAudio(audio.id, form);
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("transcript", form.transcript);
+      formData.append("duration", form.duration);
+      formData.append("difficulty", form.difficulty);
+      if (audioFile) formData.append("audio_file", audioFile);
+      await stepQuestionsAPI.updateListeningAudio(audio.id, formData);
       onSave();
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <div className="border-2 border-cyan-200 rounded-xl p-4 bg-cyan-50/30 space-y-3">
       <div>
@@ -867,13 +883,27 @@ function AudioEditForm({ audio, onSave, onCancel }) {
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
-          Audio URL
+          Audio File
         </label>
-        <input
-          value={form.audio_file}
-          onChange={(e) => setForm({ ...form, audio_file: e.target.value })}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
-        />
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-cyan-300 rounded-lg px-3 py-3 bg-cyan-50 hover:bg-cyan-100 transition-colors">
+            <Headphones className="w-4 h-4 text-cyan-500 shrink-0" />
+            <span className="text-xs text-cyan-600 font-medium">
+              {audioFile ? audioFile.name : "Click to upload audio file"}
+            </span>
+            <input
+              type="file"
+              accept="audio/*"
+              className="hidden"
+              onChange={handleAudioChange}
+            />
+          </label>
+          {audioPreview && (
+            <audio controls className="w-full" src={audioPreview}>
+              Your browser does not support audio playback
+            </audio>
+          )}
+        </div>
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
@@ -1263,16 +1293,33 @@ function VideoEditForm({ video, onSave, onCancel }) {
     duration: video.duration || 0,
     difficulty: video.difficulty || "MEDIUM",
   });
+  const [videoFile, setVideoFile] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(video.video_file || "");
   const [saving, setSaving] = useState(false);
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setVideoFile(file);
+    setVideoPreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      await stepQuestionsAPI.updateSpeakingVideo(video.id, form);
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("duration", form.duration);
+      formData.append("difficulty", form.difficulty);
+      if (videoFile) formData.append("video_file", videoFile);
+      await stepQuestionsAPI.updateSpeakingVideo(video.id, formData);
       onSave();
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <div className="border-2 border-rose-200 rounded-xl p-4 bg-rose-50/30 space-y-3">
       <div>
@@ -1284,6 +1331,30 @@ function VideoEditForm({ video, onSave, onCancel }) {
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
         />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-gray-600 mb-1 block">
+          Video File
+        </label>
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-rose-300 rounded-lg px-3 py-3 bg-rose-50 hover:bg-rose-100 transition-colors">
+            <Video className="w-4 h-4 text-rose-500 shrink-0" />
+            <span className="text-xs text-rose-600 font-medium">
+              {videoFile ? videoFile.name : "Click to upload video"}
+            </span>
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoChange}
+            />
+          </label>
+          {videoPreview && (
+            <video controls className="w-full rounded-lg" src={videoPreview}>
+              Your browser does not support video playback
+            </video>
+          )}
+        </div>
       </div>
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">

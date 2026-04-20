@@ -145,9 +145,11 @@ export const stepQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
     const response = await api.put(
       `/step/listening/audio/${audioId}/update/`,
-      data
+      data,
+      config // ← أضف
     );
     return response.data;
   },
@@ -186,9 +188,11 @@ export const stepQuestionsAPI = {
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
     const response = await api.put(
       `/step/speaking/videos/${videoId}/update/`,
-      data
+      data,
+      config // ← أضف
     );
     return response.data;
   },

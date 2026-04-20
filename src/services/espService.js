@@ -131,9 +131,7 @@ export const espQuestionsAPI = {
     return response.data;
   },
   deleteVocabulary: async (questionId) => {
-    const response = await api.delete(
-      `/esp/vocabulary/${questionId}/delete/`
-    );
+    const response = await api.delete(`/esp/vocabulary/${questionId}/delete/`);
     return response.data;
   },
 
@@ -143,10 +141,7 @@ export const espQuestionsAPI = {
     return response.data;
   },
   updateGrammar: async (questionId, data) => {
-    const response = await api.put(
-      `/esp/grammar/${questionId}/update/`,
-      data
-    );
+    const response = await api.put(`/esp/grammar/${questionId}/update/`, data);
     return response.data;
   },
   deleteGrammar: async (questionId) => {
@@ -201,9 +196,11 @@ export const espQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
     const response = await api.put(
       `/esp/listening/audio/${audioId}/update/`,
-      data
+      data,
+      config // ← أضف
     );
     return response.data;
   },
@@ -242,9 +239,11 @@ export const espQuestionsAPI = {
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
     const response = await api.put(
-      `/esp/speaking/videos/${videoId}/update/`,
-      data
+      `/general/speaking/videos/${videoId}/update/`,
+      data,
+      config // ← أضف
     );
     return response.data;
   },

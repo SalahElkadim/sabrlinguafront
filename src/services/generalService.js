@@ -201,9 +201,11 @@ export const generalQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
     const response = await api.put(
       `/general/listening/audio/${audioId}/update/`,
-      data
+      data,
+      config // ← أضف
     );
     return response.data;
   },
@@ -242,9 +244,11 @@ export const generalQuestionsAPI = {
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
+    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
     const response = await api.put(
       `/general/speaking/videos/${videoId}/update/`,
-      data
+      data,
+      config // ← أضف
     );
     return response.data;
   },
