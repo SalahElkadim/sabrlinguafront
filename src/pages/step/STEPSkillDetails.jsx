@@ -19,6 +19,7 @@ import {
   Loader2,
   GitBranch,
   Video,
+  AlertCircle,
 } from "lucide-react";
 import { stepSkillsAPI, stepQuestionsAPI } from "../../services/stepService";
 
@@ -835,6 +836,9 @@ function ReadingPassageCard({ passage, index, onUpdate }) {
 // ============================================
 // Listening Audio Edit Form
 // ============================================
+// ============================================
+// Listening Audio Edit Form
+// ============================================
 function AudioEditForm({ audio, onSave, onCancel }) {
   const [form, setForm] = useState({
     title: audio.title,
@@ -842,28 +846,74 @@ function AudioEditForm({ audio, onSave, onCancel }) {
     duration: audio.duration || 0,
     difficulty: audio.difficulty || "MEDIUM",
   });
-  const [audioFile, setAudioFile] = useState(null);
+  const [uploadingAudio, setUploadingAudio] = useState(false);
+  const [audioUrl, setAudioUrl] = useState(audio.audio_file || "");
   const [audioPreview, setAudioPreview] = useState(audio.audio_file || "");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleAudioChange = (e) => {
+  const handleAudioChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setAudioFile(file);
-    setAudioPreview(URL.createObjectURL(file));
+
+    if (!file.type.startsWith("audio/")) {
+      setError("Please select an audio file only");
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      setError("File size must be less than 50 MB");
+      return;
+    }
+
+    setUploadingAudio(true);
+    setError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "react_uploads");
+    formData.append("resource_type", "video");
+
+    try {
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dyxozpomy/upload",
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+
+      setAudioUrl(data.secure_url);
+      setAudioPreview(data.secure_url);
+      setForm((prev) => ({
+        ...prev,
+        duration: data.duration
+          ? Math.round(data.duration).toString()
+          : prev.duration,
+      }));
+    } catch (err) {
+      setError(`An error occurred while uploading the file: ${err.message}`);
+    } finally {
+      setUploadingAudio(false);
+    }
   };
 
   const handleSubmit = async () => {
+    if (!form.title.trim()) {
+      setError("Title is required");
+      return;
+    }
     setSaving(true);
     try {
-      const formData = new FormData();
-      formData.append("title", form.title);
-      formData.append("transcript", form.transcript);
-      formData.append("duration", form.duration);
-      formData.append("difficulty", form.difficulty);
-      if (audioFile) formData.append("audio_file", audioFile);
-      await stepQuestionsAPI.updateListeningAudio(audio.id, formData);
+      await stepQuestionsAPI.updateListeningAudio(audio.id, {
+        title: form.title,
+        transcript: form.transcript,
+        duration: form.duration,
+        difficulty: form.difficulty,
+        audio_file: audioUrl,
+      });
       onSave();
+    } catch (err) {
+      setError(err?.response?.data?.error || "An error occurred while saving");
     } finally {
       setSaving(false);
     }
@@ -871,6 +921,12 @@ function AudioEditForm({ audio, onSave, onCancel }) {
 
   return (
     <div className="border-2 border-cyan-200 rounded-xl p-4 bg-cyan-50/30 space-y-3">
+      {error && (
+        <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-xs">
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+          {error}
+        </div>
+      )}
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
           Title
@@ -886,16 +942,31 @@ function AudioEditForm({ audio, onSave, onCancel }) {
           Audio File
         </label>
         <div className="space-y-2">
-          <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-cyan-300 rounded-lg px-3 py-3 bg-cyan-50 hover:bg-cyan-100 transition-colors">
-            <Headphones className="w-4 h-4 text-cyan-500 shrink-0" />
+          <label
+            className={`flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-cyan-300 rounded-lg px-3 py-3 transition-colors ${
+              uploadingAudio
+                ? "opacity-50 cursor-not-allowed bg-gray-50"
+                : "bg-cyan-50 hover:bg-cyan-100"
+            }`}
+          >
+            {uploadingAudio ? (
+              <Loader2 className="w-4 h-4 animate-spin text-cyan-500 shrink-0" />
+            ) : (
+              <Headphones className="w-4 h-4 text-cyan-500 shrink-0" />
+            )}
             <span className="text-xs text-cyan-600 font-medium">
-              {audioFile ? audioFile.name : "Click to upload audio file"}
+              {uploadingAudio
+                ? "Uploading..."
+                : audioUrl && audioUrl !== audio.audio_file
+                ? "File uploaded successfully ✓"
+                : "Click to replace audio file"}
             </span>
             <input
               type="file"
               accept="audio/*"
               className="hidden"
               onChange={handleAudioChange}
+              disabled={uploadingAudio}
             />
           </label>
           {audioPreview && (
@@ -913,7 +984,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
           value={form.transcript}
           onChange={(e) => setForm({ ...form, transcript: e.target.value })}
           rows={3}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300 resize-none"
         />
       </div>
       <div>
@@ -924,6 +995,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
           type="number"
           value={form.duration}
           onChange={(e) => setForm({ ...form, duration: e.target.value })}
+          min="0"
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
         />
       </div>
@@ -939,14 +1011,15 @@ function AudioEditForm({ audio, onSave, onCancel }) {
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
-          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+          disabled={saving || uploadingAudio}
+          className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
-          disabled={saving}
-          className="px-3 py-1.5 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1"
+          disabled={saving || uploadingAudio}
+          className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-600 text-white text-xs flex items-center gap-1 disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="w-3 h-3 animate-spin" />
@@ -959,6 +1032,7 @@ function AudioEditForm({ audio, onSave, onCancel }) {
     </div>
   );
 }
+
 
 // ============================================
 // Listening Question Edit Form
@@ -1286,6 +1360,9 @@ function ListeningAudioCard({ audio, index, skillId, onUpdate }) {
 // ============================================
 // Speaking Video Edit Form
 // ============================================
+// ============================================
+// Speaking Video Edit Form
+// ============================================
 function VideoEditForm({ video, onSave, onCancel }) {
   const [form, setForm] = useState({
     title: video.title,
@@ -1293,28 +1370,74 @@ function VideoEditForm({ video, onSave, onCancel }) {
     duration: video.duration || 0,
     difficulty: video.difficulty || "MEDIUM",
   });
-  const [videoFile, setVideoFile] = useState(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoUrl, setVideoUrl] = useState(video.video_file || "");
   const [videoPreview, setVideoPreview] = useState(video.video_file || "");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleVideoChange = (e) => {
+  const handleVideoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setVideoFile(file);
-    setVideoPreview(URL.createObjectURL(file));
+
+    if (!file.type.startsWith("video/")) {
+      setError("Please select a video file only");
+      return;
+    }
+
+    if (file.size > 200 * 1024 * 1024) {
+      setError("File size must be less than 200 MB");
+      return;
+    }
+
+    setUploadingVideo(true);
+    setError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "react_uploads");
+    formData.append("resource_type", "video");
+
+    try {
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dyxozpomy/upload",
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message);
+
+      setVideoUrl(data.secure_url);
+      setVideoPreview(data.secure_url);
+      setForm((prev) => ({
+        ...prev,
+        duration: data.duration
+          ? Math.round(data.duration).toString()
+          : prev.duration,
+      }));
+    } catch (err) {
+      setError(`An error occurred while uploading the file: ${err.message}`);
+    } finally {
+      setUploadingVideo(false);
+    }
   };
 
   const handleSubmit = async () => {
+    if (!form.title.trim()) {
+      setError("Title is required");
+      return;
+    }
     setSaving(true);
     try {
-      const formData = new FormData();
-      formData.append("title", form.title);
-      formData.append("description", form.description);
-      formData.append("duration", form.duration);
-      formData.append("difficulty", form.difficulty);
-      if (videoFile) formData.append("video_file", videoFile);
-      await stepQuestionsAPI.updateSpeakingVideo(video.id, formData);
+      await stepQuestionsAPI.updateSpeakingVideo(video.id, {
+        title: form.title,
+        description: form.description,
+        duration: form.duration,
+        difficulty: form.difficulty,
+        video_file: videoUrl,
+      });
       onSave();
+    } catch (err) {
+      setError(err?.response?.data?.error || "An error occurred while saving");
     } finally {
       setSaving(false);
     }
@@ -1322,6 +1445,12 @@ function VideoEditForm({ video, onSave, onCancel }) {
 
   return (
     <div className="border-2 border-rose-200 rounded-xl p-4 bg-rose-50/30 space-y-3">
+      {error && (
+        <div className="flex items-center gap-2 p-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-xs">
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+          {error}
+        </div>
+      )}
       <div>
         <label className="text-xs font-medium text-gray-600 mb-1 block">
           Title
@@ -1337,16 +1466,31 @@ function VideoEditForm({ video, onSave, onCancel }) {
           Video File
         </label>
         <div className="space-y-2">
-          <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-rose-300 rounded-lg px-3 py-3 bg-rose-50 hover:bg-rose-100 transition-colors">
-            <Video className="w-4 h-4 text-rose-500 shrink-0" />
+          <label
+            className={`flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-rose-300 rounded-lg px-3 py-3 transition-colors ${
+              uploadingVideo
+                ? "opacity-50 cursor-not-allowed bg-gray-50"
+                : "bg-rose-50 hover:bg-rose-100"
+            }`}
+          >
+            {uploadingVideo ? (
+              <Loader2 className="w-4 h-4 animate-spin text-rose-500 shrink-0" />
+            ) : (
+              <Video className="w-4 h-4 text-rose-500 shrink-0" />
+            )}
             <span className="text-xs text-rose-600 font-medium">
-              {videoFile ? videoFile.name : "Click to upload video"}
+              {uploadingVideo
+                ? "Uploading..."
+                : videoUrl && videoUrl !== video.video_file
+                ? "File uploaded successfully ✓"
+                : "Click to replace video file"}
             </span>
             <input
               type="file"
               accept="video/*"
               className="hidden"
               onChange={handleVideoChange}
+              disabled={uploadingVideo}
             />
           </label>
           {videoPreview && (
@@ -1364,7 +1508,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={3}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 resize-none"
         />
       </div>
       <div>
@@ -1375,6 +1519,7 @@ function VideoEditForm({ video, onSave, onCancel }) {
           type="number"
           value={form.duration}
           onChange={(e) => setForm({ ...form, duration: e.target.value })}
+          min="0"
           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
         />
       </div>
@@ -1390,14 +1535,15 @@ function VideoEditForm({ video, onSave, onCancel }) {
       <div className="flex gap-2 justify-end">
         <button
           onClick={onCancel}
-          className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+          disabled={saving || uploadingVideo}
+          className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
-          disabled={saving}
-          className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1"
+          disabled={saving || uploadingVideo}
+          className="px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs flex items-center gap-1 disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="w-3 h-3 animate-spin" />
