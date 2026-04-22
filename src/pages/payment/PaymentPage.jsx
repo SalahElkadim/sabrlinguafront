@@ -84,6 +84,7 @@ export default function PaymentPage() {
 
         on_initiating: () => {
           setStep("processing");
+          return true;
         },
 
         on_completed: async (payment) => {
