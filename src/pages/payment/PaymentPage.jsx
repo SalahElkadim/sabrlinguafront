@@ -1,17 +1,16 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 export default function PaymentPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
-  const [step, setStep] = useState("loading"); // loading | form | processing | error
+  const [step, setStep] = useState("loading"); // loading | form | error
   const [program, setProgram] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [moyasarReady, setMoyasarReady] = useState(false);
   const formRef = useRef(null);
-  const moyasarInstanceRef = useRef(null);
+  const initializedRef = useRef(false); // منع تهيئة Moyasar أكثر من مرة
 
   const programId = searchParams.get("program_id");
   const token = searchParams.get("token"); // JWT من الموبايل
@@ -36,8 +35,9 @@ export default function PaymentPage() {
     document.body.appendChild(script);
 
     return () => {
-      document.head.removeChild(link);
-      document.body.removeChild(script);
+      // cleanup آمن — تحقق إن العنصر لا يزال موجوداً قبل الحذف
+      if (document.head.contains(link)) document.head.removeChild(link);
+      if (document.body.contains(script)) document.body.removeChild(script);
     };
   }, []);
 
@@ -65,75 +65,59 @@ export default function PaymentPage() {
 
   // ─── تهيئة Moyasar Payment Form ─────────────────────────────────────────────
   useEffect(() => {
-    if (step !== "form" || !moyasarReady || !program || !formRef.current)
+    if (
+      step !== "form" ||
+      !moyasarReady ||
+      !program ||
+      !formRef.current ||
+      initializedRef.current // منع التهيئة المزدوجة
+    )
       return;
 
-    // تأخير بسيط عشان الـ DOM يكون جاهز
     const timer = setTimeout(() => {
       if (!window.Moyasar) return;
 
-      moyasarInstanceRef.current = window.Moyasar.init({
+      initializedRef.current = true;
+
+      // بناء callback_url مع الـ token عشان نقدر نعمل verify في صفحة الـ callback
+      const callbackUrl =
+        `${window.location.origin}/payment/callback` +
+        `?token=${encodeURIComponent(token)}` +
+        `&program_id=${encodeURIComponent(programId)}`;
+
+      window.Moyasar.init({
         element: ".moyasar-form-container",
         amount: Math.round(program.price * 100), // تحويل لهللة
         currency: "SAR",
         description: `اشتراك في برنامج: ${program.title}`,
         publishable_api_key: process.env.REACT_APP_MOYASAR_PUBLISHABLE_KEY,
-        callback_url: `${window.location.origin}/payment/callback`,
+
+        // Moyasar سيضيف ?id=...&status=... تلقائياً لهذا الـ URL
+        callback_url: callbackUrl,
 
         methods: ["creditcard"],
 
+        // on_initiating: لازم يرجع true أو Promise — لو رجع undefined يطلع error
         on_initiating: () => {
-          setStep("processing");
           return true;
         },
 
-        on_completed: async (payment) => {
-          // الـ payment object فيه token أو id
-          try {
-            const source = payment.source || {};
-            const cardToken = source.token || payment.id;
-
-            const res = await axios.post(
-              `${process.env.REACT_APP_URL}/booking/subscriptions/pay/`,
-              {
-                program_id: parseInt(programId),
-                token: cardToken,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-
-            const data = res.data;
-
-            // لو في transaction_url → redirect لصفحة 3DS
-            if (data.transaction_url) {
-              window.location.href = data.transaction_url;
-            } else if (data.status === "paid") {
-              navigate("/payment/callback?status=paid&id=" + data.payment_id);
-            } else {
-              navigate("/payment/callback?status=failed");
-            }
-          } catch (err) {
-            const msg =
-              err.response?.data?.error || "حدث خطأ أثناء معالجة الدفع";
-            setErrorMsg(msg);
-            setStep("error");
-          }
-        },
-
+        // on_failed: يُستدعى لو فشل الدفع قبل الـ redirect
         on_failed: (error) => {
-          setErrorMsg(error?.message || "فشلت عملية الدفع");
+          setErrorMsg(
+            error?.message || "فشلت عملية الدفع، يرجى المحاولة مجدداً"
+          );
           setStep("error");
         },
+
+        // ملاحظة: on_completed لا يُستخدم هنا —
+        // Moyasar يعمل redirect تلقائي لـ callback_url بعد إتمام الدفع،
+        // ومعالجة النتيجة تتم في صفحة PaymentCallback
       });
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [step, moyasarReady, program]);
+  }, [step, moyasarReady, program, token, programId]);
 
   // ──────────────────────────────────────────────────────────────────────────────
 
@@ -173,14 +157,6 @@ export default function PaymentPage() {
           <div style={styles.centerBox}>
             <div style={styles.spinner} />
             <p style={styles.loadingText}>جاري التحميل...</p>
-          </div>
-        )}
-
-        {step === "processing" && (
-          <div style={styles.centerBox}>
-            <div style={{ ...styles.spinner, borderTopColor: "#10b981" }} />
-            <p style={styles.loadingText}>جاري معالجة الدفع...</p>
-            <p style={styles.subText}>لا تغلق هذه الصفحة</p>
           </div>
         )}
 
@@ -240,7 +216,6 @@ export default function PaymentPage() {
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── Moyasar overrides ── */
         .moyasar-form-container { animation: fadeIn 0.4s ease; }
 
         .mysr-form { font-family: 'Cairo', sans-serif !important; direction: rtl; }
@@ -322,11 +297,7 @@ const styles = {
     alignItems: "center",
     marginBottom: 24,
   },
-  logoWrap: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-  },
+  logoWrap: { display: "flex", alignItems: "center", gap: 8 },
   logoIcon: { fontSize: 22 },
   logoText: {
     fontSize: 18,
@@ -367,35 +338,16 @@ const styles = {
     fontWeight: 700,
     color: "#1e1b4b",
   },
-  divider: {
-    height: 1,
-    background: "#e0e7ff",
-    marginBottom: 12,
-  },
+  divider: { height: 1, background: "#e0e7ff", marginBottom: 12 },
   amountRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  amountLabel: {
-    fontSize: 13,
-    color: "#6b7280",
-    fontWeight: 600,
-  },
-  amountValue: {
-    fontSize: 22,
-    fontWeight: 900,
-    color: "#1e1b4b",
-  },
-  currency: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: "#6366f1",
-  },
-  centerBox: {
-    textAlign: "center",
-    padding: "32px 0",
-  },
+  amountLabel: { fontSize: 13, color: "#6b7280", fontWeight: 600 },
+  amountValue: { fontSize: 22, fontWeight: 900, color: "#1e1b4b" },
+  currency: { fontSize: 14, fontWeight: 600, color: "#6366f1" },
+  centerBox: { textAlign: "center", padding: "32px 0" },
   spinner: {
     width: 44,
     height: 44,
@@ -411,15 +363,7 @@ const styles = {
     color: "#374151",
     margin: "0 0 6px",
   },
-  subText: {
-    fontSize: 13,
-    color: "#9ca3af",
-    margin: 0,
-  },
-  errorBox: {
-    textAlign: "center",
-    padding: "24px 0 8px",
-  },
+  errorBox: { textAlign: "center", padding: "24px 0 8px" },
   errorIcon: { fontSize: 48, marginBottom: 12 },
   errorTitle: {
     fontSize: 18,
