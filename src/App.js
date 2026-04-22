@@ -129,6 +129,7 @@ import AddWritingToEsp from "./pages/esp/AddWritingToEsp";
 import EspAIGeneration from "./pages/esp/EspAIGeneration";
 
 import PaymentCallback from "./pages/payment/PaymentCallback";
+import PaymentPage from "./pages/payment/PaymentPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -514,7 +515,7 @@ function App() {
           {/* AI Generation */}
           <Route path="esp/ai" element={<EspAIGeneration />} />
         </Route>
-
+        <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
