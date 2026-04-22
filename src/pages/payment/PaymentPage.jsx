@@ -50,7 +50,7 @@ export default function PaymentPage() {
     }
 
     axios
-      .get(`${process.env.REACT_APP_API_URL}/booking/programs/${programId}/`, {
+      .get(`${process.env.REACT_APP_URL}/booking/programs/${programId}/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -93,7 +93,7 @@ export default function PaymentPage() {
             const cardToken = source.token || payment.id;
 
             const res = await axios.post(
-              `${process.env.REACT_APP_API_URL}/booking/subscriptions/pay/`,
+              `${process.env.REACT_APP_URL}/booking/subscriptions/pay/`,
               {
                 program_id: parseInt(programId),
                 token: cardToken,
