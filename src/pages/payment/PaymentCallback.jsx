@@ -24,7 +24,7 @@ export default function PaymentCallback() {
     // كلم الـ Backend يعمل verify وينشئ الـ Subscription
     axios
       .post(
-        `${import.meta.env.VITE_API_URL}/booking/subscriptions/callback/`,
+        `${process.env.REACT_APP_API_URL}/booking/subscriptions/callback/`,
         { id: paymentId },
         {
           headers: {
