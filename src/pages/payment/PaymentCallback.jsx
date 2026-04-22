@@ -42,7 +42,7 @@ export default function PaymentCallback() {
       .post(
         `${process.env.REACT_APP_URL}/booking/subscriptions/callback/`,
         {
-          payment_id: paymentId,
+          id: paymentId,
           program_id: programId ? parseInt(programId) : undefined,
         },
         {
