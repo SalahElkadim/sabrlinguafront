@@ -128,6 +128,8 @@ import AddSpeakingQuestionsToEsp from "./pages/esp/AddSpeakingQuestionsToEsp";
 import AddWritingToEsp from "./pages/esp/AddWritingToEsp";
 import EspAIGeneration from "./pages/esp/EspAIGeneration";
 
+import PaymentCallback from "./pages/payment/PaymentCallback";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -513,6 +515,7 @@ function App() {
           <Route path="esp/ai" element={<EspAIGeneration />} />
         </Route>
 
+        <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
