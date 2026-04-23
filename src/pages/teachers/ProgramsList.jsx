@@ -47,20 +47,24 @@ function Toast({ message, type, onClose }) {
 }
 
 // ─────────────────────────────────────────
-// Schedule Badge
+// ✅ DAY_NAMES مصحح ليتوافق مع Django
+// Django: 0=الاثنين, 1=الثلاثاء, 2=الأربعاء, 3=الخميس, 4=الجمعة, 5=السبت, 6=الأحد
 // ─────────────────────────────────────────
 const DAY_NAMES = {
-  0: "الأحد",
-  1: "الإثنين",
-  2: "الثلاثاء",
-  3: "الأربعاء",
-  4: "الخميس",
-  5: "الجمعة",
-  6: "السبت",
+  0: "الاثنين",
+  1: "الثلاثاء",
+  2: "الأربعاء",
+  3: "الخميس",
+  4: "الجمعة",
+  5: "السبت",
+  6: "الأحد",
 };
 
+// ─────────────────────────────────────────
+// Schedule Badge
+// ─────────────────────────────────────────
 function ScheduleBadge({ day_of_week, time }) {
-  const dayName = DAY_NAMES[day_of_week] || day_of_week;
+  const dayName = DAY_NAMES[day_of_week] ?? day_of_week;
   return (
     <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-lg">
       {dayName} · {time?.slice(0, 5)}

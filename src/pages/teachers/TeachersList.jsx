@@ -14,10 +14,7 @@ import {
   X,
   Star,
   Eye,
-  ChevronDown,
-  Filter,
-  MoreVertical,
-  Award,
+  Mail,
 } from "lucide-react";
 import api from "../../api/axios";
 
@@ -86,6 +83,7 @@ function TeacherModal({ teacher, onClose, onSaved }) {
   const isEdit = !!teacher;
   const [form, setForm] = useState({
     name: teacher?.name || "",
+    email: teacher?.email || "",
     subject: teacher?.subject || "",
     years_of_experience: teacher?.years_of_experience || "",
     bio: teacher?.bio || "",
@@ -112,6 +110,9 @@ function TeacherModal({ teacher, onClose, onSaved }) {
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = "الاسم مطلوب";
+    if (!form.email.trim()) errs.email = "البريد الإلكتروني مطلوب";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      errs.email = "البريد الإلكتروني غير صحيح";
     if (!form.subject.trim()) errs.subject = "المادة مطلوبة";
     if (!form.years_of_experience)
       errs.years_of_experience = "سنوات الخبرة مطلوبة";
@@ -220,6 +221,7 @@ function TeacherModal({ teacher, onClose, onSaved }) {
             </div>
           </div>
 
+          {/* Name */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               اسم المدرس <span className="text-rose-400">*</span>
@@ -237,6 +239,29 @@ function TeacherModal({ teacher, onClose, onSaved }) {
             )}
           </div>
 
+          {/* Email ← جديد */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              البريد الإلكتروني <span className="text-rose-400">*</span>
+            </label>
+            <div className="relative">
+              <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="example@email.com"
+                dir="ltr"
+                className={`${inputClass("email")} pr-9`}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-xs text-rose-500 mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          {/* Subject */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               المادة <span className="text-rose-400">*</span>
@@ -254,6 +279,7 @@ function TeacherModal({ teacher, onClose, onSaved }) {
             )}
           </div>
 
+          {/* Years of experience */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               سنوات الخبرة <span className="text-rose-400">*</span>
@@ -274,6 +300,7 @@ function TeacherModal({ teacher, onClose, onSaved }) {
             )}
           </div>
 
+          {/* Bio */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               نبذة مختصرة
@@ -288,6 +315,7 @@ function TeacherModal({ teacher, onClose, onSaved }) {
             />
           </div>
 
+          {/* Active toggle */}
           <label className="flex items-center gap-3 cursor-pointer select-none">
             <div
               className={`relative w-10 h-6 rounded-full transition-colors ${
@@ -543,6 +571,15 @@ function TeacherCard({ teacher, onEdit, onDelete, onReviews }) {
               <BookOpen className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="text-xs font-semibold">{teacher.subject}</span>
             </div>
+            {/* Email row */}
+            {teacher.email && (
+              <div className="flex items-center gap-1.5 mt-1 text-gray-400">
+                <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="text-xs truncate" dir="ltr">
+                  {teacher.email}
+                </span>
+              </div>
+            )}
             <div className="mt-2">
               <Stars
                 rating={teacher.average_rating}
@@ -614,8 +651,8 @@ export default function TeachersList() {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filterActive, setFilterActive] = useState("all"); // all | active | inactive
-  const [modal, setModal] = useState(null); // null | 'add' | 'edit' | 'delete' | 'reviews'
+  const [filterActive, setFilterActive] = useState("all");
+  const [modal, setModal] = useState(null);
   const [selected, setSelected] = useState(null);
   const [toast, setToast] = useState(null);
 
