@@ -1,4 +1,7 @@
 // src/App.jsx
+// ─────────────────────────────────────────────────────────────
+// الإضافات الجديدة مميزة بـ ← NEW
+// ─────────────────────────────────────────────────────────────
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Auth
@@ -13,6 +16,10 @@ import DashboardLayout from "./components/DashboardLayout";
 
 // Teachers
 import TeachersList from "./pages/teachers/TeachersList";
+
+// ← NEW: Programs & Subscriptions
+import ProgramsList from "./pages/teachers/ProgramsList";
+import SubscriptionsList from "./pages/teachers/SubscriptionsList";
 
 // Placement Test Routes
 import QuestionBanksList from "./pages/placement/QuestionBanksList";
@@ -90,9 +97,7 @@ import AddWritingToSTEP from "./pages/step/AddWritingToSTEP";
 import STEPProgress from "./pages/step/STEPProgress";
 import STEPAIGeneration from "./pages/step/STEPAIGeneration";
 
-// ============================================
 // GENERAL ENGLISH Routes
-// ============================================
 import GeneralMain from "./pages/general/GeneralMain";
 import GeneralCategoriesList from "./pages/general/GeneralCategoriesList";
 import CreateGeneralCategory from "./pages/general/CreateGeneralCategory";
@@ -109,9 +114,7 @@ import AddSpeakingQuestionsToGeneral from "./pages/general/AddSpeakingQuestionsT
 import AddWritingToGeneral from "./pages/general/AddWritingToGeneral";
 import GeneralAIGeneration from "./pages/general/GeneralAIGeneration";
 
-// ============================================
 // ESP ENGLISH Routes
-// ============================================
 import EspMain from "./pages/esp/EspMain";
 import EspCategoriesList from "./pages/esp/EspCategoriesList";
 import CreateEspCategory from "./pages/esp/CreateEspCategory";
@@ -130,7 +133,6 @@ import EspAIGeneration from "./pages/esp/EspAIGeneration";
 
 import PaymentCallback from "./pages/payment/PaymentCallback";
 import PaymentPage from "./pages/payment/PaymentPage";
-
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -157,10 +159,16 @@ function App() {
         >
           <Route index element={<Dashboard />} />
 
-          {/* TEACHERS */}
+          {/* ─── TEACHERS ─── */}
           <Route path="teachers" element={<TeachersList />} />
 
-          {/* PLACEMENT TEST */}
+          {/* ─── PROGRAMS ← NEW ─── */}
+          <Route path="programs" element={<ProgramsList />} />
+
+          {/* ─── SUBSCRIPTIONS ← NEW ─── */}
+          <Route path="subscriptions" element={<SubscriptionsList />} />
+
+          {/* ─── PLACEMENT TEST ─── */}
           <Route path="question-banks" element={<QuestionBanksList />} />
           <Route
             path="question-banks/create"
@@ -195,19 +203,19 @@ function App() {
             element={<AddWritingQuestion />}
           />
 
-          {/* LEVELS */}
+          {/* ─── LEVELS ─── */}
           <Route path="levels" element={<LevelsList />} />
           <Route path="levels/create" element={<CreateLevel />} />
           <Route path="levels/:levelId" element={<LevelDetails />} />
           <Route path="levels/:levelId/edit" element={<EditLevel />} />
 
-          {/* UNITS */}
+          {/* ─── UNITS ─── */}
           <Route path="units" element={<UnitsList />} />
           <Route path="units/create" element={<CreateUnit />} />
           <Route path="units/:unitId" element={<UnitDetails />} />
           <Route path="units/:unitId/edit" element={<EditUnit />} />
 
-          {/* LESSONS */}
+          {/* ─── LESSONS ─── */}
           <Route path="lessons" element={<LessonsList />} />
           <Route path="lessons/create" element={<CreateLesson />} />
           <Route path="lessons/:lessonId" element={<LessonDetails />} />
@@ -217,7 +225,7 @@ function App() {
             element={<AddLessonContent />}
           />
 
-          {/* LEVEL QUESTION BANKS */}
+          {/* ─── LEVEL QUESTION BANKS ─── */}
           <Route
             path="level-question-banks"
             element={<LevelQuestionBanksList />}
@@ -251,7 +259,7 @@ function App() {
             element={<AddLevelWritingQuestion />}
           />
 
-          {/* IELTS */}
+          {/* ─── IELTS ─── */}
           <Route path="ielts" element={<IELTSMain />} />
           <Route path="ielts/skills" element={<IELTSSkillsList />} />
           <Route path="ielts/skills/create" element={<CreateIELTSSkill />} />
@@ -299,7 +307,7 @@ function App() {
           <Route path="ielts/progress" element={<IELTSProgress />} />
           <Route path="ielts/ai" element={<IELTSAIGeneration />} />
 
-          {/* STEP */}
+          {/* ─── STEP ─── */}
           <Route path="step" element={<STEPMain />} />
           <Route path="step/skills" element={<STEPSkillsList />} />
           <Route path="step/skills/create" element={<CreateSTEPSkill />} />
@@ -344,12 +352,8 @@ function App() {
           <Route path="step/progress" element={<STEPProgress />} />
           <Route path="step/ai" element={<STEPAIGeneration />} />
 
-          {/* ============================================ */}
-          {/* GENERAL ENGLISH ROUTES */}
-          {/* ============================================ */}
+          {/* ─── GENERAL ENGLISH ─── */}
           <Route path="general" element={<GeneralMain />} />
-
-          {/* Categories */}
           <Route
             path="general/categories"
             element={<GeneralCategoriesList />}
@@ -362,8 +366,6 @@ function App() {
             path="general/categories/:categoryId/edit"
             element={<CreateGeneralCategory />}
           />
-
-          {/* Skills */}
           <Route
             path="general/categories/:categoryId/skills"
             element={<GeneralSkillsList />}
@@ -376,26 +378,18 @@ function App() {
             path="general/categories/:categoryId/skills/:skillId/edit"
             element={<CreateGeneralSkill />}
           />
-
-          {/* Skill Details */}
           <Route
             path="general/skills/:skillId"
             element={<GeneralSkillDetails />}
           />
-
-          {/* Vocabulary */}
           <Route
             path="general/skills/:skillId/add/vocabulary"
             element={<AddMCQToGeneral questionType="VOCABULARY" />}
           />
-
-          {/* Grammar */}
           <Route
             path="general/skills/:skillId/add/grammar"
             element={<AddMCQToGeneral questionType="GRAMMAR" />}
           />
-
-          {/* Reading */}
           <Route
             path="general/skills/:skillId/add/reading/passage"
             element={<AddReadingToGeneral />}
@@ -404,8 +398,6 @@ function App() {
             path="general/skills/:skillId/add/reading/passage/:passageId/questions"
             element={<AddReadingQuestionsToGeneral />}
           />
-
-          {/* Listening */}
           <Route
             path="general/skills/:skillId/add/listening/audio"
             element={<AddListeningToGeneral />}
@@ -414,8 +406,6 @@ function App() {
             path="general/skills/:skillId/add/listening/audio/:audioId/questions"
             element={<AddListeningQuestionsToGeneral />}
           />
-
-          {/* Speaking */}
           <Route
             path="general/skills/:skillId/add/speaking/video"
             element={<AddSpeakingToGeneral />}
@@ -424,30 +414,20 @@ function App() {
             path="general/skills/:skillId/add/speaking/video/:videoId/questions"
             element={<AddSpeakingQuestionsToGeneral />}
           />
-
-          {/* Writing */}
           <Route
             path="general/skills/:skillId/add/writing"
             element={<AddWritingToGeneral />}
           />
-
-          {/* AI Generation */}
           <Route path="general/ai" element={<GeneralAIGeneration />} />
 
-          {/* ============================================ */}
-          {/* ESP ENGLISH ROUTES */}
-          {/* ============================================ */}
+          {/* ─── ESP ENGLISH ─── */}
           <Route path="esp" element={<EspMain />} />
-
-          {/* Categories */}
           <Route path="esp/categories" element={<EspCategoriesList />} />
           <Route path="esp/categories/create" element={<CreateEspCategory />} />
           <Route
             path="esp/categories/:categoryId/edit"
             element={<CreateEspCategory />}
           />
-
-          {/* Skills */}
           <Route
             path="esp/categories/:categoryId/skills"
             element={<EspSkillsList />}
@@ -460,23 +440,15 @@ function App() {
             path="esp/categories/:categoryId/skills/:skillId/edit"
             element={<CreateEspSkill />}
           />
-
-          {/* Skill Details */}
           <Route path="esp/skills/:skillId" element={<EspSkillDetails />} />
-
-          {/* Vocabulary */}
           <Route
             path="esp/skills/:skillId/add/vocabulary"
             element={<AddMCQToEsp questionType="VOCABULARY" />}
           />
-
-          {/* Grammar */}
           <Route
             path="esp/skills/:skillId/add/grammar"
             element={<AddMCQToEsp questionType="GRAMMAR" />}
           />
-
-          {/* Reading */}
           <Route
             path="esp/skills/:skillId/add/reading/passage"
             element={<AddReadingToEsp />}
@@ -485,8 +457,6 @@ function App() {
             path="esp/skills/:skillId/add/reading/passage/:passageId/questions"
             element={<AddReadingQuestionsToEsp />}
           />
-
-          {/* Listening */}
           <Route
             path="esp/skills/:skillId/add/listening/audio"
             element={<AddListeningToEsp />}
@@ -495,8 +465,6 @@ function App() {
             path="esp/skills/:skillId/add/listening/audio/:audioId/questions"
             element={<AddListeningQuestionsToEsp />}
           />
-
-          {/* Speaking */}
           <Route
             path="esp/skills/:skillId/add/speaking/video"
             element={<AddSpeakingToEsp />}
@@ -505,16 +473,13 @@ function App() {
             path="esp/skills/:skillId/add/speaking/video/:videoId/questions"
             element={<AddSpeakingQuestionsToEsp />}
           />
-
-          {/* Writing */}
           <Route
             path="esp/skills/:skillId/add/writing"
             element={<AddWritingToEsp />}
           />
-
-          {/* AI Generation */}
           <Route path="esp/ai" element={<EspAIGeneration />} />
         </Route>
+
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
