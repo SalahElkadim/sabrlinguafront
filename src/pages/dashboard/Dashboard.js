@@ -1,6 +1,14 @@
 // src/pages/Dashboard.jsx
 import { Link } from "react-router-dom";
-import { ArrowLeft, Globe, BookMarked, BookOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  Globe,
+  BookMarked,
+  BookOpen,
+  Users,
+  LayoutGrid,
+  CreditCard,
+} from "lucide-react";
 
 export default function Dashboard() {
   const modules = [
@@ -10,39 +18,62 @@ export default function Dashboard() {
       description: "General Questions in English",
       icon: BookOpen,
       color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50",
       iconColor: "text-green-600",
       link: "/dashboard/general",
     },
     {
-      id: "ALL TESTS-system",
+      id: "all-tests-system",
       name: "ALL TESTS System",
       description: "Special Tests in English",
       icon: BookMarked,
-      color: "from-yellow-500 to-indigo-600",
-      bgColor: "bg-yellow-50",
+      color: "from-yellow-500 to-amber-600",
       iconColor: "text-yellow-600",
       link: "/dashboard/esp",
     },
     {
       id: "ielts-system",
       name: "IELTS System",
-      description: "Manage Ielts System ",
+      description: "Manage IELTS System",
       icon: Globe,
       color: "from-orange-500 to-orange-600",
-      bgColor: "bg-orange-50",
       iconColor: "text-orange-600",
       link: "/dashboard/ielts",
     },
     {
       id: "step-system",
       name: "STEP System",
-      description: "Manage Ielts System",
+      description: "Manage STEP System",
       icon: BookMarked,
       color: "from-blue-500 to-indigo-600",
-      bgColor: "bg-blue-50",
       iconColor: "text-blue-600",
       link: "/dashboard/step",
+    },
+    {
+      id: "teachers",
+      name: "Teachers",
+      description: "Manage teachers, reviews & ratings",
+      icon: Users,
+      color: "from-violet-500 to-purple-600",
+      iconColor: "text-violet-600",
+      link: "/dashboard/teachers",
+    },
+    {
+      id: "programs",
+      name: "Programs",
+      description: "Create & manage teaching programs",
+      icon: LayoutGrid,
+      color: "from-indigo-500 to-blue-600",
+      iconColor: "text-indigo-600",
+      link: "/dashboard/programs",
+    },
+    {
+      id: "subscriptions",
+      name: "Subscriptions",
+      description: "View & manage student subscriptions",
+      icon: CreditCard,
+      color: "from-emerald-500 to-teal-600",
+      iconColor: "text-emerald-600",
+      link: "/dashboard/subscriptions",
     },
   ];
 
@@ -51,9 +82,7 @@ export default function Dashboard() {
       {/* Welcome */}
       <div className="card bg-gradient-to-r from-primary-600 to-blue-600 text-white">
         <h1 className="text-3xl font-bold mb-2">Welcome To Dashboard</h1>
-        <p className="text-blue-100">
-          Choose The Section You Want. 
-        </p>
+        <p className="text-blue-100">Choose The Section You Want.</p>
       </div>
 
       {/* Modules Grid */}
@@ -66,7 +95,6 @@ export default function Dashboard() {
               to={module.link}
               className="group card hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
             >
-              {/* Header */}
               <div
                 className={`bg-gradient-to-r ${module.color} p-6 rounded-t-xl -m-6 mb-6`}
               >
@@ -88,13 +116,11 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Footer */}
               <div className="flex items-center justify-between text-sm">
                 <span
                   className={`${module.iconColor} font-medium inline-flex items-center gap-1 group-hover:translate-x-[-4px] transition-transform`}
                 >
-                  Go
-                  <ArrowLeft className="w-4 h-4" />
+                  Go <ArrowLeft className="w-4 h-4" />
                 </span>
                 <span className="text-gray-400">Press here</span>
               </div>

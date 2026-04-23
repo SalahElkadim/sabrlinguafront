@@ -1,10 +1,9 @@
-// src/components/DashboardLayout.jsx - WITH IELTS + STEP + GENERAL
+// src/components/DashboardLayout.jsx
 import { useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Database,
-  Layers,
   LogOut,
   Menu,
   X,
@@ -14,6 +13,8 @@ import {
   BookMarked,
   Users,
   BookOpen,
+  LayoutGrid,
+  CreditCard,
 } from "lucide-react";
 
 import { useAuthStore } from "../store/authstore";
@@ -32,7 +33,7 @@ export default function DashboardLayout() {
 
   const navigation = [
     {
-      name: "dashboard",
+      name: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
     },
@@ -61,13 +62,22 @@ export default function DashboardLayout() {
       href: "/dashboard/teachers",
       icon: Users,
     },
+    {
+      name: "Programs",
+      href: "/dashboard/programs",
+      icon: LayoutGrid,
+    },
+    {
+      name: "Subscriptions",
+      href: "/dashboard/subscriptions",
+      icon: CreditCard,
+    },
   ];
 
   const isActive = (path) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -99,7 +109,7 @@ export default function DashboardLayout() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
             {navigation.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -179,7 +189,7 @@ export default function DashboardLayout() {
             <div className="hidden lg:block">
               <h1 className="text-xl font-bold text-gray-900">
                 {navigation.find((item) => isActive(item.href))?.name ||
-                  "dashboard"}
+                  "Dashboard"}
               </h1>
             </div>
           </div>
