@@ -21,6 +21,7 @@ import {
   Zap,
   Brain,
   Check,
+  LayoutGrid,
 } from "lucide-react";
 import api from "../../api/axios";
 import JobMediaUploader from "./JobMediaUploader";
@@ -62,6 +63,12 @@ const SKILL_TYPES = [
   { value: "LISTENING", label: "Listening", color: "text-cyan-600" },
   { value: "SPEAKING", label: "Speaking", color: "text-rose-600" },
   { value: "WRITING", label: "Writing", color: "text-green-600" },
+  {
+    value: "GENERAL_PATH",
+    label: "General Path (مسار شامل)",
+    color: "text-violet-600",
+    isGeneral: true,
+  },
 ];
 
 // ─── Section wrapper ────────────────────────────────────────────────────────
@@ -384,7 +391,9 @@ function MediaSection({ media, onRefresh }) {
       ) {
         pollingRef.current[m.id] = setInterval(async () => {
           try {
-            const res = await api.get(`/ielts/ai/extract-media/${m.id}/status/`);
+            const res = await api.get(
+              `/ielts/ai/extract-media/${m.id}/status/`
+            );
             if (res.data.status === "DONE" || res.data.status === "FAILED") {
               clearInterval(pollingRef.current[m.id]);
               delete pollingRef.current[m.id];
@@ -511,6 +520,28 @@ function MediaSection({ media, onRefresh }) {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// GENERAL PATH INFO BANNER
+// ══════════════════════════════════════════════════════════════════
+function GeneralPathBanner() {
+  return (
+    <div className="bg-violet-50 border border-violet-200 rounded-xl p-3.5 flex items-start gap-3">
+      <LayoutGrid className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
+      <div>
+        <p className="text-xs font-bold text-violet-800 mb-1">
+          المسار الشامل — General Path
+        </p>
+        <p className="text-xs text-violet-600 leading-relaxed">
+          سيقوم الـ AI بتوليد أسئلة من{" "}
+          <span className="font-semibold">جميع الأنواع الستة</span> في مهارة
+          واحدة: Vocabulary · Grammar · Reading · Listening · Speaking ·
+          Writing. إجمالي الأسئلة المطلوبة سيتوزع بالتساوي عليهم.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
 // 3. GENERATE SKILL SECTION
 // ══════════════════════════════════════════════════════════════════
 function GenerateSection({ onRefresh, jobs }) {
@@ -534,7 +565,8 @@ function GenerateSection({ onRefresh, jobs }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
 
-  // جيب الكتب والميديا الجاهزة مستقل
+  const isGeneralPath = form.skill_type === "GENERAL_PATH";
+
   const fetchSources = async () => {
     setLoadingSources(true);
     try {
@@ -609,6 +641,11 @@ function GenerateSection({ onRefresh, jobs }) {
 
   const total = form.no_easy + form.no_medium + form.no_hard;
 
+  // label زرار التوليد
+  const generateBtnLabel = isGeneralPath
+    ? `توليد مسار شامل بـ ${total} سؤال (6 أنواع)`
+    : `توليد مهارة بـ ${total} سؤال`;
+
   return (
     <Section
       icon={Brain}
@@ -628,11 +665,22 @@ function GenerateSection({ onRefresh, jobs }) {
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
             >
               <option value="">-- اختر --</option>
-              {SKILL_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
+              {/* الأنواع العادية */}
+              <optgroup label="مهارة واحدة">
+                {SKILL_TYPES.filter((t) => !t.isGeneral).map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </optgroup>
+              {/* المسار الشامل */}
+              <optgroup label="مسار شامل">
+                {SKILL_TYPES.filter((t) => t.isGeneral).map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
           <div>
@@ -644,11 +692,18 @@ function GenerateSection({ onRefresh, jobs }) {
               onChange={(e) =>
                 setForm({ ...form, skill_title: e.target.value })
               }
-              placeholder="مثال: Advanced Vocabulary"
+              placeholder={
+                isGeneralPath
+                  ? "مثال: IELTS Comprehensive Practice"
+                  : "مثال: Advanced Vocabulary"
+              }
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
             />
           </div>
         </div>
+
+        {/* General Path info banner — يظهر بس لو اختار GENERAL_PATH */}
+        {isGeneralPath && <GeneralPathBanner />}
 
         {/* Description */}
         <div>
@@ -670,7 +725,8 @@ function GenerateSection({ onRefresh, jobs }) {
           <label className="text-xs font-semibold text-gray-600 mb-2 block">
             توزيع الأسئلة{" "}
             <span className="text-violet-600 font-bold">
-              (المجموع: {total})
+              (المجموع: {total}
+              {isGeneralPath && ` — ~${Math.ceil(total / 6)} لكل نوع`})
             </span>
           </label>
           <div className="grid grid-cols-3 gap-3">
@@ -820,7 +876,11 @@ function GenerateSection({ onRefresh, jobs }) {
               setForm({ ...form, additional_notes: e.target.value })
             }
             rows={2}
-            placeholder="مثال: ركز على المفردات الأكاديمية، تجنب الأسئلة المتعلقة بالأسماء..."
+            placeholder={
+              isGeneralPath
+                ? "مثال: ركز على مواضيع البيئة، اجعل أسئلة الـ Writing أكاديمية..."
+                : "مثال: ركز على المفردات الأكاديمية، تجنب الأسئلة المتعلقة بالأسماء..."
+            }
             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none"
           />
         </div>
@@ -835,16 +895,20 @@ function GenerateSection({ onRefresh, jobs }) {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-lg"
+          className={`w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-60 ${
+            isGeneralPath
+              ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700"
+              : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+          }`}
         >
           {generating ? (
             <Loader2 className="w-5 h-5 animate-spin" />
+          ) : isGeneralPath ? (
+            <LayoutGrid className="w-5 h-5" />
           ) : (
             <Sparkles className="w-5 h-5" />
           )}
-          {generating
-            ? "جاري الإرسال للـ AI..."
-            : `توليد مهارة بـ ${total} سؤال`}
+          {generating ? "جاري الإرسال للـ AI..." : generateBtnLabel}
         </button>
 
         {/* Jobs history */}
@@ -864,7 +928,11 @@ function GenerateSection({ onRefresh, jobs }) {
                       {j.skill_title}
                     </p>
                     <p className="text-xs text-gray-400">
-                      {j.skill_type} ·{" "}
+                      {/* GENERAL_PATH يعرض label مختلف */}
+                      {j.skill_type === "GENERAL_PATH"
+                        ? "مسار شامل (6 أنواع)"
+                        : j.skill_type}{" "}
+                      ·{" "}
                       {j.status === "DONE"
                         ? `${j.questions_created} سؤال تم إنشاؤه`
                         : j.status === "FAILED"
