@@ -206,11 +206,11 @@ export const generalQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/general/listening/audio/${audioId}/update/`,
       data,
-      config // ← أضف
+      config
     );
     return response.data;
   },
@@ -244,7 +244,6 @@ export const generalQuestionsAPI = {
   },
 
   // ---------- Speaking Video ----------
-  // ✅ بعد
   createSpeakingVideo: async (data) => {
     const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.post(
@@ -255,11 +254,11 @@ export const generalQuestionsAPI = {
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/general/speaking/videos/${videoId}/update/`,
       data,
-      config // ← أضف
+      config
     );
     return response.data;
   },
@@ -409,11 +408,18 @@ export const generalAIAPI = {
     return response.data;
   },
 
-  // Generation
+  // Generate new skill (supports all types including GENERAL_PATH)
   generateSkill: async (data) => {
     const response = await api.post("/general/ai/generate-skill/", data);
     return response.data;
   },
+
+  // Add questions to an existing skill
+  addQuestionsToSkill: async (data) => {
+    const response = await api.post("/general/ai/add-questions/", data);
+    return response.data;
+  },
+
   getJobStatus: async (jobId) => {
     const response = await api.get(`/general/ai/jobs/${jobId}/status/`);
     return response.data;

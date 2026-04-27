@@ -131,7 +131,9 @@ export const espQuestionsAPI = {
     return response.data;
   },
   deleteVocabulary: async (questionId) => {
-    const response = await api.delete(`/esp/vocabulary/${questionId}/delete/`);
+    const response = await api.delete(
+      `/esp/vocabulary/${questionId}/delete/`
+    );
     return response.data;
   },
 
@@ -141,7 +143,10 @@ export const espQuestionsAPI = {
     return response.data;
   },
   updateGrammar: async (questionId, data) => {
-    const response = await api.put(`/esp/grammar/${questionId}/update/`, data);
+    const response = await api.put(
+      `/esp/grammar/${questionId}/update/`,
+      data
+    );
     return response.data;
   },
   deleteGrammar: async (questionId) => {
@@ -201,11 +206,11 @@ export const espQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/esp/listening/audio/${audioId}/update/`,
       data,
-      config // ← أضف
+      config
     );
     return response.data;
   },
@@ -251,7 +256,7 @@ export const espQuestionsAPI = {
   updateSpeakingVideo: async (videoId, data) => {
     const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
-      `/esp/speaking/videos/${videoId}/update/`, // ✅ esp
+      `/esp/speaking/videos/${videoId}/update/`,
       data,
       config
     );
@@ -403,11 +408,18 @@ export const espAIAPI = {
     return response.data;
   },
 
-  // Generation
+  // Generate new skill (supports all types including ESP_PATH)
   generateSkill: async (data) => {
     const response = await api.post("/esp/ai/generate-skill/", data);
     return response.data;
   },
+
+  // Add questions to an existing skill
+  addQuestionsToSkill: async (data) => {
+    const response = await api.post("/esp/ai/add-questions/", data);
+    return response.data;
+  },
+
   getJobStatus: async (jobId) => {
     const response = await api.get(`/esp/ai/jobs/${jobId}/status/`);
     return response.data;
