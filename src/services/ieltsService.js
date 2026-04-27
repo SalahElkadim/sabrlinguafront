@@ -146,7 +146,6 @@ export const ieltsQuestionsAPI = {
 
   // ---------- Listening Audio ----------
   createListeningAudio: async (data) => {
-    // لو في ملف → بعته كـ FormData
     const isFile =
       data instanceof FormData ||
       (data.audio_file && data.audio_file instanceof File);
@@ -170,11 +169,11 @@ export const ieltsQuestionsAPI = {
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف ده
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/ielts/listening/audio/${audioId}/update/`,
       data,
-      config // ← أضف ده
+      config
     );
     return response.data;
   },
@@ -232,11 +231,11 @@ export const ieltsQuestionsAPI = {
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف ده
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/ielts/speaking/videos/${videoId}/update/`,
       data,
-      config // ← أضف ده
+      config
     );
     return response.data;
   },
@@ -320,6 +319,67 @@ export const ieltsProgressAPI = {
 
   getSkillProgress: async (skillId) => {
     const response = await api.get(`/ielts/skills/${skillId}/my-progress/`);
+    return response.data;
+  },
+};
+
+// ============================================
+// 4. IELTS AI GENERATION API
+// ============================================
+export const ieltsAIAPI = {
+  // كتب
+  uploadBook: async (formData) => {
+    const response = await api.post(
+      "/ielts/ai/extract-book/upload/",
+      formData,
+      getFormDataConfig()
+    );
+    return response.data;
+  },
+  getBookStatus: async (bookId) => {
+    const response = await api.get(`/ielts/ai/extract-book/${bookId}/status/`);
+    return response.data;
+  },
+  listBooks: async () => {
+    const response = await api.get("/ielts/ai/extract-book/");
+    return response.data;
+  },
+
+  // ميديا
+  uploadMedia: async (formData) => {
+    const response = await api.post(
+      "/ielts/ai/extract-media/upload/",
+      formData,
+      getFormDataConfig()
+    );
+    return response.data;
+  },
+  getMediaStatus: async (mediaId) => {
+    const response = await api.get(
+      `/ielts/ai/extract-media/${mediaId}/status/`
+    );
+    return response.data;
+  },
+  listMedia: async () => {
+    const response = await api.get("/ielts/ai/extract-media/");
+    return response.data;
+  },
+
+  // توليد مهارة جديدة
+  generateSkill: async (data) => {
+    const response = await api.post("/ielts/ai/generate-skill/", data);
+    return response.data;
+  },
+
+  // إضافة أسئلة لمهارة موجودة ← جديد
+  addQuestionsToSkill: async (data) => {
+    const response = await api.post("/ielts/ai/add-questions/", data);
+    return response.data;
+  },
+
+  // حالة الـ job
+  getJobStatus: async (jobId) => {
+    const response = await api.get(`/ielts/ai/jobs/${jobId}/status/`);
     return response.data;
   },
 };
