@@ -11,6 +11,7 @@ const SKILL_TYPES = [
   { value: "LISTENING", label: "Listening" },
   { value: "SPEAKING", label: "Speaking" },
   { value: "WRITING", label: "Writing" },
+  { value: "GENERAL_PATH", label: "General Path" },
 ];
 const ORDER_TYPES = [
   {
