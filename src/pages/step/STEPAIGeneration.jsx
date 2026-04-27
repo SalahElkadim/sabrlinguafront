@@ -26,7 +26,7 @@ import {
   Search,
 } from "lucide-react";
 import api from "../../api/axios";
-import JobMediaUploader from "./JobMediaUploader";
+import JobMediaUploader from "../ielts/JobMediaUploader";
 
 // ─── helpers ───────────────────────────────────────────────────────────────
 const fmt = (s) =>
