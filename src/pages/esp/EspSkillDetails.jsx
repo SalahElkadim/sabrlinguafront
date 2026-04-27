@@ -37,7 +37,7 @@ const SKILL_TYPE_LABELS = {
   LISTENING: "Listening",
   SPEAKING: "Speaking",
   WRITING: "Writing",
-  GENERAL_PATH: "Esp Path",
+  GENERAL_PATH: "General Path",
 };
 
 const SKILL_ICONS = {
@@ -1495,7 +1495,7 @@ export default function EspSkillDetails() {
           <div className="flex items-center gap-2 mb-2">
             <GitBranch className="w-5 h-5 text-indigo-600" />
             <h2 className="text-lg font-bold text-gray-900">
-              Esp Path Content
+              General Path Content
             </h2>
             <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
               Add questions directly in each section
