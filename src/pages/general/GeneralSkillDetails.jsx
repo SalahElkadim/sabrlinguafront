@@ -17,7 +17,13 @@ import {
   CheckCircle2,
   X,
   ChevronDown,
-  ChevronUp,Check
+  ChevronUp,
+  Check,
+  ChevronRight,
+  GitBranch,
+  Video,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   generalSkillsAPI,
@@ -31,6 +37,7 @@ const SKILL_TYPE_LABELS = {
   LISTENING: "Listening",
   SPEAKING: "Speaking",
   WRITING: "Writing",
+  GENERAL_PATH: "General Path",
 };
 
 const SKILL_ICONS = {
@@ -40,6 +47,7 @@ const SKILL_ICONS = {
   LISTENING: Headphones,
   SPEAKING: Mic,
   WRITING: PenLine,
+  GENERAL_PATH: GitBranch,
 };
 
 const DIFFICULTY_COLORS = {
@@ -47,6 +55,76 @@ const DIFFICULTY_COLORS = {
   MEDIUM: "bg-amber-100 text-amber-700",
   HARD: "bg-red-100 text-red-700",
 };
+
+// ─────────────────────────────────────────────
+// General Path Sections Config
+// ─────────────────────────────────────────────
+const GENERAL_PATH_SECTIONS = [
+  {
+    type: "VOCABULARY",
+    label: "Vocabulary",
+    icon: Hash,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+    headerBg: "bg-blue-50",
+    btnColor: "bg-blue-500 hover:bg-blue-600",
+    addLabel: "Add Vocabulary Question",
+    addRoute: (skillId) =>
+      `/dashboard/general/skills/${skillId}/add/vocabulary`,
+  },
+  {
+    type: "GRAMMAR",
+    label: "Grammar",
+    icon: AlignLeft,
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+    headerBg: "bg-purple-50",
+    btnColor: "bg-purple-500 hover:bg-purple-600",
+    addLabel: "Add Grammar Question",
+    addRoute: (skillId) => `/dashboard/general/skills/${skillId}/add/grammar`,
+  },
+  {
+    type: "READING",
+    label: "Reading",
+    icon: BookText,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    headerBg: "bg-orange-50",
+    btnColor: "bg-orange-500 hover:bg-orange-600",
+    addLabel: "Add Reading Passage",
+    addRoute: (skillId) =>
+      `/dashboard/general/skills/${skillId}/add/reading/passage`,
+  },
+  {
+    type: "LISTENING",
+    label: "Listening",
+    icon: Headphones,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    border: "border-cyan-200",
+    headerBg: "bg-cyan-50",
+    btnColor: "bg-cyan-500 hover:bg-cyan-600",
+    addLabel: "Add Listening Recording",
+    addRoute: (skillId) =>
+      `/dashboard/general/skills/${skillId}/add/listening/audio`,
+  },
+  {
+    type: "SPEAKING",
+    label: "Speaking",
+    icon: Video,
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+    headerBg: "bg-rose-50",
+    btnColor: "bg-rose-500 hover:bg-rose-600",
+    addLabel: "Add Speaking Video",
+    addRoute: (skillId) =>
+      `/dashboard/general/skills/${skillId}/add/speaking/video`,
+  },
+];
 
 // ─────────────────────────────────────────────
 // MCQ Card — shared for Vocabulary, Grammar,
@@ -239,11 +317,24 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
             <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <Trash2 className="w-6 h-6 text-red-600" />
             </div>
-            <h3 className="text-lg font-bold text-center text-gray-900 mb-2">تأكيد الحذف</h3>
-            <p className="text-gray-500 text-center text-sm mb-6">هل أنت متأكد من حذف هذا التسجيل وجميع أسئلته؟</p>
+            <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
+              تأكيد الحذف
+            </h3>
+            <p className="text-gray-500 text-center text-sm mb-6">
+              هل أنت متأكد من حذف هذا التسجيل وجميع أسئلته؟
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">إلغاء</button>
-              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+              >
                 {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                 حذف
               </button>
@@ -255,16 +346,24 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-start justify-between">
           <div className="flex gap-2">
-            <button onClick={() => setEditing((v) => !v)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+            <button
+              onClick={() => setEditing((v) => !v)}
+              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+            >
               <Pencil className="w-4 h-4" />
             </button>
-            <button onClick={() => setConfirmDelete(true)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+            >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
           <div className="text-right">
             <h4 className="font-bold text-gray-900">{audio.title}</h4>
-            <span className="text-xs text-gray-400">{audio.duration}s • {audio.difficulty}</span>
+            <span className="text-xs text-gray-400">
+              {audio.duration}s • {audio.difficulty}
+            </span>
           </div>
         </div>
 
@@ -272,7 +371,9 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
         {editing && (
           <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">العنوان</label>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                العنوان
+              </label>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -280,13 +381,20 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">الملف الصوتي</label>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                الملف الصوتي
+              </label>
               <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-cyan-300 rounded-lg px-3 py-3 bg-cyan-50 hover:bg-cyan-100 transition-colors">
                 <Headphones className="w-4 h-4 text-cyan-500 shrink-0" />
                 <span className="text-xs text-cyan-600 font-medium">
                   {audioFile ? audioFile.name : "اضغط لرفع ملف صوتي"}
                 </span>
-                <input type="file" accept="audio/*" className="hidden" onChange={handleAudioChange} />
+                <input
+                  type="file"
+                  accept="audio/*"
+                  className="hidden"
+                  onChange={handleAudioChange}
+                />
               </label>
               {audioPreview && (
                 <audio controls className="w-full mt-2" src={audioPreview}>
@@ -295,29 +403,41 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
               )}
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">النص (اختياري)</label>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                النص (اختياري)
+              </label>
               <textarea
                 value={form.transcript}
-                onChange={(e) => setForm({ ...form, transcript: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, transcript: e.target.value })
+                }
                 rows={2}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">المدة (ثانية)</label>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">
+                  المدة (ثانية)
+                </label>
                 <input
                   type="number"
                   value={form.duration}
-                  onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, duration: e.target.value })
+                  }
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">الصعوبة</label>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">
+                  الصعوبة
+                </label>
                 <select
                   value={form.difficulty}
-                  onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, difficulty: e.target.value })
+                  }
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-300"
                 >
                   <option value="EASY">سهل</option>
@@ -327,9 +447,22 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setEditing(false)} className="px-3 py-1.5 rounded-lg border text-xs text-gray-600">إلغاء</button>
-              <button onClick={handleSubmit} disabled={saving} className="px-3 py-1.5 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1">
-                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+              <button
+                onClick={() => setEditing(false)}
+                className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                className="px-3 py-1.5 rounded-lg bg-cyan-500 text-white text-xs flex items-center gap-1"
+              >
+                {saving ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Check className="w-3 h-3" />
+                )}
                 حفظ
               </button>
             </div>
@@ -340,18 +473,30 @@ function ListeningAudioCard({ audio, skillId, onUpdate, navigate }) {
       <div className="p-4 bg-gray-50">
         <div className="flex items-center justify-between mb-3">
           <button
-            onClick={() => navigate(`/dashboard/general/skills/${skillId}/add/listening/audio/${audio.id}/questions`)}
+            onClick={() =>
+              navigate(
+                `/dashboard/general/skills/${skillId}/add/listening/audio/${audio.id}/questions`
+              )
+            }
             className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
           >
             <Plus className="w-4 h-4" />
             إضافة سؤال
           </button>
-          <span className="text-xs text-gray-400 font-medium">{audio.questions?.length || 0} سؤال</span>
+          <span className="text-xs text-gray-400 font-medium">
+            {audio.questions?.length || 0} سؤال
+          </span>
         </div>
         {audio.questions?.length > 0 && (
           <div className="space-y-3">
             {audio.questions.map((q) => (
-              <MCQCard key={q.id} q={q} type="LISTENING" onDelete={() => onUpdate()} onEdit={() => {}} />
+              <MCQCard
+                key={q.id}
+                q={q}
+                type="LISTENING"
+                onDelete={() => onUpdate()}
+                onEdit={() => {}}
+              />
             ))}
           </div>
         )}
@@ -420,11 +565,24 @@ function SpeakingVideoCard({ video, skillId, onUpdate, navigate }) {
             <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <Trash2 className="w-6 h-6 text-red-600" />
             </div>
-            <h3 className="text-lg font-bold text-center text-gray-900 mb-2">تأكيد الحذف</h3>
-            <p className="text-gray-500 text-center text-sm mb-6">هل أنت متأكد من حذف هذا الفيديو وجميع أسئلته؟</p>
+            <h3 className="text-lg font-bold text-center text-gray-900 mb-2">
+              تأكيد الحذف
+            </h3>
+            <p className="text-gray-500 text-center text-sm mb-6">
+              هل أنت متأكد من حذف هذا الفيديو وجميع أسئلته؟
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmDelete(false)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium">إلغاء</button>
-              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex-1 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-60"
+              >
                 {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                 حذف
               </button>
@@ -436,16 +594,24 @@ function SpeakingVideoCard({ video, skillId, onUpdate, navigate }) {
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-start justify-between">
           <div className="flex gap-2">
-            <button onClick={() => setEditing((v) => !v)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+            <button
+              onClick={() => setEditing((v) => !v)}
+              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+            >
               <Pencil className="w-4 h-4" />
             </button>
-            <button onClick={() => setConfirmDelete(true)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
+            >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
           <div className="text-right">
             <h4 className="font-bold text-gray-900">{video.title}</h4>
-            <span className="text-xs text-gray-400">{video.duration}s • {video.difficulty}</span>
+            <span className="text-xs text-gray-400">
+              {video.duration}s • {video.difficulty}
+            </span>
           </div>
         </div>
 
@@ -453,7 +619,9 @@ function SpeakingVideoCard({ video, skillId, onUpdate, navigate }) {
         {editing && (
           <div className="mt-4 space-y-3 border-t border-gray-100 pt-4">
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">العنوان</label>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                العنوان
+              </label>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -461,44 +629,67 @@ function SpeakingVideoCard({ video, skillId, onUpdate, navigate }) {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">ملف الفيديو</label>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                ملف الفيديو
+              </label>
               <label className="flex items-center gap-2 cursor-pointer w-full border-2 border-dashed border-rose-300 rounded-lg px-3 py-3 bg-rose-50 hover:bg-rose-100 transition-colors">
                 <Mic className="w-4 h-4 text-rose-500 shrink-0" />
                 <span className="text-xs text-rose-600 font-medium">
                   {videoFile ? videoFile.name : "اضغط لرفع فيديو"}
                 </span>
-                <input type="file" accept="video/*" className="hidden" onChange={handleVideoChange} />
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={handleVideoChange}
+                />
               </label>
               {videoPreview && (
-                <video controls className="w-full mt-2 rounded-lg" src={videoPreview}>
+                <video
+                  controls
+                  className="w-full mt-2 rounded-lg"
+                  src={videoPreview}
+                >
                   المتصفح لا يدعم تشغيل الفيديو
                 </video>
               )}
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600 mb-1 block">الوصف (اختياري)</label>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                الوصف (اختياري)
+              </label>
               <textarea
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 rows={2}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">المدة (ثانية)</label>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">
+                  المدة (ثانية)
+                </label>
                 <input
                   type="number"
                   value={form.duration}
-                  onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, duration: e.target.value })
+                  }
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">الصعوبة</label>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">
+                  الصعوبة
+                </label>
                 <select
                   value={form.difficulty}
-                  onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, difficulty: e.target.value })
+                  }
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
                 >
                   <option value="EASY">سهل</option>
@@ -508,9 +699,22 @@ function SpeakingVideoCard({ video, skillId, onUpdate, navigate }) {
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setEditing(false)} className="px-3 py-1.5 rounded-lg border text-xs text-gray-600">إلغاء</button>
-              <button onClick={handleSubmit} disabled={saving} className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1">
-                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+              <button
+                onClick={() => setEditing(false)}
+                className="px-3 py-1.5 rounded-lg border text-xs text-gray-600"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs flex items-center gap-1"
+              >
+                {saving ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Check className="w-3 h-3" />
+                )}
                 حفظ
               </button>
             </div>
@@ -521,18 +725,30 @@ function SpeakingVideoCard({ video, skillId, onUpdate, navigate }) {
       <div className="p-4 bg-gray-50">
         <div className="flex items-center justify-between mb-3">
           <button
-            onClick={() => navigate(`/dashboard/general/skills/${skillId}/add/speaking/video/${video.id}/questions`)}
+            onClick={() =>
+              navigate(
+                `/dashboard/general/skills/${skillId}/add/speaking/video/${video.id}/questions`
+              )
+            }
             className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
           >
             <Plus className="w-4 h-4" />
             إضافة سؤال
           </button>
-          <span className="text-xs text-gray-400 font-medium">{video.questions?.length || 0} سؤال</span>
+          <span className="text-xs text-gray-400 font-medium">
+            {video.questions?.length || 0} سؤال
+          </span>
         </div>
         {video.questions?.length > 0 && (
           <div className="space-y-3">
             {video.questions.map((q) => (
-              <MCQCard key={q.id} q={q} type="SPEAKING" onDelete={() => onUpdate()} onEdit={() => {}} />
+              <MCQCard
+                key={q.id}
+                q={q}
+                type="SPEAKING"
+                onDelete={() => onUpdate()}
+                onEdit={() => {}}
+              />
             ))}
           </div>
         )}
@@ -758,6 +974,204 @@ function EditMCQModal({ editTarget, onClose, onSaved }) {
 }
 
 // ─────────────────────────────────────────────
+// General Path Section Component
+// ─────────────────────────────────────────────
+function GeneralPathSection({
+  section,
+  questions,
+  skillId,
+  navigate,
+  onUpdate,
+  onEdit,
+  onDelete,
+}) {
+  const [expanded, setExpanded] = useState(true);
+  const Icon = section.icon;
+  const sectionQuestions = questions.filter((q) => q.type === section.type);
+
+  const renderSectionContent = () => {
+    if (section.type === "VOCABULARY" || section.type === "GRAMMAR") {
+      return sectionQuestions.map((q) => (
+        <MCQCard
+          key={q.id}
+          q={q}
+          type={section.type}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+      ));
+    }
+
+    if (section.type === "READING") {
+      return sectionQuestions.map((passage) => (
+        <div
+          key={passage.id}
+          className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+        >
+          <div className="p-5 border-b border-gray-100">
+            <div className="flex items-start justify-between mb-3">
+              <button
+                onClick={() =>
+                  onDelete({
+                    type: "READING",
+                    id: passage.id,
+                    parentType: "passage",
+                  })
+                }
+                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <div className="text-right">
+                <h4 className="font-bold text-gray-900">{passage.title}</h4>
+                {passage.difficulty && (
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      DIFFICULTY_COLORS[passage.difficulty] ||
+                      "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    {passage.difficulty}
+                  </span>
+                )}
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 text-right leading-relaxed border-r-4 border-amber-300 pr-3">
+              {passage.passage_text}
+            </p>
+          </div>
+          <div className="p-4 bg-gray-50">
+            <div className="flex items-center justify-between mb-3">
+              <button
+                onClick={() =>
+                  navigate(
+                    `/dashboard/general/skills/${skillId}/add/reading/passage/${passage.id}/questions`
+                  )
+                }
+                className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-semibold"
+              >
+                <Plus className="w-4 h-4" />
+                إضافة سؤال
+              </button>
+              <span className="text-xs text-gray-400 font-medium">
+                {passage.questions?.length || 0} سؤال
+              </span>
+            </div>
+            {passage.questions?.length > 0 && (
+              <div className="space-y-3">
+                {passage.questions.map((q) => (
+                  <MCQCard
+                    key={q.id}
+                    q={q}
+                    type="READING"
+                    onDelete={onDelete}
+                    onEdit={onEdit}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      ));
+    }
+
+    if (section.type === "LISTENING") {
+      return sectionQuestions.map((audio) => (
+        <ListeningAudioCard
+          key={audio.id}
+          audio={audio}
+          skillId={skillId}
+          onUpdate={onUpdate}
+          navigate={navigate}
+        />
+      ));
+    }
+
+    if (section.type === "SPEAKING") {
+      return sectionQuestions.map((video) => (
+        <SpeakingVideoCard
+          key={video.id}
+          video={video}
+          skillId={skillId}
+          onUpdate={onUpdate}
+          navigate={navigate}
+        />
+      ));
+    }
+
+    return null;
+  };
+
+  return (
+    <div className={`border ${section.border} rounded-xl overflow-hidden`}>
+      {/* Section Header */}
+      <div
+        className={`flex items-center justify-between px-4 py-3 ${section.headerBg}`}
+      >
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-3 flex-1 text-left"
+        >
+          <div className={`p-1.5 rounded-lg ${section.bg}`}>
+            <Icon className={`w-4 h-4 ${section.color}`} />
+          </div>
+          <span className={`font-semibold text-sm ${section.color}`}>
+            {section.label}
+          </span>
+          <span className="text-xs text-gray-400 bg-white px-2 py-0.5 rounded-full border">
+            {sectionQuestions.length} items
+          </span>
+        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate(section.addRoute(skillId))}
+            className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg text-white transition-colors ${section.btnColor}`}
+          >
+            <Plus className="w-3.5 h-3.5" />
+            {section.addLabel}
+          </button>
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className={`p-1 ${section.color}`}
+          >
+            {expanded ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Section Content */}
+      {expanded && (
+        <div className="p-4 space-y-3 bg-white">
+          {sectionQuestions.length === 0 ? (
+            <div className="text-center py-8">
+              <Icon
+                className={`w-8 h-8 ${section.color} mx-auto mb-2 opacity-25`}
+              />
+              <p className="text-gray-400 text-sm">
+                No {section.label} questions yet
+              </p>
+              <button
+                onClick={() => navigate(section.addRoute(skillId))}
+                className={`inline-flex items-center gap-1.5 mt-3 text-xs font-medium ${section.color} hover:underline`}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Start adding {section.label}
+              </button>
+            </div>
+          ) : (
+            renderSectionContent()
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Main Page
 // ─────────────────────────────────────────────
 export default function GeneralSkillDetails() {
@@ -769,7 +1183,7 @@ export default function GeneralSkillDetails() {
   const [loading, setLoading] = useState(true);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [editTarget, setEditTarget] = useState(null); // { q, type }
+  const [editTarget, setEditTarget] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -780,12 +1194,29 @@ export default function GeneralSkillDetails() {
       setLoading(true);
       const [skillData, qData] = await Promise.all([
         generalSkillsAPI.getById(skillId),
-        generalQuestionsAPI.getSkillQuestions(skillId),
+        generalQuestionsAPI.getSkillQuestions(
+          skillId,
+          1,
+          skillData?.skill_type === "GENERAL_PATH" ? 500 : 20
+        ),
       ]);
       setSkill(skillData);
       setQuestions(qData.questions || []);
     } catch (err) {
-      console.error(err);
+      // retry with skill data we already have
+      try {
+        const skillData = await generalSkillsAPI.getById(skillId);
+        setSkill(skillData);
+        const pageSize = skillData?.skill_type === "GENERAL_PATH" ? 500 : 20;
+        const qData = await generalQuestionsAPI.getSkillQuestions(
+          skillId,
+          1,
+          pageSize
+        );
+        setQuestions(qData.questions || []);
+      } catch (e) {
+        console.error(e);
+      }
     } finally {
       setLoading(false);
     }
@@ -845,13 +1276,13 @@ export default function GeneralSkillDetails() {
     );
   }
 
+  const isGeneralPath = skill?.skill_type === "GENERAL_PATH";
   const SkillIcon = SKILL_ICONS[skill?.skill_type] || BookOpen;
 
   // ── Render helpers ──────────────────────────
   const renderQuestions = () => {
     const type = skill?.skill_type;
 
-    // ── Vocabulary & Grammar ──
     if (type === "VOCABULARY" || type === "GRAMMAR") {
       return questions.map((q) => (
         <MCQCard
@@ -864,14 +1295,12 @@ export default function GeneralSkillDetails() {
       ));
     }
 
-    // ── Reading ──
     if (type === "READING") {
       return questions.map((passage) => (
         <div
           key={passage.id}
           className="bg-white rounded-xl border border-gray-200 overflow-hidden"
         >
-          {/* Passage header */}
           <div className="p-5 border-b border-gray-100">
             <div className="flex items-start justify-between mb-3">
               <button
@@ -905,7 +1334,6 @@ export default function GeneralSkillDetails() {
             </p>
           </div>
 
-          {/* Passage questions */}
           <div className="p-4 bg-gray-50">
             <div className="flex items-center justify-between mb-3">
               <button
@@ -942,7 +1370,6 @@ export default function GeneralSkillDetails() {
       ));
     }
 
-    // ── Listening ──
     if (type === "LISTENING") {
       return questions.map((audio) => (
         <ListeningAudioCard
@@ -955,7 +1382,6 @@ export default function GeneralSkillDetails() {
       ));
     }
 
-    // ── Speaking ──
     if (type === "SPEAKING") {
       return questions.map((video) => (
         <SpeakingVideoCard
@@ -968,7 +1394,6 @@ export default function GeneralSkillDetails() {
       ));
     }
 
-    // ── Writing ──
     if (type === "WRITING") {
       return questions.map((q) => (
         <div
@@ -1026,40 +1451,81 @@ export default function GeneralSkillDetails() {
           >
             <ArrowRight className="w-5 h-5 text-gray-600" />
           </button>
-          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-            <SkillIcon className="w-5 h-5 text-emerald-700" />
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              isGeneralPath ? "bg-indigo-100" : "bg-emerald-100"
+            }`}
+          >
+            <SkillIcon
+              className={`w-5 h-5 ${
+                isGeneralPath ? "text-indigo-700" : "text-emerald-700"
+              }`}
+            />
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">{skill?.title}</h1>
             <p className="text-sm text-gray-500">
-              {SKILL_TYPE_LABELS[skill?.skill_type]} • {questions.length} عنصر
+              {SKILL_TYPE_LABELS[skill?.skill_type]}
+              {!isGeneralPath && ` • ${questions.length} عنصر`}
             </p>
           </div>
         </div>
-        <button
-          onClick={() => navigate(getAddPath())}
-          className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium"
-        >
-          <Plus className="w-4 h-4" />
-          إضافة{" "}
-          {skill?.skill_type === "READING"
-            ? "قطعة"
-            : skill?.skill_type === "LISTENING"
-            ? "تسجيل صوتي"
-            : skill?.skill_type === "SPEAKING"
-            ? "فيديو"
-            : "سؤال"}
-        </button>
+        {/* Only show add button for non-general-path skills */}
+        {!isGeneralPath && (
+          <button
+            onClick={() => navigate(getAddPath())}
+            className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            إضافة{" "}
+            {skill?.skill_type === "READING"
+              ? "قطعة"
+              : skill?.skill_type === "LISTENING"
+              ? "تسجيل صوتي"
+              : skill?.skill_type === "SPEAKING"
+              ? "فيديو"
+              : "سؤال"}
+          </button>
+        )}
       </div>
 
-      {/* Questions */}
-      {questions.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <SkillIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>لا توجد أسئلة بعد</p>
+      {/* GENERAL PATH — Sections */}
+      {isGeneralPath ? (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <GitBranch className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-bold text-gray-900">
+              General Path Content
+            </h2>
+            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+              Add questions directly in each section
+            </span>
+          </div>
+          {GENERAL_PATH_SECTIONS.map((section) => (
+            <GeneralPathSection
+              key={section.type}
+              section={section}
+              questions={questions}
+              skillId={skillId}
+              navigate={navigate}
+              onUpdate={fetchData}
+              onEdit={setEditTarget}
+              onDelete={setDeleteModal}
+            />
+          ))}
         </div>
       ) : (
-        <div className="space-y-3">{renderQuestions()}</div>
+        /* Normal Skills */
+        <>
+          {questions.length === 0 ? (
+            <div className="text-center py-16 text-gray-400">
+              <SkillIcon className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>لا توجد أسئلة بعد</p>
+            </div>
+          ) : (
+            <div className="space-y-3">{renderQuestions()}</div>
+          )}
+        </>
       )}
 
       {/* Edit Modal */}
