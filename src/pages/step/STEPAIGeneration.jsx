@@ -21,27 +21,28 @@ import {
   Zap,
   Brain,
   Check,
+  LayoutGrid,
+  PlusCircle,
+  Search,
 } from "lucide-react";
 import api from "../../api/axios";
+import JobMediaUploader from "./JobMediaUploader";
 
 // ─── helpers ───────────────────────────────────────────────────────────────
 const fmt = (s) =>
   s === "PENDING"
     ? {
-        label: "Pending",
+        label: "انتظار",
         color: "text-yellow-600 bg-yellow-50 border-yellow-200",
       }
     : s === "PROCESSING"
     ? {
-        label: "Processing",
+        label: "جاري المعالجة",
         color: "text-blue-600 bg-blue-50 border-blue-200",
       }
     : s === "DONE"
-    ? {
-        label: "Completed",
-        color: "text-green-600 bg-green-50 border-green-200",
-      }
-    : { label: "Failed", color: "text-red-600 bg-red-50 border-red-200" };
+    ? { label: "مكتمل", color: "text-green-600 bg-green-50 border-green-200" }
+    : { label: "فشل", color: "text-red-600 bg-red-50 border-red-200" };
 
 const StatusBadge = ({ status }) => {
   const { label, color } = fmt(status);
@@ -64,10 +65,33 @@ const SKILL_TYPES = [
   { value: "LISTENING", label: "Listening", color: "text-cyan-600" },
   { value: "SPEAKING", label: "Speaking", color: "text-rose-600" },
   { value: "WRITING", label: "Writing", color: "text-green-600" },
+  {
+    value: "GENERAL_PATH",
+    label: "General Path (مسار شامل)",
+    color: "text-violet-600",
+    isGeneral: true,
+  },
 ];
 
+const SKILL_TYPE_LABELS = {
+  VOCABULARY: "Vocabulary",
+  GRAMMAR: "Grammar",
+  READING: "Reading",
+  LISTENING: "Listening",
+  SPEAKING: "Speaking",
+  WRITING: "Writing",
+  GENERAL_PATH: "مسار شامل",
+};
+
 // ─── Section wrapper ────────────────────────────────────────────────────────
-function Section({ icon: Icon, title, color, children, defaultOpen = true }) {
+function Section({
+  icon: Icon,
+  title,
+  color,
+  children,
+  defaultOpen = true,
+  badge,
+}) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
@@ -80,6 +104,11 @@ function Section({ icon: Icon, title, color, children, defaultOpen = true }) {
             <Icon className="w-5 h-5" />
           </div>
           <h2 className="font-bold text-gray-900 text-base">{title}</h2>
+          {badge && (
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+              {badge}
+            </span>
+          )}
         </div>
         {open ? (
           <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -118,7 +147,6 @@ function MultiSelectDropdown({
       border: "border-indigo-400",
       bg: "bg-indigo-50",
       tag: "bg-indigo-100 text-indigo-700",
-      check: "accent-indigo-600",
       hover: "hover:bg-indigo-50",
       selected: "bg-indigo-50",
     },
@@ -126,16 +154,24 @@ function MultiSelectDropdown({
       border: "border-cyan-400",
       bg: "bg-cyan-50",
       tag: "bg-cyan-100 text-cyan-700",
-      check: "accent-cyan-600",
       hover: "hover:bg-cyan-50",
       selected: "bg-cyan-50",
     },
+    emerald: {
+      border: "border-emerald-400",
+      bg: "bg-emerald-50",
+      tag: "bg-emerald-100 text-emerald-700",
+      hover: "hover:bg-emerald-50",
+      selected: "bg-emerald-50",
+    },
   };
-  const c = colorMap[color];
+  const c = colorMap[color] || colorMap.indigo;
+
+  const accentColor =
+    color === "indigo" ? "#4f46e5" : color === "cyan" ? "#0891b2" : "#059669";
 
   return (
     <div ref={ref} className="relative">
-      {/* Selected tags */}
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
           {selected.map((id) => {
@@ -157,8 +193,6 @@ function MultiSelectDropdown({
           })}
         </div>
       )}
-
-      {/* Trigger button */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -171,9 +205,7 @@ function MultiSelectDropdown({
             selected.length > 0 ? "text-gray-700 font-medium" : "text-gray-400"
           }
         >
-          {selected.length > 0
-            ? `${selected.length} item(s) selected`
-            : placeholder}
+          {selected.length > 0 ? `${selected.length} عنصر محدد` : placeholder}
         </span>
         {open ? (
           <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -181,14 +213,12 @@ function MultiSelectDropdown({
           <ChevronDown className="w-4 h-4 text-gray-400" />
         )}
       </button>
-
-      {/* Dropdown list */}
       {open && (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
           <div className="max-h-52 overflow-y-auto divide-y divide-gray-100">
             {items.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-4">
-                No items available
+                لا توجد عناصر جاهزة
               </p>
             ) : (
               items.map((item) => (
@@ -199,20 +229,14 @@ function MultiSelectDropdown({
                   }`}
                 >
                   <div
-                    className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      selected.includes(item.id)
-                        ? `bg-${color}-600 border-${color}-600`
-                        : "border-gray-300"
-                    }`}
+                    className="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
                     style={
                       selected.includes(item.id)
                         ? {
-                            backgroundColor:
-                              color === "indigo" ? "#4f46e5" : "#0891b2",
-                            borderColor:
-                              color === "indigo" ? "#4f46e5" : "#0891b2",
+                            backgroundColor: accentColor,
+                            borderColor: accentColor,
                           }
-                        : {}
+                        : { borderColor: "#d1d5db" }
                     }
                   >
                     {selected.includes(item.id) && (
@@ -275,7 +299,7 @@ function BooksSection({ books, onRefresh }) {
   }, [books]);
 
   const handleUpload = async () => {
-    if (!name.trim() || !file) return setError("Name and file are required");
+    if (!name.trim() || !file) return setError("الاسم والملف مطلوبان");
     setError("");
     setUploading(true);
     try {
@@ -290,20 +314,20 @@ function BooksSection({ books, onRefresh }) {
       fileRef.current.value = "";
       onRefresh();
     } catch (e) {
-      setError(e.response?.data?.error || "An error occurred");
+      setError(e.response?.data?.error || "حدث خطأ");
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <Section icon={BookOpen} title="Upload Books (PDF)" color="text-indigo-600">
+    <Section icon={BookOpen} title="رفع الكتب (PDF)" color="text-indigo-600">
       <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-5 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Book name"
+            placeholder="اسم الكتاب"
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white"
           />
           <div
@@ -312,7 +336,7 @@ function BooksSection({ books, onRefresh }) {
           >
             <Upload className="w-4 h-4 text-indigo-500 shrink-0" />
             <span className="text-sm text-gray-500 truncate">
-              {file ? file.name : "Choose a PDF file"}
+              {file ? file.name : "اختر ملف PDF"}
             </span>
             <input
               ref={fileRef}
@@ -334,15 +358,13 @@ function BooksSection({ books, onRefresh }) {
           ) : (
             <Upload className="w-4 h-4" />
           )}
-          {uploading
-            ? "Uploading and processing..."
-            : "Upload Book & Extract Text"}
+          {uploading ? "جاري الرفع والمعالجة..." : "رفع الكتاب واستخراج النص"}
         </button>
       </div>
 
       {books.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-4">
-          No books uploaded yet
+          لا توجد كتب مرفوعة بعد
         </p>
       ) : (
         <div className="space-y-2">
@@ -358,9 +380,7 @@ function BooksSection({ books, onRefresh }) {
                     {b.name}
                   </p>
                   {b.page_count > 0 && (
-                    <p className="text-xs text-gray-400">
-                      {b.page_count} pages
-                    </p>
+                    <p className="text-xs text-gray-400">{b.page_count} صفحة</p>
                   )}
                 </div>
               </div>
@@ -392,7 +412,9 @@ function MediaSection({ media, onRefresh }) {
       ) {
         pollingRef.current[m.id] = setInterval(async () => {
           try {
-            const res = await api.get(`/step/ai/extract-media/${m.id}/status/`);
+            const res = await api.get(
+              `/step/ai/extract-media/${m.id}/status/`
+            );
             if (res.data.status === "DONE" || res.data.status === "FAILED") {
               clearInterval(pollingRef.current[m.id]);
               delete pollingRef.current[m.id];
@@ -406,7 +428,7 @@ function MediaSection({ media, onRefresh }) {
   }, [media]);
 
   const handleUpload = async () => {
-    if (!name.trim() || !file) return setError("Name and file are required");
+    if (!name.trim() || !file) return setError("الاسم والملف مطلوبان");
     setError("");
     setUploading(true);
     try {
@@ -421,7 +443,7 @@ function MediaSection({ media, onRefresh }) {
       fileRef.current.value = "";
       onRefresh();
     } catch (e) {
-      setError(e.response?.data?.error || "An error occurred");
+      setError(e.response?.data?.error || "حدث خطأ");
     } finally {
       setUploading(false);
     }
@@ -434,7 +456,7 @@ function MediaSection({ media, onRefresh }) {
   return (
     <Section
       icon={Headphones}
-      title="Upload Video / Audio (Transcription)"
+      title="رفع الفيديو / الصوت (Transcription)"
       color="text-cyan-600"
     >
       <div className="bg-cyan-50 border border-cyan-100 rounded-xl p-4 mb-5 space-y-3">
@@ -442,7 +464,7 @@ function MediaSection({ media, onRefresh }) {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="File name"
+            placeholder="اسم الملف"
             className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-white"
           />
           <div
@@ -474,17 +496,17 @@ function MediaSection({ media, onRefresh }) {
             <Upload className="w-4 h-4" />
           )}
           {uploading
-            ? "Uploading and converting to text..."
-            : "Upload File & Extract Text (Whisper)"}
+            ? "جاري الرفع والتحويل لنص..."
+            : "رفع الملف واستخراج النص (Whisper)"}
         </button>
         <p className="text-xs text-cyan-600 text-center">
-          Supports: mp4 · mov · avi · mp3 · wav · m4a · ogg · flac
+          يدعم: mp4 · mov · avi · mp3 · wav · m4a · ogg · flac
         </p>
       </div>
 
       {media.length === 0 ? (
         <p className="text-center text-gray-400 text-sm py-4">
-          No media files uploaded yet
+          لا توجد ملفات وسائط بعد
         </p>
       ) : (
         <div className="space-y-2">
@@ -504,9 +526,8 @@ function MediaSection({ media, onRefresh }) {
                     {m.name}
                   </p>
                   <p className="text-xs text-gray-400">
-                    {m.media_type === "VIDEO" ? "Video" : "Audio"}
-                    {m.duration_seconds > 0 &&
-                      ` · ${m.duration_seconds} seconds`}
+                    {m.media_type === "VIDEO" ? "فيديو" : "صوت"}
+                    {m.duration_seconds > 0 && ` · ${m.duration_seconds} ثانية`}
                   </p>
                 </div>
               </div>
@@ -520,48 +541,33 @@ function MediaSection({ media, onRefresh }) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// 3. GENERATE SKILL SECTION
+// GENERAL PATH INFO BANNER
 // ══════════════════════════════════════════════════════════════════
-function GenerateSection({ onRefresh, jobs }) {
+function GeneralPathBanner() {
+  return (
+    <div className="bg-violet-50 border border-violet-200 rounded-xl p-3.5 flex items-start gap-3">
+      <LayoutGrid className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
+      <div>
+        <p className="text-xs font-bold text-violet-800 mb-1">
+          المسار الشامل — General Path
+        </p>
+        <p className="text-xs text-violet-600 leading-relaxed">
+          سيقوم الـ AI بتوليد أسئلة من{" "}
+          <span className="font-semibold">جميع الأنواع الستة</span> في مهارة
+          واحدة: Vocabulary · Grammar · Reading · Listening · Speaking ·
+          Writing. إجمالي الأسئلة المطلوبة سيتوزع بالتساوي عليهم.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// JOBS LIST (مشترك بين الـ sections)
+// ══════════════════════════════════════════════════════════════════
+function JobsList({ jobs, onRefresh, label = "سجل الجلسة" }) {
   const pollingRef = useRef({});
 
-  const [doneBooks, setDoneBooks] = useState([]);
-  const [doneMedia, setDoneMedia] = useState([]);
-  const [loadingSources, setLoadingSources] = useState(true);
-
-  const [form, setForm] = useState({
-    skill_type: "",
-    skill_title: "",
-    skill_description: "",
-    no_easy: 5,
-    no_medium: 5,
-    no_hard: 5,
-    additional_notes: "",
-  });
-  const [selectedBooks, setSelectedBooks] = useState([]);
-  const [selectedMedia, setSelectedMedia] = useState([]);
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState("");
-
-  // Fetch ready books and media independently
-  const fetchSources = async () => {
-    setLoadingSources(true);
-    try {
-      const [bRes, mRes] = await Promise.all([
-        api.get("/step/ai/extract-book/"),
-        api.get("/step/ai/extract-media/"),
-      ]);
-      setDoneBooks(bRes.data.books || []);
-      setDoneMedia(mRes.data.media || []);
-    } catch {}
-    setLoadingSources(false);
-  };
-
-  useEffect(() => {
-    fetchSources();
-  }, []);
-
-  // poll active jobs
   useEffect(() => {
     jobs.forEach((j) => {
       if (
@@ -583,23 +589,292 @@ function GenerateSection({ onRefresh, jobs }) {
     return () => Object.values(pollingRef.current).forEach(clearInterval);
   }, [jobs]);
 
+  if (jobs.length === 0) return null;
+
+  return (
+    <div className="mt-2">
+      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+        {label}
+      </h3>
+      <div className="space-y-2">
+        {jobs.map((j) => (
+          <div
+            key={j.id}
+            className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+          >
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-800 truncate">
+                {j.skill_title}
+              </p>
+              <p className="text-xs text-gray-400">
+                {j.skill_type === "GENERAL_PATH"
+                  ? "مسار شامل (6 أنواع)"
+                  : SKILL_TYPE_LABELS[j.skill_type] || j.skill_type}{" "}
+                ·{" "}
+                {j.status === "DONE"
+                  ? `${j.questions_created} سؤال تم إنشاؤه`
+                  : j.status === "FAILED"
+                  ? j.error_message?.slice(0, 60)
+                  : "جاري المعالجة..."}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <StatusBadge status={j.status} />
+              {j.status === "DONE" && j.skill_id && (
+                <Link
+                  to={`/dashboard/step/skills/${j.skill_id}`}
+                  className="text-xs text-indigo-600 hover:underline font-medium"
+                >
+                  عرض
+                </Link>
+              )}
+              <JobMediaUploader job={j} onUploaded={onRefresh} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SHARED: Sources picker (كتب + ميديا + عدد الأسئلة + ملاحظات)
+// ══════════════════════════════════════════════════════════════════
+function SourcesPicker({
+  doneBooks,
+  doneMedia,
+  loadingSources,
+  selectedBooks,
+  selectedMedia,
+  toggleBook,
+  toggleMedia,
+  form,
+  setForm,
+  onRefreshSources,
+  isGeneralPath = false,
+}) {
+  const total = form.no_easy + form.no_medium + form.no_hard;
+  return (
+    <>
+      {/* Questions count */}
+      <div>
+        <label className="text-xs font-semibold text-gray-600 mb-2 block">
+          توزيع الأسئلة{" "}
+          <span className="text-violet-600 font-bold">
+            (المجموع: {total}
+            {isGeneralPath && ` — ~${Math.ceil(total / 6)} لكل نوع`})
+          </span>
+        </label>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            {
+              key: "no_easy",
+              label: "سهل",
+              color: "border-green-300 focus:ring-green-400",
+            },
+            {
+              key: "no_medium",
+              label: "متوسط",
+              color: "border-yellow-300 focus:ring-yellow-400",
+            },
+            {
+              key: "no_hard",
+              label: "صعب",
+              color: "border-red-300 focus:ring-red-400",
+            },
+          ].map(({ key, label, color }) => (
+            <div key={key}>
+              <label className="text-xs text-gray-500 mb-1 block">
+                {label}
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={form[key]}
+                onChange={(e) =>
+                  setForm({ ...form, [key]: parseInt(e.target.value) || 0 })
+                }
+                className={`w-full border rounded-xl px-3 py-2 text-sm font-bold text-center focus:outline-none focus:ring-2 ${color}`}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Source selection */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1">
+            <BookOpen className="w-3.5 h-3.5" /> الكتب المصدر
+          </label>
+          {loadingSources ? (
+            <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
+              <Loader2 className="w-4 h-4 animate-spin" /> جاري التحميل...
+            </div>
+          ) : (
+            <MultiSelectDropdown
+              items={doneBooks}
+              selected={selectedBooks}
+              onToggle={toggleBook}
+              placeholder="اختر كتاباً أو أكثر..."
+              color="indigo"
+              renderTag={(item) => (
+                <span className="flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  {item?.name}
+                </span>
+              )}
+              renderItem={(item) => (
+                <>
+                  <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <span className="text-sm text-gray-700 flex-1 truncate">
+                    {item.name}
+                  </span>
+                  <span className="text-xs text-gray-400 shrink-0">
+                    {item.page_count} ص
+                  </span>
+                </>
+              )}
+            />
+          )}
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1">
+            <Headphones className="w-3.5 h-3.5" /> ملفات الوسائط المصدر
+          </label>
+          {loadingSources ? (
+            <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
+              <Loader2 className="w-4 h-4 animate-spin" /> جاري التحميل...
+            </div>
+          ) : (
+            <MultiSelectDropdown
+              items={doneMedia}
+              selected={selectedMedia}
+              onToggle={toggleMedia}
+              placeholder="اختر ملف صوت أو فيديو..."
+              color="cyan"
+              renderTag={(item) => (
+                <span className="flex items-center gap-1">
+                  {item?.media_type === "VIDEO" ? (
+                    <Video className="w-3 h-3" />
+                  ) : (
+                    <Headphones className="w-3 h-3" />
+                  )}
+                  {item?.name}
+                </span>
+              )}
+              renderItem={(item) => (
+                <>
+                  {item.media_type === "VIDEO" ? (
+                    <Video className="w-4 h-4 text-cyan-400 shrink-0" />
+                  ) : (
+                    <Headphones className="w-4 h-4 text-cyan-400 shrink-0" />
+                  )}
+                  <span className="text-sm text-gray-700 flex-1 truncate">
+                    {item.name}
+                  </span>
+                  <span className="text-xs text-gray-400 shrink-0">
+                    {item.media_type === "VIDEO" ? "فيديو" : "صوت"}
+                  </span>
+                </>
+              )}
+            />
+          )}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={onRefreshSources}
+        disabled={loadingSources}
+        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
+      >
+        <RefreshCw
+          className={`w-3.5 h-3.5 ${loadingSources ? "animate-spin" : ""}`}
+        />
+        تحديث قائمة المصادر
+      </button>
+
+      {/* Additional notes */}
+      <div>
+        <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
+          ملاحظات إضافية للـ AI (اختياري)
+        </label>
+        <textarea
+          value={form.additional_notes}
+          onChange={(e) =>
+            setForm({ ...form, additional_notes: e.target.value })
+          }
+          rows={2}
+          placeholder={
+            isGeneralPath
+              ? "مثال: ركز على مواضيع البيئة، اجعل أسئلة الـ Writing أكاديمية..."
+              : "مثال: ركز على المفردات الأكاديمية، تجنب الأسئلة المتعلقة بالأسماء..."
+          }
+          className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none"
+        />
+      </div>
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// 3. GENERATE NEW SKILL SECTION
+// ══════════════════════════════════════════════════════════════════
+function GenerateSection({ onRefresh, jobs }) {
+  const [doneBooks, setDoneBooks] = useState([]);
+  const [doneMedia, setDoneMedia] = useState([]);
+  const [loadingSources, setLoadingSources] = useState(true);
+
+  const [form, setForm] = useState({
+    skill_type: "",
+    skill_title: "",
+    skill_description: "",
+    no_easy: 5,
+    no_medium: 5,
+    no_hard: 5,
+    additional_notes: "",
+  });
+  const [selectedBooks, setSelectedBooks] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState([]);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
+
+  const isGeneralPath = form.skill_type === "GENERAL_PATH";
+
+  const fetchSources = async () => {
+    setLoadingSources(true);
+    try {
+      const [bRes, mRes] = await Promise.all([
+        api.get("/step/ai/extract-book/"),
+        api.get("/step/ai/extract-media/"),
+      ]);
+      setDoneBooks(bRes.data.books || []);
+      setDoneMedia(mRes.data.media || []);
+    } catch {}
+    setLoadingSources(false);
+  };
+
+  useEffect(() => {
+    fetchSources();
+  }, []);
+
   const toggleBook = (id) =>
     setSelectedBooks((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
-
   const toggleMedia = (id) =>
     setSelectedMedia((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
 
   const handleGenerate = async () => {
-    if (!form.skill_type) return setError("Please select a skill type");
-    if (!form.skill_title.trim()) return setError("Title is required");
+    if (!form.skill_type) return setError("اختر نوع المهارة");
+    if (!form.skill_title.trim()) return setError("العنوان مطلوب");
     if (selectedBooks.length === 0 && selectedMedia.length === 0)
-      return setError("Please select at least one book or media file");
+      return setError("اختر كتاباً أو ملف وسائط واحداً على الأقل");
     if (form.no_easy + form.no_medium + form.no_hard === 0)
-      return setError("Total number of questions must be greater than zero");
+      return setError("يجب تحديد عدد أسئلة أكثر من صفر");
     setError("");
     setGenerating(true);
     try {
@@ -610,20 +885,21 @@ function GenerateSection({ onRefresh, jobs }) {
       });
       onRefresh();
     } catch (e) {
-      setError(
-        e.response?.data?.error || "An error occurred during generation"
-      );
+      setError(e.response?.data?.error || "حدث خطأ أثناء التوليد");
     } finally {
       setGenerating(false);
     }
   };
 
   const total = form.no_easy + form.no_medium + form.no_hard;
+  const generateBtnLabel = isGeneralPath
+    ? `توليد مسار شامل بـ ${total} سؤال (6 أنواع)`
+    : `توليد مهارة بـ ${total} سؤال`;
 
   return (
     <Section
       icon={Brain}
-      title="Generate a New Skill with AI"
+      title="توليد مهارة جديدة بالذكاء الاصطناعي"
       color="text-violet-600"
     >
       <div className="space-y-5">
@@ -631,208 +907,78 @@ function GenerateSection({ onRefresh, jobs }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-              Skill Type <span className="text-red-500">*</span>
+              نوع المهارة <span className="text-red-500">*</span>
             </label>
             <select
               value={form.skill_type}
               onChange={(e) => setForm({ ...form, skill_type: e.target.value })}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
             >
-              <option value="">-- Select --</option>
-              {SKILL_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
+              <option value="">-- اختر --</option>
+              <optgroup label="مهارة واحدة">
+                {SKILL_TYPES.filter((t) => !t.isGeneral).map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="مسار شامل">
+                {SKILL_TYPES.filter((t) => t.isGeneral).map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-              Skill Title <span className="text-red-500">*</span>
+              عنوان المهارة <span className="text-red-500">*</span>
             </label>
             <input
               value={form.skill_title}
               onChange={(e) =>
                 setForm({ ...form, skill_title: e.target.value })
               }
-              placeholder="e.g. Advanced Vocabulary"
+              placeholder={
+                isGeneralPath
+                  ? "مثال: STEP Comprehensive Practice"
+                  : "مثال: Advanced Vocabulary"
+              }
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
             />
           </div>
         </div>
 
-        {/* Description */}
+        {isGeneralPath && <GeneralPathBanner />}
+
         <div>
           <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-            Description (optional)
+            الوصف (اختياري)
           </label>
           <input
             value={form.skill_description}
             onChange={(e) =>
               setForm({ ...form, skill_description: e.target.value })
             }
-            placeholder="Brief description of the skill..."
+            placeholder="وصف مختصر للمهارة..."
             className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
           />
         </div>
 
-        {/* Questions count */}
-        <div>
-          <label className="text-xs font-semibold text-gray-600 mb-2 block">
-            Question Distribution{" "}
-            <span className="text-violet-600 font-bold">(Total: {total})</span>
-          </label>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              {
-                key: "no_easy",
-                label: "Easy",
-                color: "border-green-300 focus:ring-green-400",
-              },
-              {
-                key: "no_medium",
-                label: "Medium",
-                color: "border-yellow-300 focus:ring-yellow-400",
-              },
-              {
-                key: "no_hard",
-                label: "Hard",
-                color: "border-red-300 focus:ring-red-400",
-              },
-            ].map(({ key, label, color }) => (
-              <div key={key}>
-                <label className="text-xs text-gray-500 mb-1 block">
-                  {label}
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  value={form[key]}
-                  onChange={(e) =>
-                    setForm({ ...form, [key]: parseInt(e.target.value) || 0 })
-                  }
-                  className={`w-full border rounded-xl px-3 py-2 text-sm font-bold text-center focus:outline-none focus:ring-2 ${color}`}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Source selection */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Books */}
-          <div>
-            <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
-              <BookOpen className="w-3.5 h-3.5" /> Source Books
-            </label>
-            {loadingSources ? (
-              <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Loading...
-              </div>
-            ) : (
-              <MultiSelectDropdown
-                items={doneBooks}
-                selected={selectedBooks}
-                onToggle={toggleBook}
-                placeholder="Select one or more books..."
-                color="indigo"
-                renderTag={(item) => (
-                  <span className="flex items-center gap-1">
-                    <FileText className="w-3 h-3" />
-                    {item?.name}
-                  </span>
-                )}
-                renderItem={(item, isSelected) => (
-                  <>
-                    <FileText className="w-4 h-4 text-indigo-400 shrink-0" />
-                    <span className="text-sm text-gray-700 flex-1 truncate">
-                      {item.name}
-                    </span>
-                    <span className="text-xs text-gray-400 shrink-0">
-                      {item.page_count} pg
-                    </span>
-                  </>
-                )}
-              />
-            )}
-          </div>
-
-          {/* Media */}
-          <div>
-            <label className="text-xs font-semibold text-gray-600 mb-2 block flex items-center gap-1">
-              <Headphones className="w-3.5 h-3.5" /> Source Media Files
-            </label>
-            {loadingSources ? (
-              <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Loading...
-              </div>
-            ) : (
-              <MultiSelectDropdown
-                items={doneMedia}
-                selected={selectedMedia}
-                onToggle={toggleMedia}
-                placeholder="Select an audio or video file..."
-                color="cyan"
-                renderTag={(item) => (
-                  <span className="flex items-center gap-1">
-                    {item?.media_type === "VIDEO" ? (
-                      <Video className="w-3 h-3" />
-                    ) : (
-                      <Headphones className="w-3 h-3" />
-                    )}
-                    {item?.name}
-                  </span>
-                )}
-                renderItem={(item, isSelected) => (
-                  <>
-                    {item.media_type === "VIDEO" ? (
-                      <Video className="w-4 h-4 text-cyan-400 shrink-0" />
-                    ) : (
-                      <Headphones className="w-4 h-4 text-cyan-400 shrink-0" />
-                    )}
-                    <span className="text-sm text-gray-700 flex-1 truncate">
-                      {item.name}
-                    </span>
-                    <span className="text-xs text-gray-400 shrink-0">
-                      {item.media_type === "VIDEO" ? "Video" : "Audio"}
-                    </span>
-                  </>
-                )}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Refresh sources button */}
-        <button
-          type="button"
-          onClick={fetchSources}
-          disabled={loadingSources}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
-        >
-          <RefreshCw
-            className={`w-3.5 h-3.5 ${loadingSources ? "animate-spin" : ""}`}
-          />
-          Refresh sources list
-        </button>
-
-        {/* Additional notes */}
-        <div>
-          <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
-            Additional Notes for AI (optional)
-          </label>
-          <textarea
-            value={form.additional_notes}
-            onChange={(e) =>
-              setForm({ ...form, additional_notes: e.target.value })
-            }
-            rows={2}
-            placeholder="e.g. Focus on academic vocabulary, avoid questions about proper nouns..."
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none"
-          />
-        </div>
+        <SourcesPicker
+          doneBooks={doneBooks}
+          doneMedia={doneMedia}
+          loadingSources={loadingSources}
+          selectedBooks={selectedBooks}
+          selectedMedia={selectedMedia}
+          toggleBook={toggleBook}
+          toggleMedia={toggleMedia}
+          form={form}
+          setForm={setForm}
+          onRefreshSources={fetchSources}
+          isGeneralPath={isGeneralPath}
+        />
 
         {error && (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
@@ -844,59 +990,308 @@ function GenerateSection({ onRefresh, jobs }) {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-60 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-lg"
+          className={`w-full flex items-center justify-center gap-2 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-lg disabled:opacity-60 ${
+            isGeneralPath
+              ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700"
+              : "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
+          }`}
+        >
+          {generating ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : isGeneralPath ? (
+            <LayoutGrid className="w-5 h-5" />
+          ) : (
+            <Sparkles className="w-5 h-5" />
+          )}
+          {generating ? "جاري الإرسال للـ AI..." : generateBtnLabel}
+        </button>
+
+        <JobsList
+          jobs={jobs}
+          onRefresh={onRefresh}
+          label="سجل الجلسة — مهارات جديدة"
+        />
+      </div>
+    </Section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// 4. ADD QUESTIONS TO EXISTING SKILL SECTION ← جديد
+// ══════════════════════════════════════════════════════════════════
+function AddQuestionsSection({ onRefresh, jobs }) {
+  const [doneBooks, setDoneBooks] = useState([]);
+  const [doneMedia, setDoneMedia] = useState([]);
+  const [loadingSources, setLoadingSources] = useState(true);
+  const [existingSkills, setExistingSkills] = useState([]);
+  const [loadingSkills, setLoadingSkills] = useState(true);
+  const [skillSearch, setSkillSearch] = useState("");
+
+  const [selectedSkillId, setSelectedSkillId] = useState("");
+  const [selectedBooks, setSelectedBooks] = useState([]);
+  const [selectedMedia, setSelectedMedia] = useState([]);
+  const [form, setForm] = useState({
+    no_easy: 5,
+    no_medium: 5,
+    no_hard: 5,
+    additional_notes: "",
+  });
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const fetchSources = async () => {
+    setLoadingSources(true);
+    try {
+      const [bRes, mRes] = await Promise.all([
+        api.get("/step/ai/extract-book/"),
+        api.get("/step/ai/extract-media/"),
+      ]);
+      setDoneBooks(bRes.data.books || []);
+      setDoneMedia(mRes.data.media || []);
+    } catch {}
+    setLoadingSources(false);
+  };
+
+  const fetchSkills = async () => {
+    setLoadingSkills(true);
+    try {
+      const res = await api.get("/step/skills/");
+      setExistingSkills(res.data.skills || []);
+    } catch {}
+    setLoadingSkills(false);
+  };
+
+  useEffect(() => {
+    fetchSources();
+    fetchSkills();
+  }, []);
+
+  const toggleBook = (id) =>
+    setSelectedBooks((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  const toggleMedia = (id) =>
+    setSelectedMedia((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+
+  const selectedSkill = existingSkills.find(
+    (s) => s.id === Number(selectedSkillId)
+  );
+
+  const filteredSkills = existingSkills.filter(
+    (s) =>
+      s.title.toLowerCase().includes(skillSearch.toLowerCase()) ||
+      (SKILL_TYPE_LABELS[s.skill_type] || "").includes(skillSearch)
+  );
+
+  const handleAddQuestions = async () => {
+    if (!selectedSkillId) return setError("اختر مهارة أولاً");
+    if (selectedBooks.length === 0 && selectedMedia.length === 0)
+      return setError("اختر كتاباً أو ملف وسائط على الأقل");
+    if (form.no_easy + form.no_medium + form.no_hard === 0)
+      return setError("يجب تحديد عدد أسئلة أكثر من صفر");
+    setError("");
+    setSuccessMsg("");
+    setGenerating(true);
+    try {
+      await api.post("/step/ai/add-questions/", {
+        skill_id: Number(selectedSkillId),
+        book_ids: selectedBooks,
+        media_ids: selectedMedia,
+        no_easy: form.no_easy,
+        no_medium: form.no_medium,
+        no_hard: form.no_hard,
+        additional_notes: form.additional_notes,
+      });
+      setSuccessMsg(
+        `✅ بدأ إضافة الأسئلة على "${selectedSkill?.title}" — ستظهر بعد اكتمال المعالجة`
+      );
+      setSelectedBooks([]);
+      setSelectedMedia([]);
+      onRefresh();
+    } catch (e) {
+      setError(e.response?.data?.error || "حدث خطأ أثناء إضافة الأسئلة");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const total = form.no_easy + form.no_medium + form.no_hard;
+  const isGeneralPath = selectedSkill?.skill_type === "GENERAL_PATH";
+
+  return (
+    <Section
+      icon={PlusCircle}
+      title="إضافة أسئلة لمهارة موجودة"
+      color="text-emerald-600"
+      badge="جديد"
+      defaultOpen={false}
+    >
+      <div className="space-y-5">
+        {/* Info banner */}
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 flex items-start gap-3">
+          <PlusCircle className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+          <p className="text-xs text-emerald-700 leading-relaxed">
+            اختر مهارة موجودة بالفعل وسيقوم الـ AI بإضافة أسئلة جديدة عليها{" "}
+            <span className="font-semibold">دون حذف أي أسئلة قائمة.</span>
+          </p>
+        </div>
+
+        {/* Skill selector */}
+        <div>
+          <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
+            اختر المهارة <span className="text-red-500">*</span>
+          </label>
+
+          {loadingSkills ? (
+            <div className="flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-xl px-4 py-3">
+              <Loader2 className="w-4 h-4 animate-spin" /> جاري تحميل
+              المهارات...
+            </div>
+          ) : (
+            <div className="border border-gray-200 rounded-xl overflow-hidden">
+              {/* Search */}
+              <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100 bg-gray-50">
+                <Search className="w-4 h-4 text-gray-400 shrink-0" />
+                <input
+                  value={skillSearch}
+                  onChange={(e) => setSkillSearch(e.target.value)}
+                  placeholder="ابحث عن مهارة..."
+                  className="flex-1 text-sm bg-transparent focus:outline-none text-gray-700 placeholder-gray-400"
+                />
+                <button
+                  onClick={fetchSkills}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Skills list */}
+              <div className="max-h-48 overflow-y-auto divide-y divide-gray-100">
+                {filteredSkills.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-4">
+                    لا توجد مهارات
+                  </p>
+                ) : (
+                  filteredSkills.map((skill) => (
+                    <button
+                      key={skill.id}
+                      onClick={() => setSelectedSkillId(String(skill.id))}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-right transition-colors ${
+                        selectedSkillId === String(skill.id)
+                          ? "bg-emerald-50 border-r-2 border-emerald-500"
+                          : "hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            selectedSkillId === String(skill.id)
+                              ? "bg-emerald-500"
+                              : "bg-gray-300"
+                          }`}
+                        />
+                        <div className="min-w-0 text-right">
+                          <p className="text-sm font-medium text-gray-800 truncate">
+                            {skill.title}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {SKILL_TYPE_LABELS[skill.skill_type] ||
+                              skill.skill_type}{" "}
+                            · {skill.total_questions} سؤال حالياً
+                          </p>
+                        </div>
+                      </div>
+                      {selectedSkillId === String(skill.id) && (
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Selected skill summary */}
+          {selectedSkill && (
+            <div className="mt-2 flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <p className="text-xs text-emerald-700">
+                <span className="font-semibold">{selectedSkill.title}</span>
+                {" — "}
+                {SKILL_TYPE_LABELS[selectedSkill.skill_type] ||
+                  selectedSkill.skill_type}
+                {" · "}عدد الأسئلة الحالية:{" "}
+                <span className="font-bold">
+                  {selectedSkill.total_questions}
+                </span>
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* General path info if applicable */}
+        {isGeneralPath && selectedSkill && (
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-3.5 flex items-start gap-3">
+            <LayoutGrid className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-violet-700 leading-relaxed">
+              هذه مهارة من نوع <span className="font-bold">المسار الشامل</span>{" "}
+              — ستتوزع الأسئلة الجديدة على الأنواع الستة تلقائياً.
+            </p>
+          </div>
+        )}
+
+        <SourcesPicker
+          doneBooks={doneBooks}
+          doneMedia={doneMedia}
+          loadingSources={loadingSources}
+          selectedBooks={selectedBooks}
+          selectedMedia={selectedMedia}
+          toggleBook={toggleBook}
+          toggleMedia={toggleMedia}
+          form={form}
+          setForm={setForm}
+          onRefreshSources={fetchSources}
+          isGeneralPath={isGeneralPath}
+        />
+
+        {error && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <XCircle className="w-4 h-4 text-red-500 shrink-0" />
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <p className="text-emerald-700 text-sm">{successMsg}</p>
+          </div>
+        )}
+
+        <button
+          onClick={handleAddQuestions}
+          disabled={generating || !selectedSkillId}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white py-3 rounded-xl font-semibold text-sm transition-all shadow-md hover:shadow-lg"
         >
           {generating ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : (
-            <Sparkles className="w-5 h-5" />
+            <PlusCircle className="w-5 h-5" />
           )}
           {generating
-            ? "Sending to AI..."
-            : `Generate Skill with ${total} Questions`}
+            ? "جاري الإرسال للـ AI..."
+            : `إضافة ${total} سؤال للمهارة`}
         </button>
 
-        {/* Jobs history */}
-        {jobs.length > 0 && (
-          <div className="mt-2">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-              Session History
-            </h3>
-            <div className="space-y-2">
-              {jobs.map((j) => (
-                <div
-                  key={j.id}
-                  className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">
-                      {j.skill_title}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {j.skill_type} ·{" "}
-                      {j.status === "DONE"
-                        ? `${j.questions_created} questions created`
-                        : j.status === "FAILED"
-                        ? j.error_message?.slice(0, 60)
-                        : "Processing..."}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <StatusBadge status={j.status} />
-                    {j.status === "DONE" && j.skill_id && (
-                      <Link
-                        to={`/dashboard/step/skills/${j.skill_id}`}
-                        className="text-xs text-indigo-600 hover:underline font-medium"
-                      >
-                        View
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <JobsList
+          jobs={jobs}
+          onRefresh={onRefresh}
+          label="سجل الجلسة — أسئلة مضافة"
+        />
       </div>
     </Section>
   );
@@ -908,7 +1303,8 @@ function GenerateSection({ onRefresh, jobs }) {
 export default function STEPAIGeneration() {
   const [books, setBooks] = useState([]);
   const [media, setMedia] = useState([]);
-  const [jobs, setJobs] = useState([]);
+  const [generateJobs, setGenerateJobs] = useState([]);
+  const [addJobs, setAddJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -975,18 +1371,17 @@ export default function STEPAIGeneration() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-violet-600" />
-            AI Content Generation
+            توليد المحتوى بالذكاء الاصطناعي
           </h1>
           <p className="text-gray-500 text-sm mt-0.5">
-            Upload books or audio/video files, then automatically generate STEP
-            questions
+            ارفع كتباً أو ملفات صوتية/فيديو ثم ولّد أسئلة STEP تلقائياً
           </p>
         </div>
         <button
           onClick={handleRefresh}
           disabled={refreshing}
           className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-          title="Refresh"
+          title="تحديث"
         >
           <RefreshCw
             className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
@@ -999,16 +1394,14 @@ export default function STEPAIGeneration() {
         <div className="flex items-start gap-3">
           <Zap className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-bold text-violet-800 mb-1">
-              How does it work?
-            </p>
+            <p className="text-sm font-bold text-violet-800 mb-1">كيف يعمل؟</p>
             <p className="text-xs text-violet-600 leading-relaxed">
-              <span className="font-semibold">1.</span> Upload PDF or
-              audio/video files → <span className="font-semibold">2.</span> Wait
-              for processing to complete (text extraction) →{" "}
-              <span className="font-semibold">3.</span> Select sources and set
-              number of questions → <span className="font-semibold">4.</span>{" "}
-              Click Generate and let the AI handle the rest ✨
+              <span className="font-semibold">١.</span> ارفع ملفات PDF أو
+              صوت/فيديو → <span className="font-semibold">٢.</span> انتظر اكتمال
+              المعالجة → <span className="font-semibold">٣.</span> ولّد مهارة
+              جديدة <span className="font-bold">أو</span> أضف أسئلة لمهارة
+              موجودة → <span className="font-semibold">٤.</span> يتكفل الـ AI
+              بالباقي ✨
             </p>
           </div>
         </div>
@@ -1018,9 +1411,16 @@ export default function STEPAIGeneration() {
       <BooksSection books={books} onRefresh={fetchAllWithStatus} />
       <MediaSection media={media} onRefresh={fetchAllWithStatus} />
       <GenerateSection
-        jobs={jobs}
+        jobs={generateJobs}
         onRefresh={() => {
-          setJobs((prev) => prev);
+          setGenerateJobs((prev) => prev);
+          handleRefresh();
+        }}
+      />
+      <AddQuestionsSection
+        jobs={addJobs}
+        onRefresh={() => {
+          setAddJobs((prev) => prev);
           handleRefresh();
         }}
       />

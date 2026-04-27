@@ -75,7 +75,9 @@ export const stepQuestionsAPI = {
     return response.data;
   },
   deleteVocabulary: async (questionId) => {
-    const response = await api.delete(`/step/vocabulary/${questionId}/delete/`);
+    const response = await api.delete(
+      `/step/vocabulary/${questionId}/delete/`
+    );
     return response.data;
   },
 
@@ -85,7 +87,10 @@ export const stepQuestionsAPI = {
     return response.data;
   },
   updateGrammar: async (questionId, data) => {
-    const response = await api.put(`/step/grammar/${questionId}/update/`, data);
+    const response = await api.put(
+      `/step/grammar/${questionId}/update/`,
+      data
+    );
     return response.data;
   },
   deleteGrammar: async (questionId) => {
@@ -141,15 +146,34 @@ export const stepQuestionsAPI = {
 
   // ---------- Listening Audio ----------
   createListeningAudio: async (data) => {
-    const response = await api.post("/step/listening/audio/create/", data);
+    const isFile =
+      data instanceof FormData ||
+      (data.audio_file && data.audio_file instanceof File);
+
+    if (isFile && !(data instanceof FormData)) {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
+      data = formData;
+    }
+
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/step/listening/audio/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateListeningAudio: async (audioId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/step/listening/audio/${audioId}/update/`,
       data,
-      config // ← أضف
+      config
     );
     return response.data;
   },
@@ -184,15 +208,34 @@ export const stepQuestionsAPI = {
 
   // ---------- Speaking Video ----------
   createSpeakingVideo: async (data) => {
-    const response = await api.post("/step/speaking/videos/create/", data);
+    const isFile =
+      data instanceof FormData ||
+      (data.video_file && data.video_file instanceof File);
+
+    if (isFile && !(data instanceof FormData)) {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) {
+          formData.append(key, data[key]);
+        }
+      });
+      data = formData;
+    }
+
+    const config = data instanceof FormData ? getFormDataConfig() : {};
+    const response = await api.post(
+      "/step/speaking/videos/create/",
+      data,
+      config
+    );
     return response.data;
   },
   updateSpeakingVideo: async (videoId, data) => {
-    const config = data instanceof FormData ? getFormDataConfig() : {}; // ← أضف
+    const config = data instanceof FormData ? getFormDataConfig() : {};
     const response = await api.put(
       `/step/speaking/videos/${videoId}/update/`,
       data,
-      config // ← أضف
+      config
     );
     return response.data;
   },
@@ -276,6 +319,67 @@ export const stepProgressAPI = {
 
   getSkillProgress: async (skillId) => {
     const response = await api.get(`/step/skills/${skillId}/my-progress/`);
+    return response.data;
+  },
+};
+
+// ============================================
+// 4. STEP AI GENERATION API
+// ============================================
+export const stepAIAPI = {
+  // كتب
+  uploadBook: async (formData) => {
+    const response = await api.post(
+      "/step/ai/extract-book/upload/",
+      formData,
+      getFormDataConfig()
+    );
+    return response.data;
+  },
+  getBookStatus: async (bookId) => {
+    const response = await api.get(`/step/ai/extract-book/${bookId}/status/`);
+    return response.data;
+  },
+  listBooks: async () => {
+    const response = await api.get("/step/ai/extract-book/");
+    return response.data;
+  },
+
+  // ميديا
+  uploadMedia: async (formData) => {
+    const response = await api.post(
+      "/step/ai/extract-media/upload/",
+      formData,
+      getFormDataConfig()
+    );
+    return response.data;
+  },
+  getMediaStatus: async (mediaId) => {
+    const response = await api.get(
+      `/step/ai/extract-media/${mediaId}/status/`
+    );
+    return response.data;
+  },
+  listMedia: async () => {
+    const response = await api.get("/step/ai/extract-media/");
+    return response.data;
+  },
+
+  // توليد مهارة جديدة
+  generateSkill: async (data) => {
+    const response = await api.post("/step/ai/generate-skill/", data);
+    return response.data;
+  },
+
+  // إضافة أسئلة لمهارة موجودة ← جديد
+  addQuestionsToSkill: async (data) => {
+    const response = await api.post("/step/ai/add-questions/", data);
+    return response.data;
+  },
+
+  // حالة الـ job
+  getJobStatus: async (jobId) => {
+    const response = await api.get(`/step/ai/jobs/${jobId}/status/`);
     return response.data;
   },
 };
