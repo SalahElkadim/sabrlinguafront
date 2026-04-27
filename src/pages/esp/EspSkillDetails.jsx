@@ -1192,36 +1192,24 @@ export default function EspSkillDetails() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [skillData, qData] = await Promise.all([
-        espSkillsAPI.getById(skillId),
-        espQuestionsAPI.getSkillQuestions(
-          skillId,
-          1,
-          skillData?.skill_type === "GENERAL_PATH" ? 500 : 20
-        ),
-      ]);
+      // ✅ جيب skill data الأول
+      const skillData = await espSkillsAPI.getById(skillId);
       setSkill(skillData);
+
+      // ✅ دلوقتي تعرف الـ pageSize صح
+      const pageSize = skillData?.skill_type === "GENERAL_PATH" ? 500 : 20;
+      const qData = await espQuestionsAPI.getSkillQuestions(
+        skillId,
+        1,
+        pageSize
+      );
       setQuestions(qData.questions || []);
     } catch (err) {
-      // retry with skill data we already have
-      try {
-        const skillData = await espSkillsAPI.getById(skillId);
-        setSkill(skillData);
-        const pageSize = skillData?.skill_type === "GENERAL_PATH" ? 500 : 20;
-        const qData = await espQuestionsAPI.getSkillQuestions(
-          skillId,
-          1,
-          pageSize
-        );
-        setQuestions(qData.questions || []);
-      } catch (e) {
-        console.error(e);
-      }
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
-
   const getAddPath = () => {
     const type = skill?.skill_type;
     if (type === "VOCABULARY")
