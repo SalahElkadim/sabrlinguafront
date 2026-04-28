@@ -19,320 +19,249 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../store/authstore";
 
-/* ─── Glassmorphism styles injected once ─────────────────────────────────── */
+/* ─── Light Glassmorphism styles ─────────────────────────────────────────── */
 const GLASS_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
 
   :root {
-    --glass-bg:        rgba(255,255,255,0.06);
-    --glass-border:    rgba(255,255,255,0.12);
-    --glass-hover:     rgba(255,255,255,0.11);
-    --glass-active:    rgba(255,255,255,0.18);
-    --accent:          #6ee7f7;
-    --accent-2:        #a78bfa;
-    --accent-glow:     rgba(110,231,247,0.25);
-    --text-primary:    rgba(255,255,255,0.95);
-    --text-secondary:  rgba(255,255,255,0.55);
-    --danger:          #f87171;
-    --danger-bg:       rgba(248,113,113,0.12);
+    --glass-bg:       rgba(255,255,255,0.52);
+    --glass-border:   rgba(255,255,255,0.88);
+    --glass-hover:    rgba(255,255,255,0.72);
+    --glass-active:   rgba(255,255,255,0.92);
+    --accent:         #4f7cff;
+    --accent-2:       #8b5cf6;
+    --accent-glow:    rgba(79,124,255,0.22);
+    --text-primary:   #1a2035;
+    --text-secondary: #6b7a99;
+    --danger:         #ef4444;
+    --danger-bg:      rgba(239,68,68,0.08);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sora', sans-serif; background: #eef2ff; }
 
-  body {
-    font-family: 'Sora', sans-serif;
-    background: #0a0e1a;
-  }
-
-  /* ── Animated mesh background ── */
   .dash-root {
     min-height: 100vh;
     position: relative;
     background:
-      radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(110,231,247,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 80%,  rgba(167,139,250,0.14) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 60% 30%,  rgba(52,211,153,0.07)  0%, transparent 55%),
-      linear-gradient(135deg, #080c18 0%, #0d1326 50%, #0a0e1a 100%);
+      radial-gradient(ellipse 70% 55% at 15% 0%,  rgba(147,197,253,0.45) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 50% at 85% 90%, rgba(196,181,253,0.40) 0%, transparent 60%),
+      radial-gradient(ellipse 45% 40% at 70% 20%, rgba(167,243,208,0.25) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 30% 75%, rgba(253,186,116,0.18) 0%, transparent 55%),
+      linear-gradient(145deg, #e8eeff 0%, #f0f4ff 40%, #ede9ff 100%);
     overflow: hidden;
   }
 
-  /* floating orbs */
   .orb {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(80px);
-    pointer-events: none;
-    z-index: 0;
-    animation: drift 18s ease-in-out infinite alternate;
+    position: fixed; border-radius: 50%;
+    filter: blur(70px); pointer-events: none; z-index: 0;
+    animation: drift 20s ease-in-out infinite alternate;
   }
-  .orb-1 { width:380px; height:380px; top:-80px; left:-80px;
-            background: radial-gradient(circle, rgba(110,231,247,0.18), transparent 70%);
-            animation-duration: 20s; }
-  .orb-2 { width:300px; height:300px; bottom:5%; right:5%;
-            background: radial-gradient(circle, rgba(167,139,250,0.2), transparent 70%);
-            animation-duration: 15s; animation-delay: -7s; }
-  .orb-3 { width:220px; height:220px; top:40%; left:25%;
-            background: radial-gradient(circle, rgba(52,211,153,0.12), transparent 70%);
-            animation-duration: 25s; animation-delay: -12s; }
+  .orb-1 { width:420px; height:420px; top:-100px; left:-80px;
+            background: radial-gradient(circle, rgba(147,197,253,0.5), transparent 70%);
+            animation-duration: 22s; }
+  .orb-2 { width:350px; height:350px; bottom:0; right:10%;
+            background: radial-gradient(circle, rgba(196,181,253,0.45), transparent 70%);
+            animation-duration: 17s; animation-delay: -8s; }
+  .orb-3 { width:250px; height:250px; top:45%; left:30%;
+            background: radial-gradient(circle, rgba(167,243,208,0.35), transparent 70%);
+            animation-duration: 28s; animation-delay: -14s; }
+  .orb-4 { width:200px; height:200px; top:20%; right:30%;
+            background: radial-gradient(circle, rgba(253,186,116,0.28), transparent 70%);
+            animation-duration: 19s; animation-delay: -5s; }
 
   @keyframes drift {
-    from { transform: translate(0, 0) scale(1); }
-    to   { transform: translate(40px, 30px) scale(1.08); }
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(30px,25px) scale(1.07); }
   }
 
   /* ── Sidebar ── */
   .sidebar {
-    position: fixed;
-    top: 0; right: 0;
-    height: 100%;
-    width: 260px;
+    position: fixed; top:0; right:0;
+    height: 100%; width: 262px;
     z-index: 50;
-    display: flex;
-    flex-direction: column;
-    background: rgba(12,17,35,0.55);
-    backdrop-filter: blur(24px) saturate(160%);
-    -webkit-backdrop-filter: blur(24px) saturate(160%);
-    border-left: 1px solid var(--glass-border);
-    box-shadow: -4px 0 40px rgba(0,0,0,0.4), inset 1px 0 0 rgba(255,255,255,0.05);
+    display: flex; flex-direction: column;
+    background: rgba(255,255,255,0.52);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border-left: 1px solid rgba(255,255,255,0.9);
+    box-shadow:
+      -2px 0 0 rgba(255,255,255,0.6) inset,
+      -6px 0 40px rgba(79,124,255,0.08),
+      0 0 80px rgba(147,197,253,0.12);
     transform: translateX(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
   }
-  .sidebar.open  { transform: translateX(0); }
+  .sidebar.open { transform: translateX(0); }
   @media (min-width: 1024px) { .sidebar { transform: translateX(0); } }
 
-  /* Logo area */
   .sidebar-logo {
-    height: 68px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    height: 70px;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 0 20px;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.25);
   }
-  .logo-mark {
-    display: flex; align-items: center; gap: 10px;
-  }
+  .logo-mark { display: flex; align-items: center; gap: 11px; }
   .logo-icon {
-    width: 38px; height: 38px;
-    border-radius: 12px;
+    width: 40px; height: 40px; border-radius: 13px;
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 18px var(--accent-glow);
-    flex-shrink: 0;
+    box-shadow: 0 4px 18px var(--accent-glow), 0 1px 0 rgba(255,255,255,0.4) inset;
   }
   .logo-text {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--text-primary);
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.11em;
+    color: var(--text-primary); font-family: 'JetBrains Mono', monospace;
   }
   .logo-badge {
-    font-size: 9px;
-    font-weight: 500;
-    color: var(--accent);
-    letter-spacing: 0.06em;
-    display: flex; align-items: center; gap: 3px;
-    margin-top: 1px;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; font-weight: 500; color: var(--accent);
+    letter-spacing: 0.06em; display: flex; align-items: center; gap: 3px;
+    margin-top: 2px; font-family: 'JetBrains Mono', monospace; opacity: 0.85;
   }
 
-  /* Nav section label */
   .nav-section-label {
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    color: var(--text-secondary);
-    padding: 18px 20px 6px;
-    text-transform: uppercase;
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.14em;
+    color: var(--text-secondary); padding: 18px 22px 6px;
+    text-transform: uppercase; opacity: 0.7;
   }
 
-  /* Nav item */
   .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    margin: 2px 10px;
-    border-radius: 10px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 400;
-    transition: all 0.2s ease;
-    position: relative;
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 14px; margin: 2px 10px;
+    border-radius: 11px; color: var(--text-secondary);
+    text-decoration: none; font-size: 13.5px; font-weight: 400;
+    transition: all 0.2s ease; position: relative;
     border: 1px solid transparent;
   }
   .nav-item:hover {
-    background: var(--glass-hover);
-    color: var(--text-primary);
-    border-color: var(--glass-border);
+    background: rgba(255,255,255,0.70); color: var(--text-primary);
+    border-color: rgba(255,255,255,0.9);
+    box-shadow: 0 2px 12px rgba(79,124,255,0.07);
   }
   .nav-item.active {
-    background: var(--glass-active);
-    color: var(--accent);
-    font-weight: 600;
-    border-color: rgba(110,231,247,0.2);
-    box-shadow: 0 0 16px rgba(110,231,247,0.08), inset 0 0 12px rgba(110,231,247,0.04);
+    background: rgba(255,255,255,0.88); color: var(--accent);
+    font-weight: 600; border-color: rgba(79,124,255,0.15);
+    box-shadow: 0 2px 16px rgba(79,124,255,0.12), 0 1px 0 rgba(255,255,255,0.9) inset;
   }
   .nav-item.active::before {
     content: '';
-    position: absolute;
-    left: -10px; top: 50%;
+    position: absolute; right: -10px; top: 50%;
     transform: translateY(-50%);
-    width: 3px; height: 20px;
-    border-radius: 0 3px 3px 0;
+    width: 3px; height: 22px; border-radius: 3px 0 0 3px;
     background: linear-gradient(180deg, var(--accent), var(--accent-2));
-    box-shadow: 0 0 8px var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
   }
-  .nav-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .nav-icon { width:17px; height:17px; flex-shrink:0; }
+  .nav-item.active .nav-icon { color: var(--accent); }
 
-  /* User section */
   .user-section {
-    padding: 14px;
-    border-top: 1px solid var(--glass-border);
-    position: relative;
+    padding: 12px; position: relative;
+    border-top: 1px solid rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.25);
   }
   .user-btn {
-    width: 100%;
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: right;
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 10px 13px; border-radius: 12px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(255,255,255,0.9);
+    box-shadow: 0 2px 10px rgba(79,124,255,0.06);
+    cursor: pointer; transition: all 0.2s ease; text-align: right;
   }
-  .user-btn:hover { background: var(--glass-hover); }
+  .user-btn:hover { background: rgba(255,255,255,0.85); box-shadow: 0 4px 16px rgba(79,124,255,0.10); }
   .user-avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(110,231,247,0.25), rgba(167,139,250,0.25));
-    border: 1px solid rgba(110,231,247,0.3);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(79,124,255,0.15), rgba(139,92,246,0.15));
+    border: 1.5px solid rgba(79,124,255,0.2);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .user-name  { font-size: 13px; font-weight: 600; color: var(--text-primary); }
   .user-email { font-size: 10.5px; color: var(--text-secondary); margin-top: 1px; }
   .user-info  { flex: 1; }
 
-  /* Dropdown */
   .user-dropdown {
-    position: absolute;
-    bottom: calc(100% - 10px);
-    left: 14px; right: 14px;
-    background: rgba(12,17,35,0.9);
+    position: absolute; bottom: calc(100% - 8px); left: 12px; right: 12px;
+    background: rgba(255,255,255,0.90);
     backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.95);
+    border-radius: 12px;
+    box-shadow: 0 -8px 32px rgba(79,124,255,0.12), 0 2px 0 rgba(255,255,255,0.8) inset;
     overflow: hidden;
     animation: slideUp 0.2s ease;
   }
   @keyframes slideUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
   }
   .logout-btn {
-    width: 100%;
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px;
-    background: none;
-    border: none;
-    color: var(--danger);
-    font-size: 13.5px;
-    font-family: 'Sora', sans-serif;
-    cursor: pointer;
-    transition: background 0.2s;
+    width:100%; display:flex; align-items:center; gap:10px;
+    padding:12px 16px; background:none; border:none;
+    color:var(--danger); font-size:13.5px;
+    font-family:'Sora',sans-serif; cursor:pointer; transition:background 0.2s;
   }
-  .logout-btn:hover { background: var(--danger-bg); }
+  .logout-btn:hover { background:var(--danger-bg); }
 
-  /* ── Main content ── */
-  .main-content { margin-right: 0; position: relative; z-index: 1; }
-  @media (min-width: 1024px) { .main-content { margin-right: 260px; } }
+  .main-content { margin-right:0; position:relative; z-index:1; }
+  @media (min-width:1024px) { .main-content { margin-right:262px; } }
 
-  /* Topbar */
   .topbar {
-    height: 68px;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0 24px;
-    position: sticky; top: 0; z-index: 30;
-    background: rgba(10,14,26,0.7);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border-bottom: 1px solid var(--glass-border);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.03);
+    height:70px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 26px; position:sticky; top:0; z-index:30;
+    background: rgba(255,255,255,0.50);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(255,255,255,0.85);
+    box-shadow: 0 2px 20px rgba(79,124,255,0.06), 0 1px 0 rgba(255,255,255,0.7) inset;
   }
   .topbar-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-primary);
-    display: flex; align-items: center; gap: 8px;
+    font-size:16px; font-weight:700; color:var(--text-primary);
+    display:flex; align-items:center; gap:9px;
   }
-  .topbar-title-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
+  .topbar-dot {
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 8px var(--accent-glow);
   }
 
-  /* Hamburger */
   .menu-btn {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    padding: 7px;
-    color: var(--text-primary);
-    cursor: pointer;
-    display: flex;
-    transition: all 0.2s;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(255,255,255,0.9);
+    border-radius:10px; padding:8px;
+    color:var(--text-primary); cursor:pointer; display:flex;
+    box-shadow: 0 2px 8px rgba(79,124,255,0.07); transition:all 0.2s;
   }
-  .menu-btn:hover { background: var(--glass-hover); }
+  .menu-btn:hover { background:rgba(255,255,255,0.9); box-shadow:0 4px 14px rgba(79,124,255,0.12); }
 
-  /* Mobile user chip */
   .mobile-user-chip {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 12px 6px 6px;
-    border-radius: 99px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    display:flex; align-items:center; gap:8px;
+    padding:6px 13px 6px 6px; border-radius:99px;
+    background:rgba(255,255,255,0.65);
+    border:1px solid rgba(255,255,255,0.9);
+    box-shadow:0 2px 8px rgba(79,124,255,0.07);
   }
   .mobile-chip-avatar {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(110,231,247,0.3), rgba(167,139,250,0.3));
-    display: flex; align-items: center; justify-content: center;
+    width:28px; height:28px; border-radius:50%;
+    background:linear-gradient(135deg,rgba(79,124,255,0.15),rgba(139,92,246,0.15));
+    border:1.5px solid rgba(79,124,255,0.2);
+    display:flex; align-items:center; justify-content:center;
   }
-  .mobile-chip-name {
-    font-size: 12px; font-weight: 600; color: var(--text-primary);
-  }
+  .mobile-chip-name { font-size:12px; font-weight:600; color:var(--text-primary); }
 
-  /* Page content */
-  .page-content { padding: 28px 24px; }
+  .page-content { padding:28px 24px; }
 
-  /* Overlay */
   .sidebar-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(2px);
-    z-index: 40;
+    position:fixed; inset:0;
+    background:rgba(100,120,200,0.15);
+    backdrop-filter:blur(4px); z-index:40;
   }
 
-  /* Scrollbar */
-  .sidebar-nav::-webkit-scrollbar { width: 3px; }
-  .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
-  .sidebar-nav::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.12);
-    border-radius: 99px;
-  }
+  .sidebar-nav::-webkit-scrollbar { width:3px; }
+  .sidebar-nav::-webkit-scrollbar-track { background:transparent; }
+  .sidebar-nav::-webkit-scrollbar-thumb { background:rgba(79,124,255,0.2); border-radius:99px; }
 
-  /* Chevron */
-  .chevron { transition: transform 0.25s ease; }
-  .chevron.up { transform: rotate(180deg); }
+  .chevron { transition:transform 0.25s ease; }
+  .chevron.up { transform:rotate(180deg); }
 `;
 
-/* ─── Navigation config ──────────────────────────────────────────────────── */
 const navigation = [
   {
     name: "Dashboard",
@@ -384,7 +313,6 @@ const navigation = [
   },
 ];
 
-/* ─── Component ──────────────────────────────────────────────────────────── */
 export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -392,39 +320,32 @@ export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  // inject styles once
   useEffect(() => {
-    const id = "glass-dash-styles";
+    const id = "glass-light-styles";
     if (!document.getElementById(id)) {
       const tag = document.createElement("style");
       tag.id = id;
       tag.textContent = GLASS_STYLES;
       document.head.appendChild(tag);
     }
-    return () => {}; // keep styles alive
   }, []);
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
-
   const isActive = (path) => location.pathname === path;
-
   const currentPage =
     navigation.find((item) => isActive(item.href))?.name || "Dashboard";
-
-  // Group nav by section
   const sections = [...new Set(navigation.map((n) => n.section))];
 
   return (
     <div className="dash-root">
-      {/* Ambient orbs */}
       <div className="orb orb-1" />
       <div className="orb orb-2" />
       <div className="orb orb-3" />
+      <div className="orb orb-4" />
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="sidebar-overlay"
@@ -432,13 +353,12 @@ export default function DashboardLayout() {
         />
       )}
 
-      {/* ── Sidebar ──────────────────────────────────────────────────── */}
+      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
-        {/* Logo */}
         <div className="sidebar-logo">
           <div className="logo-mark">
             <div className="logo-icon">
-              <Database size={18} color="#0a0e1a" strokeWidth={2.5} />
+              <Database size={18} color="#fff" strokeWidth={2.5} />
             </div>
             <div>
               <div className="logo-text">SABRLINGUA</div>
@@ -448,16 +368,11 @@ export default function DashboardLayout() {
               </div>
             </div>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="menu-btn"
-            style={{ display: "flex" }}
-          >
+          <button className="menu-btn" onClick={() => setSidebarOpen(false)}>
             <X size={16} />
           </button>
         </div>
 
-        {/* Navigation */}
         <nav
           className="sidebar-nav"
           style={{ flex: 1, padding: "8px 0", overflowY: "auto" }}
@@ -486,7 +401,6 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        {/* User section */}
         <div className="user-section">
           {userMenuOpen && (
             <div className="user-dropdown">
@@ -501,7 +415,7 @@ export default function DashboardLayout() {
             onClick={() => setUserMenuOpen(!userMenuOpen)}
           >
             <div className="user-avatar">
-              <User size={15} color="rgba(110,231,247,0.9)" />
+              <User size={15} color="#4f7cff" />
             </div>
             <div className="user-info">
               <div className="user-name">{user?.full_name ?? "المستخدم"}</div>
@@ -511,59 +425,32 @@ export default function DashboardLayout() {
             </div>
             <ChevronDown
               size={14}
-              color="rgba(255,255,255,0.45)"
+              color="#6b7a99"
               className={`chevron ${userMenuOpen ? "up" : ""}`}
             />
           </button>
         </div>
       </aside>
 
-      {/* ── Main content ─────────────────────────────────────────────── */}
+      {/* Main content */}
       <div className="main-content">
-        {/* Topbar */}
         <header className="topbar">
-          {/* Left: hamburger (mobile) */}
-          <button
-            className="menu-btn"
-            onClick={() => setSidebarOpen(true)}
-            style={{ display: "flex" }}
-          >
+          <button className="menu-btn" onClick={() => setSidebarOpen(true)}>
             <Menu size={18} />
           </button>
-
-          {/* Center: page title (desktop) */}
-          <div
-            className="topbar-title"
-            style={{
-              display: "none",
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-            }}
-            id="topbar-title-desktop"
-          >
-            <div className="topbar-title-dot" />
+          <div className="topbar-title">
+            <div className="topbar-dot" />
             {currentPage}
           </div>
-
-          {/* Desktop title — inline left */}
-          <div className="topbar-title" style={{ fontSize: "16px" }}>
-            <div className="topbar-title-dot" />
-            {currentPage}
-          </div>
-
-          {/* Right: mobile user chip */}
           <div className="mobile-user-chip">
             <div className="mobile-chip-avatar">
-              <User size={13} color="rgba(110,231,247,0.9)" />
+              <User size={13} color="#4f7cff" />
             </div>
             <span className="mobile-chip-name">
               {user?.full_name ?? "مستخدم"}
             </span>
           </div>
         </header>
-
-        {/* Page content */}
         <main className="page-content">
           <Outlet />
         </main>
