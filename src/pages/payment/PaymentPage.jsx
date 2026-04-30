@@ -5,25 +5,22 @@ import axios from "axios";
 export default function PaymentPage() {
   const [searchParams] = useSearchParams();
 
-  const [step, setStep] = useState("loading"); // loading | form | error
+  const [step, setStep] = useState("loading");
   const [program, setProgram] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [moyasarReady, setMoyasarReady] = useState(false);
   const formRef = useRef(null);
-  const initializedRef = useRef(false); // منع تهيئة Moyasar أكثر من مرة
+  const initializedRef = useRef(false);
 
   const programId = searchParams.get("program_id");
-  const token = searchParams.get("token"); // JWT من الموبايل
+  const token = searchParams.get("token");
 
-  // ─── تحميل Moyasar.js من CDN ───────────────────────────────────────────────
   useEffect(() => {
-    // CSS
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://cdn.moyasar.com/mpf/1.14.0/moyasar.css";
     document.head.appendChild(link);
 
-    // JS
     const script = document.createElement("script");
     script.src = "https://cdn.moyasar.com/mpf/1.14.0/moyasar.js";
     script.async = true;
@@ -35,13 +32,11 @@ export default function PaymentPage() {
     document.body.appendChild(script);
 
     return () => {
-      // cleanup آمن — تحقق إن العنصر لا يزال موجوداً قبل الحذف
       if (document.head.contains(link)) document.head.removeChild(link);
       if (document.body.contains(script)) document.body.removeChild(script);
     };
   }, []);
 
-  // ─── جلب بيانات البرنامج ────────────────────────────────────────────────────
   useEffect(() => {
     if (!programId || !token) {
       setErrorMsg("بيانات ناقصة، يرجى العودة والمحاولة مجدداً");
@@ -63,14 +58,13 @@ export default function PaymentPage() {
       });
   }, [programId, token]);
 
-  // ─── تهيئة Moyasar Payment Form ─────────────────────────────────────────────
   useEffect(() => {
     if (
       step !== "form" ||
       !moyasarReady ||
       !program ||
       !formRef.current ||
-      initializedRef.current // منع التهيئة المزدوجة
+      initializedRef.current
     )
       return;
 
@@ -79,7 +73,6 @@ export default function PaymentPage() {
 
       initializedRef.current = true;
 
-      // بناء callback_url مع الـ token عشان نقدر نعمل verify في صفحة الـ callback
       const callbackUrl =
         `${window.location.origin}/payment/callback` +
         `?token=${encodeURIComponent(token)}` +
@@ -87,316 +80,567 @@ export default function PaymentPage() {
 
       window.Moyasar.init({
         element: ".moyasar-form-container",
-        amount: Math.round(program.price * 100), // تحويل لهللة
+        amount: Math.round(program.price * 100),
         currency: "SAR",
         description: `اشتراك في برنامج: ${program.title}`,
         publishable_api_key: process.env.REACT_APP_MOYASAR_PUBLISHABLE_KEY,
-
-        // Moyasar سيضيف ?id=...&status=... تلقائياً لهذا الـ URL
         callback_url: callbackUrl,
-
         methods: ["creditcard"],
-
-        // on_initiating: لازم يرجع true أو Promise — لو رجع undefined يطلع error
-        on_initiating: () => {
-          return true;
-        },
-
-        // on_failed: يُستدعى لو فشل الدفع قبل الـ redirect
+        on_initiating: () => true,
         on_failed: (error) => {
           setErrorMsg(
             error?.message || "فشلت عملية الدفع، يرجى المحاولة مجدداً"
           );
           setStep("error");
         },
-
-        // ملاحظة: on_completed لا يُستخدم هنا —
-        // Moyasar يعمل redirect تلقائي لـ callback_url بعد إتمام الدفع،
-        // ومعالجة النتيجة تتم في صفحة PaymentCallback
       });
     }, 100);
 
     return () => clearTimeout(timer);
   }, [step, moyasarReady, program, token, programId]);
 
-  // ──────────────────────────────────────────────────────────────────────────────
-
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.logoWrap}>
-            <span style={styles.logoIcon}>🎓</span>
-            <span style={styles.logoText}>Sabrlinguaa</span>
-          </div>
-          <div style={styles.secureTag}>
-            <span style={styles.lockIcon}>🔒</span>
-            دفع آمن
-          </div>
-        </div>
-
-        {/* Program Info */}
-        {program && step !== "error" && (
-          <div style={styles.programBox}>
-            <p style={styles.programLabel}>البرنامج</p>
-            <p style={styles.programTitle}>{program.title}</p>
-            <div style={styles.divider} />
-            <div style={styles.amountRow}>
-              <span style={styles.amountLabel}>المبلغ الإجمالي</span>
-              <span style={styles.amountValue}>
-                {program.price?.toLocaleString("ar-SA")}
-                <span style={styles.currency}> ريال</span>
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* States */}
-        {step === "loading" && (
-          <div style={styles.centerBox}>
-            <div style={styles.spinner} />
-            <p style={styles.loadingText}>جاري التحميل...</p>
-          </div>
-        )}
-
-        {step === "error" && (
-          <div style={styles.errorBox}>
-            <div style={styles.errorIcon}>⚠️</div>
-            <p style={styles.errorTitle}>حدث خطأ</p>
-            <p style={styles.errorMsg}>{errorMsg}</p>
-            <button
-              style={styles.retryBtn}
-              onClick={() => window.history.back()}
-            >
-              العودة للخلف
-            </button>
-          </div>
-        )}
-
-        {/* Moyasar Form — دايماً موجود في الـ DOM لكن مخفي لو مش form */}
-        <div
-          ref={formRef}
-          style={{
-            display: step === "form" ? "block" : "none",
-            marginTop: 8,
-          }}
-        >
-          <div className="moyasar-form-container" />
-        </div>
-
-        {/* Footer */}
-        <p style={styles.footer}>
-          مدعوم بواسطة{" "}
-          <a
-            href="https://moyasar.com"
-            target="_blank"
-            rel="noreferrer"
-            style={styles.moyasarLink}
-          >
-            Moyasar
-          </a>{" "}
-          · بياناتك محمية بتشفير SSL
-        </p>
-      </div>
-
+    <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        
-        * { box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=DM+Serif+Display:ital@0;1&display=swap');
 
-        body { margin: 0; font-family: 'Cairo', sans-serif; direction: rtl; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+        :root {
+          --gold: #C9A84C;
+          --gold-light: #E8C97A;
+          --gold-pale: rgba(201,168,76,0.12);
+          --dark: #0B0B0F;
+          --dark-2: #111118;
+          --dark-card: #16161F;
+          --dark-border: rgba(201,168,76,0.18);
+          --text-primary: #F0EDE6;
+          --text-muted: #8A8799;
+          --text-dim: #4A4860;
+          --success: #3DDC97;
+          --danger: #FF6B6B;
         }
 
+        body {
+          font-family: 'Tajawal', sans-serif;
+          direction: rtl;
+          background: var(--dark);
+          color: var(--text-primary);
+          -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Page layout ── */
+        .pay-page {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 32px 16px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        /* Ambient orbs */
+        .pay-page::before,
+        .pay-page::after {
+          content: '';
+          position: fixed;
+          border-radius: 50%;
+          pointer-events: none;
+          filter: blur(90px);
+          opacity: 0.35;
+        }
+        .pay-page::before {
+          width: 600px; height: 600px;
+          background: radial-gradient(circle, #C9A84C 0%, transparent 65%);
+          top: -200px; right: -150px;
+        }
+        .pay-page::after {
+          width: 500px; height: 500px;
+          background: radial-gradient(circle, #6B4FCB 0%, transparent 65%);
+          bottom: -180px; left: -150px;
+          opacity: 0.2;
+        }
+
+        /* Noise texture overlay */
+        .pay-page-noise {
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.03;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          background-size: 200px;
+        }
+
+        /* ── Card ── */
+        .pay-card {
+          position: relative;
+          width: 100%;
+          max-width: 460px;
+          background: var(--dark-card);
+          border-radius: 24px;
+          border: 1px solid var(--dark-border);
+          padding: 36px 32px 28px;
+          box-shadow:
+            0 0 0 1px rgba(201,168,76,0.06),
+            0 24px 80px rgba(0,0,0,0.6),
+            0 4px 16px rgba(0,0,0,0.4);
+          animation: cardIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+          overflow: hidden;
+        }
+
+        /* Top shimmer line */
+        .pay-card::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 10%; right: 10%;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+          opacity: 0.6;
+        }
+
+        /* Corner glow */
+        .pay-card::after {
+          content: '';
+          position: absolute;
+          top: -60px; right: -60px;
+          width: 200px; height: 200px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+          pointer-events: none;
+        }
+
+        @keyframes cardIn {
+          from { opacity: 0; transform: translateY(28px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── Header ── */
+        .pay-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 28px;
+        }
+
+        .pay-logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .pay-logo-icon {
+          width: 38px; height: 38px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #C9A84C, #8B6914);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 18px;
+          box-shadow: 0 4px 16px rgba(201,168,76,0.35);
+        }
+
+        .pay-logo-text {
+          font-family: 'DM Serif Display', serif;
+          font-size: 17px;
+          color: var(--gold-light);
+          letter-spacing: 0.3px;
+        }
+
+        .pay-secure-badge {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          background: rgba(61,220,151,0.08);
+          border: 1px solid rgba(61,220,151,0.2);
+          border-radius: 20px;
+          padding: 5px 12px;
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--success);
+          letter-spacing: 0.3px;
+        }
+
+        .pay-secure-dot {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: var(--success);
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* ── Separator ── */
+        .pay-sep {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--dark-border), transparent);
+          margin: 0 -32px 28px;
+        }
+
+        /* ── Program box ── */
+        .pay-program-box {
+          background: rgba(201,168,76,0.05);
+          border: 1px solid rgba(201,168,76,0.14);
+          border-radius: 16px;
+          padding: 18px 20px;
+          margin-bottom: 28px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .pay-program-box::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, var(--gold), transparent);
+          opacity: 0.5;
+        }
+
+        .pay-program-label {
+          font-size: 10px;
+          font-weight: 800;
+          color: var(--gold);
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+        }
+
+        .pay-program-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 16px;
+          line-height: 1.4;
+        }
+
+        .pay-program-divider {
+          height: 1px;
+          background: rgba(201,168,76,0.12);
+          margin-bottom: 14px;
+        }
+
+        .pay-amount-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .pay-amount-label {
+          font-size: 12px;
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+
+        .pay-amount-value {
+          font-family: 'DM Serif Display', serif;
+          font-size: 26px;
+          color: var(--gold-light);
+          line-height: 1;
+        }
+
+        .pay-amount-currency {
+          font-family: 'Tajawal', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--gold);
+          margin-right: 4px;
+          vertical-align: middle;
+        }
+
+        /* ── Loading ── */
+        .pay-loading {
+          text-align: center;
+          padding: 48px 0;
+          animation: fadeIn 0.4s ease;
+        }
+
+        .pay-spinner-wrap {
+          position: relative;
+          width: 56px; height: 56px;
+          margin: 0 auto 20px;
+        }
+
+        .pay-spinner-track {
+          width: 56px; height: 56px;
+          border-radius: 50%;
+          border: 2px solid rgba(201,168,76,0.12);
+          position: absolute;
+        }
+
+        .pay-spinner {
+          width: 56px; height: 56px;
+          border-radius: 50%;
+          border: 2px solid transparent;
+          border-top-color: var(--gold);
+          border-right-color: rgba(201,168,76,0.4);
+          position: absolute;
+          animation: spin 1s cubic-bezier(0.4,0,0.2,1) infinite;
+        }
+
+        .pay-loading-title {
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 4px;
+        }
+
+        .pay-loading-sub {
+          font-size: 13px;
+          color: var(--text-muted);
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Error ── */
+        .pay-error {
+          text-align: center;
+          padding: 32px 0 8px;
+          animation: fadeIn 0.4s ease;
+        }
+
+        .pay-error-icon-wrap {
+          width: 72px; height: 72px;
+          border-radius: 50%;
+          background: rgba(255,107,107,0.08);
+          border: 1px solid rgba(255,107,107,0.2);
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 16px;
+          font-size: 32px;
+        }
+
+        .pay-error-title {
+          font-size: 18px;
+          font-weight: 800;
+          color: var(--danger);
+          margin-bottom: 8px;
+        }
+
+        .pay-error-msg {
+          font-size: 14px;
+          color: var(--text-muted);
+          line-height: 1.7;
+          margin-bottom: 24px;
+          max-width: 280px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .pay-back-btn {
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 12px;
+          padding: 12px 28px;
+          font-family: 'Tajawal', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--text-primary);
+          cursor: pointer;
+          transition: background 0.2s, border-color 0.2s;
+        }
+
+        .pay-back-btn:hover {
+          background: rgba(255,255,255,0.1);
+          border-color: rgba(255,255,255,0.2);
+        }
+
+        /* ── Footer ── */
+        .pay-footer {
+          margin-top: 24px;
+          text-align: center;
+          font-size: 11px;
+          color: var(--text-dim);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .pay-footer-dot {
+          width: 3px; height: 3px;
+          border-radius: 50%;
+          background: var(--text-dim);
+        }
+
+        .pay-footer a {
+          color: var(--gold);
+          text-decoration: none;
+          font-weight: 700;
+        }
+
+        .pay-footer a:hover { color: var(--gold-light); }
+
+        /* ── Moyasar overrides ── */
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(12px); }
+          from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        .moyasar-form-container { animation: fadeIn 0.4s ease; }
+        .moyasar-form-container { animation: fadeIn 0.5s ease; }
 
-        .mysr-form { font-family: 'Cairo', sans-serif !important; direction: rtl; }
+        /* Section title */
+        .pay-form-title {
+          font-size: 11px;
+          font-weight: 800;
+          color: var(--text-dim);
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-bottom: 16px;
+        }
+
+        .mysr-form { font-family: 'Tajawal', sans-serif !important; direction: rtl; }
 
         .mysr-form label {
-          font-family: 'Cairo', sans-serif !important;
-          font-size: 13px !important;
-          color: #6b7280 !important;
-          font-weight: 600 !important;
+          font-family: 'Tajawal', sans-serif !important;
+          font-size: 12px !important;
+          color: var(--text-muted) !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.3px !important;
+          text-transform: uppercase !important;
+          margin-bottom: 6px !important;
         }
 
         .mysr-form input {
-          font-family: 'Cairo', sans-serif !important;
-          border: 1.5px solid #e5e7eb !important;
-          border-radius: 10px !important;
-          padding: 10px 14px !important;
+          font-family: 'Tajawal', sans-serif !important;
+          background: rgba(255,255,255,0.04) !important;
+          border: 1px solid rgba(255,255,255,0.09) !important;
+          border-radius: 12px !important;
+          padding: 13px 16px !important;
           font-size: 15px !important;
-          transition: border-color 0.2s !important;
-          background: #fafafa !important;
+          color: var(--text-primary) !important;
+          transition: border-color 0.2s, background 0.2s, box-shadow 0.2s !important;
+        }
+
+        .mysr-form input::placeholder {
+          color: var(--text-dim) !important;
         }
 
         .mysr-form input:focus {
-          border-color: #6366f1 !important;
+          border-color: rgba(201,168,76,0.45) !important;
+          background: rgba(201,168,76,0.04) !important;
+          box-shadow: 0 0 0 3px rgba(201,168,76,0.08) !important;
           outline: none !important;
-          background: #fff !important;
         }
 
         .mysr-form button[type="submit"] {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+          background: linear-gradient(135deg, #C9A84C 0%, #8B6914 100%) !important;
           border: none !important;
-          border-radius: 12px !important;
-          padding: 14px !important;
-          font-family: 'Cairo', sans-serif !important;
+          border-radius: 14px !important;
+          padding: 16px !important;
+          font-family: 'Tajawal', sans-serif !important;
           font-size: 16px !important;
-          font-weight: 700 !important;
-          color: white !important;
+          font-weight: 800 !important;
+          color: #0B0B0F !important;
           cursor: pointer !important;
-          transition: opacity 0.2s, transform 0.1s !important;
-          margin-top: 8px !important;
+          margin-top: 10px !important;
+          letter-spacing: 0.3px !important;
+          box-shadow: 0 6px 24px rgba(201,168,76,0.3) !important;
+          transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s !important;
+          width: 100% !important;
         }
 
         .mysr-form button[type="submit"]:hover {
           opacity: 0.92 !important;
-          transform: translateY(-1px) !important;
+          transform: translateY(-2px) !important;
+          box-shadow: 0 10px 32px rgba(201,168,76,0.4) !important;
         }
 
         .mysr-form button[type="submit"]:active {
           transform: translateY(0) !important;
+          box-shadow: 0 4px 16px rgba(201,168,76,0.25) !important;
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+          .pay-card { padding: 28px 20px 22px; border-radius: 20px; }
+          .pay-sep { margin: 0 -20px 24px; }
         }
       `}</style>
-    </div>
+
+      <div className="pay-page">
+        <div className="pay-page-noise" />
+
+        <div className="pay-card">
+          {/* Header */}
+          <div className="pay-header">
+            <div className="pay-logo">
+              <div className="pay-logo-icon">🎓</div>
+              <span className="pay-logo-text">Sabrlingua</span>
+            </div>
+            <div className="pay-secure-badge">
+              <div className="pay-secure-dot" />
+              دفع آمن
+            </div>
+          </div>
+
+          <div className="pay-sep" />
+
+          {/* Program info */}
+          {program && step !== "error" && (
+            <div className="pay-program-box">
+              <p className="pay-program-label">البرنامج المختار</p>
+              <p className="pay-program-title">{program.title}</p>
+              <div className="pay-program-divider" />
+              <div className="pay-amount-row">
+                <span className="pay-amount-label">إجمالي المبلغ</span>
+                <div>
+                  <span className="pay-amount-value">
+                    {program.price?.toLocaleString("ar-SA")}
+                  </span>
+                  <span className="pay-amount-currency">ريال</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading */}
+          {step === "loading" && (
+            <div className="pay-loading">
+              <div className="pay-spinner-wrap">
+                <div className="pay-spinner-track" />
+                <div className="pay-spinner" />
+              </div>
+              <p className="pay-loading-title">جاري تحضير بوابة الدفع</p>
+              <p className="pay-loading-sub">لحظة من فضلك...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {step === "error" && (
+            <div className="pay-error">
+              <div className="pay-error-icon-wrap">⚠️</div>
+              <p className="pay-error-title">حدث خطأ</p>
+              <p className="pay-error-msg">{errorMsg}</p>
+              <button
+                className="pay-back-btn"
+                onClick={() => window.history.back()}
+              >
+                ← العودة للخلف
+              </button>
+            </div>
+          )}
+
+          {/* Moyasar form */}
+          <div
+            ref={formRef}
+            style={{ display: step === "form" ? "block" : "none" }}
+          >
+            <p className="pay-form-title">بيانات البطاقة</p>
+            <div className="moyasar-form-container" />
+          </div>
+
+          {/* Footer */}
+          <div className="pay-footer">
+            <span>مدعوم بواسطة</span>
+            <a href="https://moyasar.com" target="_blank" rel="noreferrer">
+              Moyasar
+            </a>
+            <div className="pay-footer-dot" />
+            <span>مشفّر بـ SSL 256-bit</span>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    background:
-      "linear-gradient(135deg, #f0f0ff 0%, #faf5ff 50%, #f0fdf4 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "24px 16px",
-    fontFamily: "'Cairo', sans-serif",
-    direction: "rtl",
-  },
-  card: {
-    background: "white",
-    borderRadius: 20,
-    padding: "32px 28px 24px",
-    width: "100%",
-    maxWidth: 440,
-    boxShadow: "0 8px 40px rgba(99,102,241,0.12), 0 2px 8px rgba(0,0,0,0.06)",
-    animation: "fadeIn 0.5s ease",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  logoWrap: { display: "flex", alignItems: "center", gap: 8 },
-  logoIcon: { fontSize: 22 },
-  logoText: {
-    fontSize: 18,
-    fontWeight: 900,
-    color: "#1e1b4b",
-    letterSpacing: "-0.3px",
-  },
-  secureTag: {
-    display: "flex",
-    alignItems: "center",
-    gap: 4,
-    fontSize: 12,
-    color: "#059669",
-    fontWeight: 600,
-    background: "#ecfdf5",
-    padding: "4px 10px",
-    borderRadius: 20,
-  },
-  lockIcon: { fontSize: 11 },
-  programBox: {
-    background: "linear-gradient(135deg, #eef2ff, #f5f3ff)",
-    borderRadius: 14,
-    padding: "16px 18px",
-    marginBottom: 24,
-    border: "1px solid #e0e7ff",
-  },
-  programLabel: {
-    margin: "0 0 4px",
-    fontSize: 11,
-    color: "#6366f1",
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-  },
-  programTitle: {
-    margin: "0 0 12px",
-    fontSize: 17,
-    fontWeight: 700,
-    color: "#1e1b4b",
-  },
-  divider: { height: 1, background: "#e0e7ff", marginBottom: 12 },
-  amountRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  amountLabel: { fontSize: 13, color: "#6b7280", fontWeight: 600 },
-  amountValue: { fontSize: 22, fontWeight: 900, color: "#1e1b4b" },
-  currency: { fontSize: 14, fontWeight: 600, color: "#6366f1" },
-  centerBox: { textAlign: "center", padding: "32px 0" },
-  spinner: {
-    width: 44,
-    height: 44,
-    border: "4px solid #e5e7eb",
-    borderTop: "4px solid #6366f1",
-    borderRadius: "50%",
-    animation: "spin 0.9s linear infinite",
-    margin: "0 auto 16px",
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#374151",
-    margin: "0 0 6px",
-  },
-  errorBox: { textAlign: "center", padding: "24px 0 8px" },
-  errorIcon: { fontSize: 48, marginBottom: 12 },
-  errorTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: "#dc2626",
-    margin: "0 0 8px",
-  },
-  errorMsg: {
-    fontSize: 14,
-    color: "#6b7280",
-    margin: "0 0 20px",
-    lineHeight: 1.6,
-  },
-  retryBtn: {
-    background: "#f3f4f6",
-    border: "none",
-    borderRadius: 10,
-    padding: "10px 24px",
-    fontSize: 14,
-    fontWeight: 600,
-    color: "#374151",
-    cursor: "pointer",
-  },
-  footer: {
-    textAlign: "center",
-    fontSize: 12,
-    color: "#9ca3af",
-    marginTop: 20,
-    marginBottom: 0,
-  },
-  moyasarLink: {
-    color: "#6366f1",
-    textDecoration: "none",
-    fontWeight: 600,
-  },
-};
