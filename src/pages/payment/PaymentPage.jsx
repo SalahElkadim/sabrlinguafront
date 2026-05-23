@@ -85,7 +85,17 @@ export default function PaymentPage() {
         description: `اشتراك في برنامج: ${program.title}`,
         publishable_api_key: process.env.REACT_APP_MOYASAR_PUBLISHABLE_KEY,
         callback_url: callbackUrl,
-        methods: ["creditcard"],
+
+        // ✅ إضافة Apple Pay مع الـ creditcard
+        methods: ["creditcard", "applepay"],
+
+        // ✅ إعدادات Apple Pay
+        apple_pay: {
+          country: "SA",
+          label: "Sabrlingua", // اسم المتجر اللي يظهر في شاشة Apple Pay
+          validate_merchant_url: "https://api.moyasar.com/v1/applepay/initiate", // Web Registration — بدون Apple Developer Account
+        },
+
         on_initiating: () => true,
         on_failed: (error) => {
           setErrorMsg(
@@ -129,7 +139,6 @@ export default function PaymentPage() {
           -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Page layout ── */
         .pay-page {
           min-height: 100vh;
           display: flex;
@@ -140,7 +149,6 @@ export default function PaymentPage() {
           overflow: hidden;
         }
 
-        /* Ambient orbs */
         .pay-page::before,
         .pay-page::after {
           content: '';
@@ -162,7 +170,6 @@ export default function PaymentPage() {
           opacity: 0.2;
         }
 
-        /* Noise texture overlay */
         .pay-page-noise {
           position: fixed;
           inset: 0;
@@ -172,7 +179,6 @@ export default function PaymentPage() {
           background-size: 200px;
         }
 
-        /* ── Card ── */
         .pay-card {
           position: relative;
           width: 100%;
@@ -189,7 +195,6 @@ export default function PaymentPage() {
           overflow: hidden;
         }
 
-        /* Top shimmer line */
         .pay-card::before {
           content: '';
           position: absolute;
@@ -199,7 +204,6 @@ export default function PaymentPage() {
           opacity: 0.6;
         }
 
-        /* Corner glow */
         .pay-card::after {
           content: '';
           position: absolute;
@@ -215,7 +219,6 @@ export default function PaymentPage() {
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* ── Header ── */
         .pay-header {
           display: flex;
           justify-content: space-between;
@@ -271,14 +274,12 @@ export default function PaymentPage() {
           50% { opacity: 0.5; transform: scale(0.8); }
         }
 
-        /* ── Separator ── */
         .pay-sep {
           height: 1px;
           background: linear-gradient(90deg, transparent, var(--dark-border), transparent);
           margin: 0 -32px 28px;
         }
 
-        /* ── Program box ── */
         .pay-program-box {
           background: rgba(201,168,76,0.05);
           border: 1px solid rgba(201,168,76,0.14);
@@ -349,7 +350,54 @@ export default function PaymentPage() {
           vertical-align: middle;
         }
 
-        /* ── Loading ── */
+        /* ✅ Payment methods hint */
+        .pay-methods-hint {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 20px;
+          padding: 10px 14px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 12px;
+        }
+
+        .pay-methods-hint-label {
+          font-size: 11px;
+          color: var(--text-dim);
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+
+        .pay-methods-icons {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          margin-right: auto;
+        }
+
+        .pay-method-icon {
+          height: 20px;
+          width: auto;
+          border-radius: 4px;
+          opacity: 0.7;
+          filter: brightness(0.9);
+        }
+
+        .pay-apple-pay-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: rgba(255,255,255,0.07);
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 6px;
+          padding: 3px 8px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #e0e0e0;
+          letter-spacing: 0.2px;
+        }
+
         .pay-loading {
           text-align: center;
           padding: 48px 0;
@@ -393,7 +441,6 @@ export default function PaymentPage() {
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Error ── */
         .pay-error {
           text-align: center;
           padding: 32px 0 8px;
@@ -445,7 +492,6 @@ export default function PaymentPage() {
           border-color: rgba(255,255,255,0.2);
         }
 
-        /* ── Footer ── */
         .pay-footer {
           margin-top: 24px;
           text-align: center;
@@ -471,7 +517,6 @@ export default function PaymentPage() {
 
         .pay-footer a:hover { color: var(--gold-light); }
 
-        /* ── Moyasar overrides ── */
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -479,7 +524,6 @@ export default function PaymentPage() {
 
         .moyasar-form-container { animation: fadeIn 0.5s ease; }
 
-        /* Section title */
         .pay-form-title {
           font-size: 11px;
           font-weight: 800;
@@ -551,7 +595,21 @@ export default function PaymentPage() {
           box-shadow: 0 4px 16px rgba(201,168,76,0.25) !important;
         }
 
-        /* Mobile */
+        /* ✅ Apple Pay button styling override */
+        .mysr-apple-pay-button,
+        apple-pay-button {
+          border-radius: 14px !important;
+          margin-bottom: 12px !important;
+          height: 52px !important;
+        }
+
+        /* ✅ المقسم بين Apple Pay والكريدت كارد */
+        .mysr-methods-separator {
+          color: var(--text-dim) !important;
+          font-family: 'Tajawal', sans-serif !important;
+          font-size: 12px !important;
+        }
+
         @media (max-width: 480px) {
           .pay-card { padding: 28px 20px 22px; border-radius: 20px; }
           .pay-sep { margin: 0 -20px 24px; }
@@ -626,7 +684,27 @@ export default function PaymentPage() {
             ref={formRef}
             style={{ display: step === "form" ? "block" : "none" }}
           >
-            <p className="pay-form-title">بيانات البطاقة</p>
+            {/* ✅ hint صغيرة تعرف العميل بطرق الدفع المتاحة */}
+            <div className="pay-methods-hint">
+              <span className="pay-methods-hint-label">طرق الدفع</span>
+              <div className="pay-methods-icons">
+                <span className="pay-apple-pay-badge"> Apple Pay</span>
+                <span style={{ color: "var(--text-dim)", fontSize: 10 }}>
+                  •
+                </span>
+                <span
+                  style={{
+                    color: "var(--text-dim)",
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
+                  Visa / Mastercard
+                </span>
+              </div>
+            </div>
+
+            <p className="pay-form-title">اختر طريقة الدفع</p>
             <div className="moyasar-form-container" />
           </div>
 
