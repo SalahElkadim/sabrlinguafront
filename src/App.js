@@ -135,6 +135,13 @@ import PaymentCallback from "./pages/payment/PaymentCallback";
 import PaymentPage from "./pages/payment/PaymentPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import StepPaymentCallback from "./pages/payment/StepPaymentCallback";
+import StepPaymentPage from "./pages/payment/StepPaymentPage";
+import IeltsPaymentCallback from "./pages/payment/IeltsPaymentCallback";
+import IeltsPaymentPage from "./pages/payment/IeltsPaymentPage";
+
+;
+
 function App() {
   return (
     <BrowserRouter>
@@ -482,6 +489,16 @@ function App() {
 
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
+        <Route
+          path="/step/payment/callback"
+          element={<StepPaymentCallback />}
+        />
+        <Route path="/step/payment" element={<StepPaymentPage />} />
+        <Route
+          path="/ielts/payment/callback"
+          element={<IeltsPaymentCallback />}
+        />
+        <Route path="/ielts/payment" element={<IeltsPaymentPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
