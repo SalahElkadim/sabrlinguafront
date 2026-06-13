@@ -139,6 +139,8 @@ import StepPaymentCallback from "./pages/payment/StepPaymentCallback";
 import StepPaymentPage from "./pages/payment/StepPaymentPage";
 import IeltsPaymentCallback from "./pages/payment/IeltsPaymentCallback";
 import IeltsPaymentPage from "./pages/payment/IeltsPaymentPage";
+import Privacypolicy from "./pages/privacypolicy/Privacypolicy";
+
 
 ;
 
@@ -498,6 +500,8 @@ function App() {
           path="/ielts/payment/callback"
           element={<IeltsPaymentCallback />}
         />
+        <Route path="/privacypolicy" element={<Privacypolicy />} />
+
         <Route path="/ielts/payment" element={<IeltsPaymentPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
