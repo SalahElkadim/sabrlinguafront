@@ -140,7 +140,7 @@ import StepPaymentPage from "./pages/payment/StepPaymentPage";
 import IeltsPaymentCallback from "./pages/payment/IeltsPaymentCallback";
 import IeltsPaymentPage from "./pages/payment/IeltsPaymentPage";
 import Privacypolicy from "./pages/privacypolicy/Privacypolicy";
-import SupportPage from "./pages/privacypolicy/SupportPage";
+import SupportPage from "./pages/supportpage/SupportPage";
 
 
 function App() {
