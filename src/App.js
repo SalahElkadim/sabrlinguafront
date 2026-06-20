@@ -498,7 +498,7 @@ function App() {
           element={<IeltsPaymentCallback />}
         />
         <Route path="/privacypolicy" element={<Privacypolicy />} />
-        <Route path="/SupportPage" element={<SupportPage />} />
+        <Route path="/supportpage" element={<SupportPage />} />
 
         <Route path="/ielts/payment" element={<IeltsPaymentPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
