@@ -140,9 +140,8 @@ import StepPaymentPage from "./pages/payment/StepPaymentPage";
 import IeltsPaymentCallback from "./pages/payment/IeltsPaymentCallback";
 import IeltsPaymentPage from "./pages/payment/IeltsPaymentPage";
 import Privacypolicy from "./pages/privacypolicy/Privacypolicy";
+import SupportPage from "./pages/privacypolicy/SupportPage";
 
-
-;
 
 function App() {
   return (
@@ -156,7 +155,6 @@ function App() {
           path="/reset-password/:uidb64/:token"
           element={<ResetPassword />}
         />
-
         {/* Protected Routes */}
         <Route
           path="/dashboard"
@@ -488,7 +486,6 @@ function App() {
           />
           <Route path="esp/ai" element={<EspAIGeneration />} />
         </Route>
-
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment/callback" element={<PaymentCallback />} />
         <Route
@@ -501,6 +498,7 @@ function App() {
           element={<IeltsPaymentCallback />}
         />
         <Route path="/privacypolicy" element={<Privacypolicy />} />
+        <Route path="/SupportPage" element={<SupportPage />} />
 
         <Route path="/ielts/payment" element={<IeltsPaymentPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
