@@ -17,6 +17,7 @@ const EMPTY_QUESTION = () => ({
   options: ["", "", "", ""],
   correct_answer: "",
   explanation: "",
+  english_explanation: "",
   points: 1,
 });
 
@@ -87,6 +88,7 @@ export default function AddSpeakingQuestionsToSTEP() {
           options: questions[i].options.filter((o) => o.trim()),
           correct_answer: questions[i].correct_answer,
           explanation: questions[i].explanation,
+          english_explanation: questions[i].english_explanation,
           points: questions[i].points,
         });
         count++;
@@ -246,19 +248,35 @@ export default function AddSpeakingQuestionsToSTEP() {
 
             {/* Explanation + Points */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  explanation (optional)
-                </label>
-                <input
-                  type="text"
-                  value={q.explanation}
-                  onChange={(e) =>
-                    updateQuestion(idx, "explanation", e.target.value)
-                  }
-                  placeholder="explain answer ..."
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                />
+              <div className="col-span-2 space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    explanation (Arabic - optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={q.explanation}
+                    onChange={(e) =>
+                      updateQuestion(idx, "explanation", e.target.value)
+                    }
+                    placeholder="explain answer in Arabic..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    English explanation (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={q.english_explanation}
+                    onChange={(e) =>
+                      updateQuestion(idx, "english_explanation", e.target.value)
+                    }
+                    placeholder="explain answer in English..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

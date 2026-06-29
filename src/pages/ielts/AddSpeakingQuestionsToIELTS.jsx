@@ -17,6 +17,7 @@ const EMPTY_QUESTION = () => ({
   options: ["", "", "", ""],
   correct_answer: "",
   explanation: "",
+  english_explanation: "",
   points: 1,
 });
 
@@ -56,13 +57,13 @@ export default function AddSpeakingQuestionsToIELTS() {
     const newErrors = [];
     questions.forEach((q) => {
       const qErrors = {};
-      if (!q.question_text.trim()) qErrors.question_text = "السؤال مطلوب";
+      if (!q.question_text.trim()) qErrors.question_text = "question required";
       if (q.options.filter((o) => o.trim()).length < 2)
-        qErrors.options = "يجب إضافة خيارين على الأقل";
+        qErrors.options = "Add two choice at least";
       if (!q.correct_answer.trim())
-        qErrors.correct_answer = "الإجابة الصحيحة مطلوبة";
+        qErrors.correct_answer = "correct answer is required";
       else if (!q.options.includes(q.correct_answer))
-        qErrors.correct_answer = "الإجابة الصحيحة غير موجودة في الخيارات";
+        qErrors.correct_answer = "correct answer isn't in choices";
       newErrors.push(qErrors);
     });
     return newErrors;
@@ -87,11 +88,12 @@ export default function AddSpeakingQuestionsToIELTS() {
           options: questions[i].options.filter((o) => o.trim()),
           correct_answer: questions[i].correct_answer,
           explanation: questions[i].explanation,
+          english_explanation: questions[i].english_explanation,
           points: questions[i].points,
         });
         count++;
       } catch {
-        newErrors[i] = { general: "فشل في إرسال هذا السؤال" };
+        newErrors[i] = { general: "failed to send question" };
       }
     }
 
@@ -119,7 +121,7 @@ export default function AddSpeakingQuestionsToIELTS() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            إضافة أسئلة للفيديو
+            Add question to video
           </h1>
           <p className="text-sm text-rose-600 font-medium">IELTS — Speaking</p>
         </div>
@@ -129,7 +131,7 @@ export default function AddSpeakingQuestionsToIELTS() {
       {successCount > 0 && (
         <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
           <CheckCircle className="w-5 h-5 flex-shrink-0" />
-          تم إضافة {successCount} سؤال بنجاح! جاري الانتقال...
+          Successfully added {successCount} questions! Redirecting...
         </div>
       )}
 
@@ -139,7 +141,7 @@ export default function AddSpeakingQuestionsToIELTS() {
             {/* Question Header */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full">
-                سؤال {idx + 1}
+                question {idx + 1}
               </span>
               {questions.length > 1 && (
                 <button
@@ -162,14 +164,14 @@ export default function AddSpeakingQuestionsToIELTS() {
             {/* Question Text */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                نص السؤال <span className="text-red-500">*</span>
+                question text<span className="text-red-500">*</span>
               </label>
               <textarea
                 value={q.question_text}
                 onChange={(e) =>
                   updateQuestion(idx, "question_text", e.target.value)
                 }
-                placeholder="اكتب السؤال هنا..."
+                placeholder="Write question here..."
                 rows={2}
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none ${
                   errors[idx]?.question_text
@@ -187,7 +189,7 @@ export default function AddSpeakingQuestionsToIELTS() {
             {/* Options */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الخيارات <span className="text-red-500">*</span>
+                choices <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {q.options.map((opt, oi) => (
@@ -199,7 +201,7 @@ export default function AddSpeakingQuestionsToIELTS() {
                       type="text"
                       value={opt}
                       onChange={(e) => updateOption(idx, oi, e.target.value)}
-                      placeholder={`الخيار ${String.fromCharCode(65 + oi)}`}
+                      placeholder={`choice ${String.fromCharCode(65 + oi)}`}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
                     />
                   </div>
@@ -215,7 +217,7 @@ export default function AddSpeakingQuestionsToIELTS() {
             {/* Correct Answer */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                الإجابة الصحيحة <span className="text-red-500">*</span>
+                correct answer<span className="text-red-500">*</span>
               </label>
               <select
                 value={q.correct_answer}
@@ -228,7 +230,7 @@ export default function AddSpeakingQuestionsToIELTS() {
                     : "border-gray-300"
                 }`}
               >
-                <option value="">اختر الإجابة الصحيحة</option>
+                <option value="">choose the correct answer</option>
                 {q.options
                   .filter((o) => o.trim())
                   .map((opt, oi) => (
@@ -246,23 +248,39 @@ export default function AddSpeakingQuestionsToIELTS() {
 
             {/* Explanation + Points */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  الشرح (اختياري)
-                </label>
-                <input
-                  type="text"
-                  value={q.explanation}
-                  onChange={(e) =>
-                    updateQuestion(idx, "explanation", e.target.value)
-                  }
-                  placeholder="شرح الإجابة..."
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
-                />
+              <div className="col-span-2 space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    explanation (Arabic - optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={q.explanation}
+                    onChange={(e) =>
+                      updateQuestion(idx, "explanation", e.target.value)
+                    }
+                    placeholder="explain answer in Arabic..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    English explanation (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={q.english_explanation}
+                    onChange={(e) =>
+                      updateQuestion(idx, "english_explanation", e.target.value)
+                    }
+                    placeholder="explain answer in English..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  النقاط
+                  points
                 </label>
                 <input
                   type="number"
@@ -285,7 +303,7 @@ export default function AddSpeakingQuestionsToIELTS() {
           className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-rose-300 text-rose-600 rounded-xl hover:border-rose-400 hover:bg-rose-50 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
-          إضافة سؤال آخر
+          Add another question
         </button>
 
         {/* Submit */}
@@ -296,13 +314,13 @@ export default function AddSpeakingQuestionsToIELTS() {
             className="flex-1 flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white py-3 rounded-xl font-medium transition-colors"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            حفظ {questions.length} سؤال
+            save {questions.length} question
           </button>
           <Link
             to={`/dashboard/ielts/skills/${skillId}`}
             className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-colors"
           >
-            تخطي
+            skip
           </Link>
         </div>
       </form>

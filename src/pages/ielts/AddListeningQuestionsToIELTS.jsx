@@ -17,6 +17,7 @@ const EMPTY_QUESTION = () => ({
   options: ["", "", "", ""],
   correct_answer: "",
   explanation: "",
+  english_explanation: "",
   points: 1,
 });
 
@@ -56,13 +57,14 @@ export default function AddListeningQuestionsToIELTS() {
     const newErrors = [];
     questions.forEach((q, i) => {
       const qErrors = {};
-      if (!q.question_text.trim()) qErrors.question_text = "السؤال مطلوب";
+      if (!q.question_text.trim())
+        qErrors.question_text = "Question is required";
       if (q.options.filter((o) => o.trim()).length < 2)
-        qErrors.options = "يجب إضافة خيارين على الأقل";
+        qErrors.options = "You must add at least two options";
       if (!q.correct_answer.trim())
-        qErrors.correct_answer = "الإجابة الصحيحة مطلوبة";
+        qErrors.correct_answer = "Correct answer is required";
       else if (!q.options.includes(q.correct_answer))
-        qErrors.correct_answer = "الإجابة الصحيحة غير موجودة في الخيارات";
+        qErrors.correct_answer = "Correct answer must match one of the options";
       newErrors[i] = qErrors;
     });
     return newErrors;
@@ -87,11 +89,12 @@ export default function AddListeningQuestionsToIELTS() {
           options: questions[i].options.filter((o) => o.trim()),
           correct_answer: questions[i].correct_answer,
           explanation: questions[i].explanation,
+          english_explanation: questions[i].english_explanation,
           points: questions[i].points,
         });
         count++;
       } catch (err) {
-        newErrors[i] = { general: "فشل في إرسال هذا السؤال" };
+        newErrors[i] = { general: "Failed to submit this question" };
       }
     }
 
@@ -119,7 +122,7 @@ export default function AddListeningQuestionsToIELTS() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            إضافة أسئلة للتسجيل
+            Add Questions to Recording
           </h1>
           <p className="text-sm text-cyan-600 font-medium">IELTS — Listening</p>
         </div>
@@ -129,17 +132,17 @@ export default function AddListeningQuestionsToIELTS() {
       {successCount > 0 && (
         <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700">
           <CheckCircle className="w-5 h-5 flex-shrink-0" />
-          تم إضافة {successCount} سؤال بنجاح! جاري الانتقال...
+          {successCount} question(s) added successfully! Redirecting...
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {questions.map((q, idx) => (
           <div key={idx} className="card border border-cyan-100 space-y-4">
             {/* Question Header */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-cyan-600 bg-cyan-50 px-3 py-1 rounded-full">
-                سؤال {idx + 1}
+                Question {idx + 1}
               </span>
               {questions.length > 1 && (
                 <button
@@ -162,14 +165,14 @@ export default function AddListeningQuestionsToIELTS() {
             {/* Question Text */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                نص السؤال <span className="text-red-500">*</span>
+                Question Text <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={q.question_text}
                 onChange={(e) =>
                   updateQuestion(idx, "question_text", e.target.value)
                 }
-                placeholder="اكتب السؤال هنا..."
+                placeholder="Write the question here..."
                 rows={2}
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none ${
                   errors[idx]?.question_text
@@ -187,7 +190,7 @@ export default function AddListeningQuestionsToIELTS() {
             {/* Options */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                الخيارات <span className="text-red-500">*</span>
+                Options <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {q.options.map((opt, oi) => (
@@ -199,7 +202,7 @@ export default function AddListeningQuestionsToIELTS() {
                       type="text"
                       value={opt}
                       onChange={(e) => updateOption(idx, oi, e.target.value)}
-                      placeholder={`الخيار ${String.fromCharCode(65 + oi)}`}
+                      placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
@@ -215,7 +218,7 @@ export default function AddListeningQuestionsToIELTS() {
             {/* Correct Answer */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                الإجابة الصحيحة <span className="text-red-500">*</span>
+                Correct Answer <span className="text-red-500">*</span>
               </label>
               <select
                 value={q.correct_answer}
@@ -228,7 +231,7 @@ export default function AddListeningQuestionsToIELTS() {
                     : "border-gray-300"
                 }`}
               >
-                <option value="">اختر الإجابة الصحيحة</option>
+                <option value="">Select the correct answer</option>
                 {q.options
                   .filter((o) => o.trim())
                   .map((opt, oi) => (
@@ -244,25 +247,43 @@ export default function AddListeningQuestionsToIELTS() {
               )}
             </div>
 
-            {/* Explanation + Points */}
+            {/* Explanation + English Explanation + Points */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  الشرح (اختياري)
-                </label>
-                <input
-                  type="text"
-                  value={q.explanation}
-                  onChange={(e) =>
-                    updateQuestion(idx, "explanation", e.target.value)
-                  }
-                  placeholder="شرح الإجابة..."
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
+              <div className="col-span-2 space-y-3">
+                {" "}
+                {/* ✅ غيّر col-span-2 عشان يضم الاتنين */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Explanation (Arabic - Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={q.explanation}
+                    onChange={(e) =>
+                      updateQuestion(idx, "explanation", e.target.value)
+                    }
+                    placeholder="Explain the answer in Arabic..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    English Explanation (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={q.english_explanation}
+                    onChange={(e) =>
+                      updateQuestion(idx, "english_explanation", e.target.value)
+                    }
+                    placeholder="Explain the answer in English..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  النقاط
+                  Points
                 </label>
                 <input
                   type="number"
@@ -285,7 +306,7 @@ export default function AddListeningQuestionsToIELTS() {
           className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-cyan-300 text-cyan-600 rounded-xl hover:border-cyan-400 hover:bg-cyan-50 transition-colors text-sm font-medium"
         >
           <Plus className="w-4 h-4" />
-          إضافة سؤال آخر
+          Add Another Question
         </button>
 
         {/* Submit */}
@@ -296,13 +317,13 @@ export default function AddListeningQuestionsToIELTS() {
             className="flex-1 flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 text-white py-3 rounded-xl font-medium transition-colors"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-            حفظ {questions.length} سؤال
+            Save {questions.length} Question{questions.length !== 1 ? "s" : ""}
           </button>
           <Link
             to={`/dashboard/ielts/skills/${skillId}`}
             className="flex-1 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-colors"
           >
-            تخطي
+            Skip
           </Link>
         </div>
       </form>

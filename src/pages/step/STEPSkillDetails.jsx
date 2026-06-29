@@ -213,6 +213,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
     choice_d: q.choice_d || "",
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
+  english_explanation: q.english_explanation || "",
     points: q.points,
     difficulty: q.difficulty || "MEDIUM",
   });
@@ -241,6 +242,7 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
         options,
         correct_answer: correctText,
         explanation: form.explanation,
+  english_explanation: form.english_explanation,
         points: form.points,
         difficulty: form.difficulty,
       });
@@ -301,6 +303,14 @@ function MCQEditForm({ q, onSave, onCancel, updateFn }) {
         value={form.explanation}
         onChange={(e) => setForm({ ...form, explanation: e.target.value })}
         placeholder="Explanation (optional)"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+      />
+      <input
+        value={form.english_explanation}
+        onChange={(e) =>
+          setForm({ ...form, english_explanation: e.target.value })
+        }
+        placeholder="English Explanation (optional)"
         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
       />
       <select
@@ -447,6 +457,11 @@ function MCQCard({ q, index, color, onDelete, onUpdate, updateFn }) {
             💡 {q.explanation}
           </p>
         )}
+        {showAnswer && q.english_explanation && (
+          <p className="mt-2 text-xs text-indigo-700 bg-indigo-50 rounded-lg px-3 py-2">
+            🇬🇧 {q.english_explanation}
+          </p>
+        )}
       </div>
     </>
   );
@@ -550,6 +565,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
     choice_d: q.choice_d || "",
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
+  english_explanation: q.english_explanation || "",
     difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
@@ -573,6 +589,7 @@ function ReadingQuestionEditForm({ q, onSave, onCancel }) {
         options,
         correct_answer: correctText,
         explanation: form.explanation,
+  english_explanation: form.english_explanation,
         difficulty: form.difficulty,
       });
       onSave();
@@ -1046,6 +1063,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
     choice_d: q.choice_d || "",
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
+  english_explanation: q.english_explanation || "",
     difficulty: q.difficulty || "MEDIUM",
   });
   const [saving, setSaving] = useState(false);
@@ -1069,6 +1087,7 @@ function ListeningQuestionEditForm({ q, onSave, onCancel }) {
         options,
         correct_answer: correctText,
         explanation: form.explanation,
+  english_explanation: form.english_explanation,
         difficulty: form.difficulty,
       });
       onSave();
@@ -1569,6 +1588,7 @@ function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
     choice_d: q.choice_d || "",
     correct_answer: q.correct_answer,
     explanation: q.explanation || "",
+  english_explanation: q.english_explanation || "",
   });
   const [saving, setSaving] = useState(false);
   const handleSubmit = async () => {
@@ -1591,6 +1611,7 @@ function SpeakingQuestionEditForm({ q, onSave, onCancel }) {
         options,
         correct_answer: correctText,
         explanation: form.explanation,
+  english_explanation: form.english_explanation,
       });
       onSave();
     } finally {

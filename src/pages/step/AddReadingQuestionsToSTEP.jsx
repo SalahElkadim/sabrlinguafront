@@ -10,6 +10,7 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
   const [form, setForm] = useState({
     question_text: "",
     explanation: "",
+    english_explanation: "",
     points: 1,
     is_active: true,
   });
@@ -124,6 +125,15 @@ function QuestionForm({ index, onSave, onCancel, passageId, saved }) {
           setForm((f) => ({ ...f, explanation: e.target.value }))
         }
         placeholder="explanation (Optional)"
+        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
+      />
+      <input
+        type="text"
+        value={form.english_explanation}
+        onChange={(e) =>
+          setForm((f) => ({ ...f, english_explanation: e.target.value }))
+        }
+        placeholder="English explanation (Optional)"
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-400"
       />
 
